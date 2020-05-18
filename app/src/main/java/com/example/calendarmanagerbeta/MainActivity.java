@@ -3,6 +3,7 @@ package com.example.calendarmanagerbeta;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Set the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         mDrawer = findViewById(R.id.drawer_layout);
 
@@ -101,6 +103,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.toolbar_menu, menu);
+
+        menu.findItem(R.id.go_current_day).setVisible(mIsSignedIn);
+        menu.setGroupVisible(R.id.toolbar_opt_group, mIsSignedIn);
+
+        return true;
+    }
+
+    public boolean onPrepareOptionsMenu(Menu menu){
+        menu.findItem(R.id.go_current_day).setVisible(mIsSignedIn);
+        menu.setGroupVisible(R.id.toolbar_opt_group, mIsSignedIn);
+
+        return true;
+    }
+
+    /*
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch(item.getItemId()){
+
+        }
+    }
+     */
+
+    @Override
     public void onBackPressed() {
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
             mDrawer.closeDrawer(GravityCompat.START);
@@ -135,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         menu.findItem(R.id.nav_signin).setVisible(!isSignedIn);
         menu.findItem(R.id.nav_calendar).setVisible(isSignedIn);
         menu.findItem(R.id.nav_signout).setVisible(isSignedIn);
+        invalidateOptionsMenu();
 
         // Set the user name and email in the nav drawer
         TextView userName = mHeaderView.findViewById(R.id.user_name);
