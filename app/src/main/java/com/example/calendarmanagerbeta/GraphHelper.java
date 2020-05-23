@@ -66,12 +66,6 @@ public class GraphHelper implements IAuthenticationProvider {
 
     }
 
-    public void getProfilePicture(String accessToken, ICallback<ProfilePhoto> callback){
-        mAccessToken = accessToken;
-
-        mClient.me().photo().buildRequest().get(callback);
-    }
-
     // Debug function to get the JSON representation of a Graph
 // object
     public String serializeObject(Object object) {

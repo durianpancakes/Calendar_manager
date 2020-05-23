@@ -1,5 +1,6 @@
 package com.example.calendarmanagerbeta;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.Menu;
@@ -18,6 +19,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
 
+import com.microsoft.graph.models.extensions.Calendar;
 import com.microsoft.graph.models.extensions.ProfilePhoto;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
@@ -86,14 +88,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_home:
                 openHomeFragment(mUserName);
                 break;
-            case R.id.nav_calendar:
-                openCalendarFragment();
-                break;
             case R.id.nav_signin:
                 signIn();
                 break;
             case R.id.nav_signout:
                 signOut();
+                break;
+            case R.id.calendar_day_view:
+                openDayCalendar();
+                break;
+            case R.id.calendar_month_view:
+                openMonthCalendar();
+                break;
+            case R.id.calendar_week_view:
+                openWeekCalendar();
                 break;
         }
 
@@ -127,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
     }
-     */
+    */
 
     @Override
     public void onBackPressed() {
@@ -162,8 +170,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Hide/show the Sign in, Calendar, and Sign Out buttons
         menu.findItem(R.id.nav_signin).setVisible(!isSignedIn);
-        menu.findItem(R.id.nav_calendar).setVisible(isSignedIn);
         menu.findItem(R.id.nav_signout).setVisible(isSignedIn);
+        menu.findItem(R.id.calendar_day_view).setVisible(isSignedIn);
+        menu.findItem(R.id.calendar_month_view).setVisible(isSignedIn);
+        menu.findItem(R.id.calendar_week_view).setVisible(isSignedIn);
         invalidateOptionsMenu();
 
         // Set the user name and email in the nav drawer
@@ -184,6 +194,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Load the "Home" fragment
     public void openHomeFragment(String userName) {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Home");
+        toolbar.setSubtitle("");
         HomeFragment fragment = HomeFragment.createInstance(userName);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
@@ -191,12 +204,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mNavigationView.setCheckedItem(R.id.nav_home);
     }
 
-    // Load the "Calendar" fragment
-    private void openCalendarFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new CalendarFragment())
-                .commit();
-        mNavigationView.setCheckedItem(R.id.nav_calendar);
+    private void openDayCalendar(){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Calendar");
+        toolbar.setSubtitle("Day View");
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarDayFragment()).commit();
+        mNavigationView.setCheckedItem(R.id.calendar_day_view);
+    }
+
+    private void openMonthCalendar(){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Calendar");
+        toolbar.setSubtitle("Month View");
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarMonthFragment()).commit();
+        mNavigationView.setCheckedItem(R.id.calendar_month_view);
+    }
+
+    private void openWeekCalendar(){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Calendar");
+        toolbar.setSubtitle("Week View");
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarWeekFragment()).commit();
+        mNavigationView.setCheckedItem(R.id.calendar_week_view);
     }
 
     private void signIn() {
