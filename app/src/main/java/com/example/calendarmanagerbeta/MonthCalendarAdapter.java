@@ -2,141 +2,66 @@ package com.example.calendarmanagerbeta;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.icu.util.ULocale;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
-
-public abstract class MonthCalendarAdapter extends BaseAdapter {
+public class MonthCalendarAdapter extends BaseAdapter {
+    private final Context mContext;
     private GregorianCalendar mCalendar;
     private Calendar mCalendarToday;
-    private Context mContext;
-    private DisplayMetrics mDisplayMetrics;
     private List<String> mItems;
     private int mMonth;
     private int mYear;
     private int mDaysShown;
     private int mDaysLastMonth;
     private int mDaysNextMonth;
-    private int mTitleHeight, mDayHeight;
-    private final String[] mDays = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-    private final int[] mDaysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    private final int[] mDaysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    public MonthCalendarAdapter(Context c, int month, int year, DisplayMetrics metrics) {
-        mContext = c;
-        mMonth = month;
-        mYear = year;
-        mCalendar = new GregorianCalendar(mYear, mMonth, 1);
+
+    public MonthCalendarAdapter(Context context, GregorianCalendar monthCalendar){
+        mContext = context;
         mCalendarToday = Calendar.getInstance();
-        mDisplayMetrics = metrics;
+        mMonth = mCalendarToday.get(Calendar.MONTH);
+        mYear = mCalendarToday.get(Calendar.YEAR);
+        mCalendar = new GregorianCalendar(mYear, mMonth, 1);
+
         populateMonth();
     }
 
-    /**
-     * @param date - null if day title (0 - dd / 1 - mm / 2 - yy)
-     * @param position - position in item list
-     * @param item - view for date
-     */
-    protected abstract void onDate(int[] date, int position, View item);
-
-    private void populateMonth() {
+    private void populateMonth(){
         mItems = new ArrayList<String>();
-        for (String day : mDays) {
-            mItems.add(day);
-            mDaysShown++;
-        }
 
         int firstDay = getDay(mCalendar.get(Calendar.DAY_OF_WEEK));
         int prevDay;
-        if (mMonth == 0)
-            prevDay = daysInMonth(11) - firstDay + 1;
+        if(mMonth == 0)
+            prevDay = _daysInMonth(11) - firstDay + 1;
         else
-            prevDay = daysInMonth(mMonth - 1) - firstDay + 1;
-        for (int i = 0; i < firstDay; i++) {
+            prevDay = _daysInMonth(mMonth - 1) - firstDay + 1;
+        for(int i = 0; i < firstDay; i++){
             mItems.add(String.valueOf(prevDay + i));
             mDaysLastMonth++;
             mDaysShown++;
         }
 
-        int daysInMonth = daysInMonth(mMonth);
-        for (int i = 1; i <= daysInMonth; i++) {
+        int daysInMonth = _daysInMonth(mMonth);
+        for(int i = 1; i <= daysInMonth; i++){
             mItems.add(String.valueOf(i));
             mDaysShown++;
         }
 
         mDaysNextMonth = 1;
-        while (mDaysShown % 7 != 0) {
+        while(mDaysShown % 7 != 0){
             mItems.add(String.valueOf(mDaysNextMonth));
             mDaysShown++;
             mDaysNextMonth++;
-        }
-
-        mTitleHeight = 30;
-        int rows = (mDaysShown / 7);
-        mDayHeight = (mDisplayMetrics.heightPixels - mTitleHeight
-                - (rows * 8) - getBarHeight()) / (rows - 1);
-    }
-
-    private int daysInMonth(int month) {
-        int daysInMonth = mDaysInMonth[month];
-        if (month == 1 && mCalendar.isLeapYear(mYear))
-            daysInMonth++;
-        return daysInMonth;
-    }
-
-    private int getBarHeight() {
-        switch (mDisplayMetrics.densityDpi) {
-            case DisplayMetrics.DENSITY_HIGH:
-                return 48;
-            case DisplayMetrics.DENSITY_MEDIUM:
-                return 32;
-            case DisplayMetrics.DENSITY_LOW:
-                return 24;
-            default:
-                return 48;
-        }
-    }
-
-    private int getDay(int day) {
-        switch (day) {
-            case Calendar.MONDAY:
-                return 0;
-            case Calendar.TUESDAY:
-                return 1;
-            case Calendar.WEDNESDAY:
-                return 2;
-            case Calendar.THURSDAY:
-                return 3;
-            case Calendar.FRIDAY:
-                return 4;
-            case Calendar.SATURDAY:
-                return 5;
-            case Calendar.SUNDAY:
-                return 6;
-            default:
-                return 0;
         }
     }
 
@@ -149,11 +74,18 @@ public abstract class MonthCalendarAdapter extends BaseAdapter {
         return false;
     }
 
+    private int[] getToday(){
+        int date[] = new int[3];
+        date[0] = mCalendarToday.get(Calendar.DAY_OF_MONTH);
+        date[1] = mCalendarToday.get(Calendar.MONTH);
+        date[2] = mCalendarToday.get(Calendar.YEAR);
+
+        return date;
+    }
+
     private int[] getDate(int position) {
         int date[] = new int[3];
-        if (position <= 6) {
-            return null; // day names
-        } else if (position <= mDaysLastMonth + 6) {
+        if (position < mDaysLastMonth) {
             // previous month
             date[0] = Integer.parseInt(mItems.get(position));
             if (mMonth == 0) {
@@ -165,7 +97,7 @@ public abstract class MonthCalendarAdapter extends BaseAdapter {
             }
         } else if (position <= mDaysShown - mDaysNextMonth  ) {
             // current month
-            date[0] = position - (mDaysLastMonth + 6);
+            date[0] = position - mDaysLastMonth + 1;
             date[1] = mMonth;
             date[2] = mYear;
         } else {
@@ -182,47 +114,75 @@ public abstract class MonthCalendarAdapter extends BaseAdapter {
         return date;
     }
 
+    private int _daysInMonth(int month) {
+        int daysInMonth = mDaysInMonth[month];
+        if (month == 1 && mCalendar.isLeapYear(mYear))
+            daysInMonth++;
+        return daysInMonth;
+    }
+
+    private int getDay(int day) {
+        switch (day) {
+            case Calendar.SUNDAY:
+                return 0;
+            case Calendar.MONDAY:
+                return 1;
+            case Calendar.TUESDAY:
+                return 2;
+            case Calendar.WEDNESDAY:
+                return 3;
+            case Calendar.THURSDAY:
+                return 4;
+            case Calendar.FRIDAY:
+                return 5;
+            case Calendar.SATURDAY:
+                return 6;
+            default:
+                return 0;
+        }
+    }
+
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        final TextView view = new TextView(mContext);
-        view.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        view.setText(mItems.get(position));
-        view.setTextColor(Color.BLACK);
+    public int getCount(){
+        return mDaysShown;
+    }
+
+    @Override
+    public long getItemId(int position){
+        return position;
+    }
+
+    @Override
+    public Object getItem(int position){
+        return null;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent){
+        if(convertView == null){
+            final LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+            convertView = layoutInflater.inflate(R.layout.calendar_month_item, null);
+        }
+
+        final TextView dayTextView = (TextView)convertView.findViewById(R.id.month_date);
+        dayTextView.setText(mItems.get(position));
 
         int[] date = getDate(position);
         if (date != null) {
-            view.setHeight(mDayHeight);
             if (date[1] != mMonth) {
                 // previous or next month
-                view.setBackgroundColor(Color.rgb(234, 234, 250));
+                dayTextView.setBackgroundColor(Color.rgb(234, 234, 250));
             } else {
                 // current month
-                view.setBackgroundColor(Color.rgb(244, 244, 244));
+                dayTextView.setBackgroundColor(Color.rgb(244, 244, 244));
                 if (isToday(date[0], date[1], date[2] )) {
-                    view.setTextColor(Color.RED);
+                    dayTextView.setTextColor(Color.RED);
                 }
             }
         } else {
-            view.setBackgroundColor(Color.argb(100, 10, 80, 255));
-            view.setHeight(mTitleHeight);
+            dayTextView.setBackgroundColor(Color.argb(100, 10, 80, 255));
         }
 
-        onDate(date, position, view);
-        return view;
-    }
-
-    @Override
-    public int getCount() {
-        return mItems.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return mItems.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
+        return convertView;
     }
 }
