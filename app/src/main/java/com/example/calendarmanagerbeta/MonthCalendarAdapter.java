@@ -18,6 +18,7 @@ public class MonthCalendarAdapter extends BaseAdapter {
     private GregorianCalendar mCalendar;
     private Calendar mCalendarToday;
     private List<String> mItems;
+    private List<String> tempItems;
     private int mMonth;
     private int mYear;
     private int mDaysShown;
@@ -26,19 +27,18 @@ public class MonthCalendarAdapter extends BaseAdapter {
     private final int[] mDaysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 
-    public MonthCalendarAdapter(Context context, GregorianCalendar monthCalendar){
+    public MonthCalendarAdapter(Context context, int month, int year, GregorianCalendar monthCalendar){
         mContext = context;
         mCalendarToday = Calendar.getInstance();
-        mMonth = mCalendarToday.get(Calendar.MONTH);
-        mYear = mCalendarToday.get(Calendar.YEAR);
+        mMonth = month;
+        mYear = year;
         mCalendar = new GregorianCalendar(mYear, mMonth, 1);
-
-        populateMonth();
-    }
-
-    private void populateMonth(){
         mItems = new ArrayList<String>();
 
+        populateMonth(mItems);
+    }
+
+    private void populateMonth(List<String> itemArray){
         int firstDay = getDay(mCalendar.get(Calendar.DAY_OF_WEEK));
         int prevDay;
         if(mMonth == 0)
@@ -46,20 +46,20 @@ public class MonthCalendarAdapter extends BaseAdapter {
         else
             prevDay = _daysInMonth(mMonth - 1) - firstDay + 1;
         for(int i = 0; i < firstDay; i++){
-            mItems.add(String.valueOf(prevDay + i));
+            itemArray.add(String.valueOf(prevDay + i));
             mDaysLastMonth++;
             mDaysShown++;
         }
 
         int daysInMonth = _daysInMonth(mMonth);
         for(int i = 1; i <= daysInMonth; i++){
-            mItems.add(String.valueOf(i));
+            itemArray.add(String.valueOf(i));
             mDaysShown++;
         }
 
         mDaysNextMonth = 1;
         while(mDaysShown % 7 != 0){
-            mItems.add(String.valueOf(mDaysNextMonth));
+            itemArray.add(String.valueOf(mDaysNextMonth));
             mDaysShown++;
             mDaysNextMonth++;
         }
