@@ -34,6 +34,7 @@ public class MonthCalendarAdapter extends BaseAdapter {
         mYear = year;
         mCalendar = new GregorianCalendar(mYear, mMonth, 1);
         mItems = new ArrayList<String>();
+        System.out.println(mMonth + " " + mYear);
 
         populateMonth(mItems);
     }

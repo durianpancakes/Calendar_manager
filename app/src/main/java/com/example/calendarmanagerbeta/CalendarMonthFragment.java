@@ -78,29 +78,32 @@ public class CalendarMonthFragment extends Fragment {
     }
 
     protected void setPreviousMonth(){
-        if(month.get(GregorianCalendar.MONTH) == month.getActualMinimum(GregorianCalendar.MONTH)){
-            yearNum = (month.get(GregorianCalendar.YEAR) - 1);
-            monthNum = month.getActualMaximum(GregorianCalendar.MONTH);
-            month.set(yearNum, monthNum, 1);
-        }
-        else{
-            yearNum = GregorianCalendar.MONTH;
-            monthNum = month.get(GregorianCalendar.MONTH) - 1;
-            month.set(yearNum, monthNum);
+        if (month.get(GregorianCalendar.MONTH) == month
+                .getActualMinimum(GregorianCalendar.MONTH)) {
+            month.set((month.get(GregorianCalendar.YEAR) - 1),
+                    month.getActualMaximum(GregorianCalendar.MONTH), 1);
+            monthNum = 11;
+            yearNum--;
+        } else {
+            month.set(GregorianCalendar.MONTH,
+                    month.get(GregorianCalendar.MONTH) - 1);
+            monthNum--;
         }
     }
 
-    protected void setNextMonth(){
-        if(month.get(GregorianCalendar.MONTH) == month.getActualMaximum(GregorianCalendar.MONTH)){
-            yearNum = (month.get(GregorianCalendar.YEAR) + 1);
-            monthNum = month.getActualMinimum(GregorianCalendar.MONTH);
-            month.set(yearNum, monthNum, 1);
+    protected void setNextMonth() {
+        if (month.get(GregorianCalendar.MONTH) == month
+                .getActualMaximum(GregorianCalendar.MONTH)) {
+            month.set((month.get(GregorianCalendar.YEAR) + 1),
+                    month.getActualMinimum(GregorianCalendar.MONTH), 1);
+            monthNum = 0;
+            yearNum++;
+        } else {
+            month.set(GregorianCalendar.MONTH,
+                    month.get(GregorianCalendar.MONTH) + 1);
+            monthNum++;
         }
-        else{
-            yearNum = GregorianCalendar.MONTH;
-            monthNum = month.get(GregorianCalendar.MONTH) + 1;
-            month.set(yearNum, monthNum);
-        }
+
     }
 
     public void onCreate(Bundle savedInstanceState){
