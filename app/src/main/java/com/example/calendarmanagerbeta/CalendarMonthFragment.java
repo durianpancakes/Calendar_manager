@@ -88,6 +88,7 @@ public class CalendarMonthFragment extends Fragment {
             month.set(GregorianCalendar.MONTH,
                     month.get(GregorianCalendar.MONTH) - 1);
             monthNum--;
+
         }
     }
 
@@ -102,6 +103,8 @@ public class CalendarMonthFragment extends Fragment {
             month.set(GregorianCalendar.MONTH,
                     month.get(GregorianCalendar.MONTH) + 1);
             monthNum++;
+
+
         }
 
     }
