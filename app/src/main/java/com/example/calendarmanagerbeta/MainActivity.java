@@ -19,6 +19,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
 
+import com.google.gson.JsonObject;
 import com.microsoft.graph.models.extensions.Calendar;
 import com.microsoft.graph.models.extensions.ProfilePhoto;
 import com.microsoft.identity.client.AuthenticationCallback;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mDrawer;
     private NavigationView mNavigationView;
     private View mHeaderView;
+    private ImageView mProfilePicture;
     private boolean mIsSignedIn = false;
     private String mUserName = null;
     private String mUserEmail = null;
@@ -168,7 +170,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Menu menu = mNavigationView.getMenu();
 
-        // Hide/show the Sign in, Calendar, and Sign Out buttons
+        // Hide/show the Sign in, Calendar, email and Sign Out buttons
+        menu.findItem(R.id.nav_email).setVisible(isSignedIn);
         menu.findItem(R.id.nav_signin).setVisible(!isSignedIn);
         menu.findItem(R.id.nav_signout).setVisible(isSignedIn);
         menu.findItem(R.id.calendar_day_view).setVisible(isSignedIn);
@@ -267,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Get Graph client and get user
                 GraphHelper graphHelper = GraphHelper.getInstance();
                 graphHelper.getUser(accessToken, getUserCallback());
+                graphHelper.getProfilePicture(accessToken, getJsonCallback());
             }
 
             @Override
@@ -340,5 +344,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
+    private ICallback<JsonObject> getJsonCallback(){
+        return new ICallback<JsonObject>(){
+            @Override
+            public void success(JsonObject jsonObject){
+                System.out.println("Json success");
+            }
 
+            @Override
+            public void failure(ClientException ex){
+                System.out.println("Json failure");
+            }
+        };
+    }
 }

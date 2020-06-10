@@ -59,7 +59,7 @@ public class MonthCalendarAdapter extends BaseAdapter {
         }
 
         mDaysNextMonth = 1;
-        while(mDaysShown % 7 != 0){
+        while(mDaysShown != 42){
             itemArray.add(String.valueOf(mDaysNextMonth));
             mDaysShown++;
             mDaysNextMonth++;

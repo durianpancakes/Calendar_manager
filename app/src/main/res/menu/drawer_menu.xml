@@ -10,6 +10,11 @@
             android:title="Home" />
 
         <item
+            android:id="@+id/nav_email"
+            android:icon="@drawable/ic_email_black_24dp"
+            android:title="Email"/>
+
+        <item
             android:title="Calendar">
             <menu>
                 <group android:checkableBehavior="single">

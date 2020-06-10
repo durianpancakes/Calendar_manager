@@ -2,8 +2,10 @@ package com.example.calendarmanagerbeta;
 
 import android.provider.ContactsContract;
 
+import com.google.gson.JsonObject;
 import com.microsoft.graph.authentication.IAuthenticationProvider;
 import com.microsoft.graph.concurrency.ICallback;
+import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.http.IHttpRequest;
 import com.microsoft.graph.models.extensions.IGraphServiceClient;
 import com.microsoft.graph.models.extensions.ProfilePhoto;
@@ -12,8 +14,12 @@ import com.microsoft.graph.requests.extensions.GraphServiceClient;
 import com.microsoft.graph.options.Option;
 import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.extensions.IEventCollectionPage;
+import com.microsoft.graph.requests.extensions.ProfilePhotoStreamRequest;
+
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 // Singleton class - the app only needs a single instance
 // of the Graph client
@@ -64,6 +70,24 @@ public class GraphHelper implements IAuthenticationProvider {
                 .select("subject,organizer,start,end")
                 .get(callback);
 
+    }
+
+
+    // BUG: profile picture still cannot be fetched
+    public void getProfilePicture(String accessToken, final ICallback<JsonObject> callback){
+        mAccessToken = accessToken;
+
+        mClient.me().photo().buildRequest().get(new ICallback<ProfilePhoto>(){
+            @Override
+            public void success(ProfilePhoto profilePhoto){
+                callback.success(profilePhoto.getRawObject());
+            }
+
+            @Override
+            public void failure(ClientException ex){
+                callback.failure(ex);
+            }
+        });
     }
 
     // Debug function to get the JSON representation of a Graph

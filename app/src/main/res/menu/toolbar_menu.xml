@@ -8,6 +8,10 @@
             android:id="@+id/toolbar_opt_delete"/>
 
         <item
+            android:title="Modules"
+            android:id="@+id/toolbar_opt_modules"/>
+
+        <item
             android:title="Search"
             android:id="@+id/toolbar_opt_search"/>
 
