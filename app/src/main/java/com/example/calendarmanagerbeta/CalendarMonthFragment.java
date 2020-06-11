@@ -30,7 +30,6 @@ public class CalendarMonthFragment extends Fragment {
     private Calendar mCalendarToday = Calendar.getInstance();
     private int monthNum = mCalendarToday.get(Calendar.MONTH);
     private int yearNum = mCalendarToday.get(Calendar.YEAR);
-
     public GregorianCalendar month = (GregorianCalendar)GregorianCalendar.getInstance();
 
     public CalendarMonthFragment() {

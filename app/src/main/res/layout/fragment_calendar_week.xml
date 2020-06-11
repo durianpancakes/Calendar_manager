@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="30dp">
         <RelativeLayout
-            android:id="@+id/previous_month"
+            android:id="@+id/previous_week"
             android:layout_width="40dp"
             android:layout_height="30dp"
             android:layout_alignParentLeft="true"
@@ -36,7 +36,7 @@
             android:textSize="16dp" />
 
         <RelativeLayout
-            android:id="@+id/next_month"
+            android:id="@+id/next_week"
             android:layout_width="40dp"
             android:layout_height="30dp"
             android:layout_alignParentRight="true"
@@ -131,7 +131,7 @@
     </LinearLayout>
 
     <com.alamkanak.weekview.WeekView
-        android:id="@+id/weekView"
+        android:id="@+id/calendar_week_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:eventTextColor="@android:color/white"
@@ -140,8 +140,9 @@
         app:headerColumnPadding="8dp"
         app:headerColumnTextColor="#8f000000"
         app:headerRowPadding="12dp"
-        app:columnGap="8dp"
-        app:noOfVisibleDays="3"
+        app:columnGap="1dp"
+        app:showNowLine="true"
+        app:noOfVisibleDays="7"
         app:headerRowBackgroundColor="#ffefefef"
         app:dayBackgroundColor="#05000000"
         app:todayBackgroundColor="#1848adff"
