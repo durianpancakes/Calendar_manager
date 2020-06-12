@@ -1,2 +1,3 @@
 rootProject.name='Calendar Manager (beta)'
 include ':app'
+include ':libraries:weekviewLibrary'
