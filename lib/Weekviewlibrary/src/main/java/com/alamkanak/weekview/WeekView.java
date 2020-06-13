@@ -1841,7 +1841,17 @@ public class WeekView extends View {
 
         mRefreshEvents = true;
 
-        mCurrentOrigin.x = -daysBetween(mHomeDate, date) * (mWidthPerDay + mColumnGap);
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        long day = 1000L * 60L * 60L * 24L;
+        long dateInMillis = date.getTimeInMillis() + date.getTimeZone().getOffset(date.getTimeInMillis());
+        long todayInMillis = today.getTimeInMillis() + today.getTimeZone().getOffset(today.getTimeInMillis());
+        long dateDifference = (dateInMillis/day) - (todayInMillis/day);
+        mCurrentOrigin.x = - dateDifference * (mWidthPerDay + mColumnGap);
         invalidate();
     }
 
