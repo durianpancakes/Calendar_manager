@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.example.calendarmanagerbeta"
         minSdkVersion 26
-        targetSdkVersion 27
+        targetSdkVersion 27 //might need change to 28, someone online said 28 and above for androidx, was 27
         versionCode 1
         versionName "1.0"
 
@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'lib', include: ['*.jar'])  // changed libs to lib
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.microsoft.identity.client:msal:1.3.0'
     implementation 'com.microsoft.graph:microsoft-graph:1.6.0'
@@ -42,5 +42,12 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    implementation 'com.github.quivr:android-week-view:2.2.2'
+    //implementation 'com.github.quivr:android-week-view:2.2.2'
+
+    implementation project(":lib:Weekviewlibrary")
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.core:core:1.3.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.intellij:annotations:12.0@jar'
 }
