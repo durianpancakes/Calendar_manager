@@ -1,3 +1,4 @@
 rootProject.name='Calendar Manager (beta)'
 include ':app'
-include ':lib:Weekviewlibrary'
+//include ':lib:Weekviewlibrary'
+include ':libs:quivrWeekView'
