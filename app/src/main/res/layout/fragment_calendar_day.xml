@@ -11,56 +11,23 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:weightSum="8"
+        android:orientation="horizontal"
         android:background="#ffefefef">
-
         <TextView
             android:id="@+id/day_view_dayNumber"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:background="#ffefefef"
-            android:gravity="center"
-            android:textStyle="bold"/>
-
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:paddingLeft="16dp"/>
         <TextView
+            android:id="@+id/day_view_monthYear"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:id="@+id/day_view_month"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:background="#ffefefef"
-            android:gravity="center"
-            android:textStyle="bold"/>
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:gravity="right"
+            android:paddingRight="4dp"/>
     </LinearLayout>
 
     <com.alamkanak.weekview.WeekView

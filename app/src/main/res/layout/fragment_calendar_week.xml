@@ -11,59 +11,23 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:weightSum="8"
+        android:orientation="horizontal"
         android:background="#ffefefef">
-
         <TextView
             android:id="@+id/week_view_weekNumber"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:background="#ffefefef"
-            android:gravity="center"
             android:textSize="12sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:id="@+id/week_view_month"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="JUNE"
             android:textStyle="bold"
+            android:paddingLeft="16dp"/>
+        <TextView
+            android:id="@+id/week_view_monthYear"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:textSize="12sp"
-            android:background="#ffefefef"/>
+            android:textStyle="bold"
+            android:gravity="right"
+            android:paddingRight="4dp"/>
     </LinearLayout>
 
     <com.alamkanak.weekview.WeekView

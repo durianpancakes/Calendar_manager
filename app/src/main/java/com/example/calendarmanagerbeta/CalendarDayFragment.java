@@ -27,7 +27,7 @@ public class CalendarDayFragment extends Fragment {
     View myFragmentView;
     private WeekView mDayView;
     private TextView dayNumber;
-    private TextView monthString;
+    private TextView monthYearString;
     private int currentDayNumber;
     private int currentMonth;
     private int currentYear;
@@ -45,7 +45,7 @@ public class CalendarDayFragment extends Fragment {
         myFragmentView = inflater.inflate(R.layout.fragment_calendar_day, container, false);
         mDayView = (WeekView)myFragmentView.findViewById(R.id.calendar_day_view);
         dayNumber = (TextView)myFragmentView.findViewById(R.id.day_view_dayNumber);
-        monthString = (TextView)myFragmentView.findViewById(R.id.day_view_month);
+        monthYearString = (TextView)myFragmentView.findViewById(R.id.day_view_monthYear);
 
         setupDayView();
 
@@ -97,7 +97,7 @@ public class CalendarDayFragment extends Fragment {
         currentYear = mDayView.getCurrentDayYear();
 
         dayNumber.setText("D" + currentDayNumber);
-        monthString.setText(monthStrings[currentMonth] + " " + currentYear);
+        monthYearString.setText(monthStrings[currentMonth] + " " + String.valueOf(currentYear));
     }
 
     public void onCreate(@Nullable Bundle savedInstanceState){

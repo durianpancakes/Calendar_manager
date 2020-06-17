@@ -27,8 +27,10 @@ public class CalendarWeekFragment extends Fragment {
     View myFragmentView;
     private WeekView mWeekView;
     private TextView weekNumber;
-    private TextView monthString;
+    private TextView monthYearString;
     private int currentWeekNumber;
+    private int firstVisibleDayYear;
+    private int lastVisibleDayYear;
     private int firstVisibleDayMonth;
     private int lastVisibleDayMonth;
     private String[] monthStrings = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
@@ -44,7 +46,7 @@ public class CalendarWeekFragment extends Fragment {
         myFragmentView = inflater.inflate(R.layout.fragment_calendar_week, container, false);
         mWeekView = (WeekView)myFragmentView.findViewById(R.id.calendar_week_view);
         weekNumber = (TextView)myFragmentView.findViewById(R.id.week_view_weekNumber);
-        monthString = (TextView)myFragmentView.findViewById(R.id.week_view_month);
+        monthYearString = (TextView)myFragmentView.findViewById(R.id.week_view_monthYear);
 
         setupWeekView();
 
@@ -95,13 +97,28 @@ public class CalendarWeekFragment extends Fragment {
         currentWeekNumber = mWeekView.getCurrentWeekNumber();
         firstVisibleDayMonth = mWeekView.getCurrentFirstVisibleDayMonth();
         lastVisibleDayMonth = mWeekView.getCurrentLastVisibleDayMonth();
+        firstVisibleDayYear = mWeekView.getCurrentFirstVisibleDayYear();
+        lastVisibleDayYear = mWeekView.getCurrentLastVisibleDayYear();
 
         weekNumber.setText("W" + currentWeekNumber);
+
         if(firstVisibleDayMonth != lastVisibleDayMonth){
-            monthString.setText(monthStrings[firstVisibleDayMonth] + "/" + monthStrings[lastVisibleDayMonth]);
+            monthYearString.setText(monthStrings[firstVisibleDayMonth] + "/" + monthStrings[lastVisibleDayMonth]);
         }
         else{
-            monthString.setText(monthStrings[firstVisibleDayMonth]);
+            monthYearString.setText(monthStrings[firstVisibleDayMonth]);
+        }
+
+        if(firstVisibleDayMonth != lastVisibleDayMonth){
+            if(firstVisibleDayYear != lastVisibleDayYear){
+                monthYearString.setText(monthStrings[firstVisibleDayMonth] + " " + firstVisibleDayYear + "/" + monthStrings[lastVisibleDayMonth] + " " + lastVisibleDayYear);
+            }
+            else{
+                monthYearString.setText(monthStrings[firstVisibleDayMonth] + "/" + monthStrings[lastVisibleDayMonth] + " " + firstVisibleDayYear);
+            }
+        }
+        else{
+            monthYearString.setText(monthStrings[firstVisibleDayMonth] + " " + firstVisibleDayYear);
         }
     }
 

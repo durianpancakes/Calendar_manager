@@ -128,6 +128,8 @@ public class WeekView extends View {
     private int mCurrentWeekNumber;
     private int mCurrentFirstVisibleDayMonth;
     private int mCurrentLastVisibleDayMonth;
+    private int mCurrentFirstVisibleDayYear;
+    private int mCurrentLastVisibleDayYear;
     private int mCurrentDayYear;
     private int mCurrentDay;
 
@@ -497,9 +499,7 @@ public class WeekView extends View {
         resetHomeDate();
 
         // Initialize week and month parameters
-        mCurrentWeekNumber = mHomeDate.get(Calendar.WEEK_OF_YEAR);
-        mCurrentFirstVisibleDayMonth = mHomeDate.get(Calendar.MONTH);
-        mCurrentLastVisibleDayMonth = mHomeDate.get(Calendar.MONTH);
+        initHeaderParameters();
 
         // Scrolling initialization.
         mGestureDetector = new GestureDetectorCompat(mContext, mGestureListener);
@@ -2594,9 +2594,13 @@ public class WeekView extends View {
         }
 
         int nearestOrigin = (int) (mCurrentOrigin.x - leftDays * (mWidthPerDay + mColumnGap));
+
         // Added such that it will always latch to Sunday
-        int difference = (mHomeDate.get(Calendar.DAY_OF_WEEK) - mFirstDayOfWeek);
-        nearestOrigin -= difference * (mWidthPerDay + mColumnGap);
+        if(mNumberOfVisibleDays == 7) {
+            int difference = (mHomeDate.get(Calendar.DAY_OF_WEEK) - mFirstDayOfWeek);
+            nearestOrigin -= difference * (mWidthPerDay + mColumnGap);
+        }
+
         boolean mayScrollHorizontal = mCurrentOrigin.x - nearestOrigin < getXMaxLimit()
                 && mCurrentOrigin.x - nearestOrigin > getXMinLimit();
 
@@ -2641,6 +2645,23 @@ public class WeekView extends View {
         }
     }
 
+    public void initHeaderParameters(){
+        // Initializing week number
+        mCurrentWeekNumber = mHomeDate.get(Calendar.WEEK_OF_YEAR);
+
+        // Initializing month numbers
+        mCurrentFirstVisibleDayMonth = mHomeDate.get(Calendar.MONTH);
+        mCurrentLastVisibleDayMonth = mHomeDate.get(Calendar.MONTH);
+
+        // Initializing year numbers
+        mCurrentDayYear = mHomeDate.get(Calendar.YEAR);
+        mCurrentFirstVisibleDayYear = mHomeDate.get(Calendar.YEAR);
+        mCurrentLastVisibleDayYear = mHomeDate.get(Calendar.YEAR);
+
+        // Initializing day number
+        mCurrentDay = mHomeDate.get(Calendar.DAY_OF_YEAR);
+    }
+
     public void updateHeaderParameters(){
         // Fetching necessary calendars
         Calendar firstVisibleDayCal = getFirstVisibleDay();
@@ -2653,8 +2674,10 @@ public class WeekView extends View {
         // Updating week number
         mCurrentWeekNumber = firstVisibleDayCal.get(Calendar.WEEK_OF_YEAR);
 
-        // Updating year number
+        // Updating year numbers
         mCurrentDayYear = firstVisibleDayCal.get(Calendar.YEAR);
+        mCurrentFirstVisibleDayYear = firstVisibleDayCal.get(Calendar.YEAR);
+        mCurrentLastVisibleDayYear = lastVisibleDayCal.get(Calendar.YEAR);
 
         // Updating day number
         mCurrentDay = firstVisibleDayCal.get(Calendar.DAY_OF_YEAR);
@@ -2944,5 +2967,13 @@ public class WeekView extends View {
 
     public int getCurrentDayNumber(){
         return mCurrentDay;
+    }
+
+    public int getCurrentFirstVisibleDayYear(){
+        return mCurrentFirstVisibleDayYear;
+    }
+
+    public int getCurrentLastVisibleDayYear(){
+        return mCurrentLastVisibleDayYear;
     }
 }
