@@ -35,7 +35,6 @@ import static com.alamkanak.weekview.WeekViewUtil.*;
  * Website: http://alamkanak.github.io/
  */
 public class WeekView extends View {
-
     private enum Direction {
         NONE, LEFT, RIGHT, VERTICAL
     }
@@ -126,6 +125,9 @@ public class WeekView extends View {
     private int mNewEventLengthInMinutes = 60;
     private int mNewEventTimeResolutionInMinutes = 15;
     private boolean mShowFirstDayOfWeekFirst = false;
+    private int mCurrentWeekNumber;
+    private int mCurrentFirstVisibleDayMonth;
+    private int mCurrentLastVisibleDayMonth;
 
     private boolean mIsFirstDraw = true;
     private boolean mAreDimensionsInvalid = true;
@@ -610,6 +612,9 @@ public class WeekView extends View {
         }
 
         mHomeDate = newHomeDate;
+
+        // Set current week and month number
+        mCurrentWeekNumber = newHomeDate.get(Calendar.WEEK_OF_YEAR);
     }
 
     private float getXOriginForDate(Calendar date) {
@@ -1625,7 +1630,7 @@ public class WeekView extends View {
                 @Override
                 public String interpretDate(Calendar date) {
                     try {
-                        SimpleDateFormat sdf = mDayNameLength == LENGTH_SHORT ? new SimpleDateFormat("EEEEE M/dd", Locale.getDefault()) : new SimpleDateFormat("EEE M/dd", Locale.getDefault());
+                        SimpleDateFormat sdf = mDayNameLength == LENGTH_SHORT ? new SimpleDateFormat("EEEEE M/dd", Locale.getDefault()) : new SimpleDateFormat("EEE dd", Locale.getDefault());
                         return sdf.format(date.getTime()).toUpperCase();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -2552,21 +2557,41 @@ public class WeekView extends View {
     private void goToNearestOrigin() {
         double leftDays = mCurrentOrigin.x / (mWidthPerDay + mColumnGap);
 
-        if (mCurrentFlingDirection != Direction.NONE) {
-            // snap to nearest day
-            leftDays = Math.round(leftDays);
-        } else if (mCurrentScrollDirection == Direction.LEFT) {
-            // snap to last day
-            leftDays = Math.floor(leftDays);
-        } else if (mCurrentScrollDirection == Direction.RIGHT) {
-            // snap to next day
-            leftDays = Math.ceil(leftDays);
-        } else {
-            // snap to nearest day
-            leftDays = Math.round(leftDays);
+        if(mNumberOfVisibleDays == 7){
+            if (mCurrentFlingDirection != Direction.NONE) {
+                // snap to nearest day
+                leftDays = 7 * Math.round(leftDays / 7);
+            } else if (mCurrentScrollDirection == Direction.LEFT) {
+                // snap to last day
+                leftDays = 7 * Math.floor(leftDays / 7);
+            } else if (mCurrentScrollDirection == Direction.RIGHT) {
+                // snap to next day
+                leftDays = 7 * Math.ceil(leftDays / 7);
+            } else {
+                // snap to nearest day
+                leftDays = 7 * Math.round(leftDays / 7);
+            }
+        }
+        else {
+            if (mCurrentFlingDirection != Direction.NONE) {
+                // snap to nearest day
+                leftDays = Math.round(leftDays);
+            } else if (mCurrentScrollDirection == Direction.LEFT) {
+                // snap to last day
+                leftDays = Math.floor(leftDays);
+            } else if (mCurrentScrollDirection == Direction.RIGHT) {
+                // snap to next day
+                leftDays = Math.ceil(leftDays);
+            } else {
+                // snap to nearest day
+                leftDays = Math.round(leftDays);
+            }
         }
 
         int nearestOrigin = (int) (mCurrentOrigin.x - leftDays * (mWidthPerDay + mColumnGap));
+        // Added such that it will always latch to Sunday
+        int difference = (mHomeDate.get(Calendar.DAY_OF_WEEK) - mFirstDayOfWeek);
+        nearestOrigin -= difference * (mWidthPerDay + mColumnGap);
         boolean mayScrollHorizontal = mCurrentOrigin.x - nearestOrigin < getXMaxLimit()
                 && mCurrentOrigin.x - nearestOrigin > getXMinLimit();
 
@@ -2582,6 +2607,7 @@ public class WeekView extends View {
             mScroller.startScroll((int) mCurrentOrigin.x, (int) mCurrentOrigin.y, -nearestOrigin, 0, (int) (Math.abs(nearestOrigin) / mWidthPerDay * mScrollDuration));
             ViewCompat.postInvalidateOnAnimation(WeekView.this);
         }
+
         // Reset scrolling and fling direction.
         mCurrentScrollDirection = mCurrentFlingDirection = Direction.NONE;
     }
@@ -2595,16 +2621,28 @@ public class WeekView extends View {
             if (mCurrentFlingDirection != Direction.NONE) {
                 // Snap to day after fling is finished.
                 goToNearestOrigin();
+                updateWeekAndMonthNumbers();
             }
         } else {
             if (mCurrentFlingDirection != Direction.NONE && forceFinishScroll()) {
                 goToNearestOrigin();
+                updateWeekAndMonthNumbers();
             } else if (mScroller.computeScrollOffset()) {
                 mCurrentOrigin.y = mScroller.getCurrY();
                 mCurrentOrigin.x = mScroller.getCurrX();
+                updateWeekAndMonthNumbers();
                 ViewCompat.postInvalidateOnAnimation(this);
             }
         }
+    }
+
+    public void updateWeekAndMonthNumbers(){
+        // Update week and month numbers
+        Calendar firstVisibleDayCal = getFirstVisibleDay();
+        mCurrentFirstVisibleDayMonth = firstVisibleDayCal.get(Calendar.MONTH);
+        Calendar lastVisibleDayCal = getLastVisibleDay();
+        mCurrentLastVisibleDayMonth = lastVisibleDayCal.get(Calendar.MONTH);
+        mCurrentWeekNumber = firstVisibleDayCal.get(Calendar.WEEK_OF_YEAR);
     }
 
     /**
@@ -2871,5 +2909,17 @@ public class WeekView extends View {
             }
             return true;
         }
+    }
+
+    public int getCurrentWeekNumber(){
+        return mCurrentWeekNumber;
+    }
+
+    public int getCurrentFirstVisibleDayMonth(){
+        return mCurrentFirstVisibleDayMonth;
+    }
+
+    public int getCurrentLastVisibleDayMonth(){
+        return mCurrentLastVisibleDayMonth;
     }
 }

@@ -9,12 +9,14 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -24,10 +26,12 @@ import java.util.List;
 public class CalendarWeekFragment extends Fragment {
     View myFragmentView;
     private WeekView mWeekView;
-    private static final int TYPE_DAY_VIEW = 1;
-    private static final int TYPE_THREE_DAY_VIEW = 2;
-    private static final int TYPE_WEEK_VIEW = 3;
-    private int mWeekViewType = TYPE_THREE_DAY_VIEW;
+    private TextView weekNumber;
+    private TextView monthString;
+    private int currentWeekNumber;
+    private int firstVisibleDayMonth;
+    private int lastVisibleDayMonth;
+    private String[] monthStrings = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
     public CalendarWeekFragment() {
         // Required empty public constructor
@@ -39,7 +43,12 @@ public class CalendarWeekFragment extends Fragment {
         // Inflate the layout for this fragment
         myFragmentView = inflater.inflate(R.layout.fragment_calendar_week, container, false);
         mWeekView = (WeekView)myFragmentView.findViewById(R.id.calendar_week_view);
+        weekNumber = (TextView)myFragmentView.findViewById(R.id.week_view_weeknumber);
+        monthString = (TextView)myFragmentView.findViewById(R.id.week_view_month);
+
         setupWeekView();
+        refreshHeaderTexts();
+
         return myFragmentView;
     }
 
@@ -68,6 +77,32 @@ public class CalendarWeekFragment extends Fragment {
                     //TODO: Handle event long press
                 }
             });
+
+            //set scroll listener
+            mWeekView.setScrollListener(new WeekView.ScrollListener(){
+                @Override
+                public void onFirstVisibleDayChanged(Calendar newFirstVisibleDay, Calendar oldFirstVisibleDay){
+                    //TODO: Handle scroll
+                    refreshHeaderTexts();
+                }
+            });
+        }
+
+        // setup necessary characteristics of the week view
+        mWeekView.setShowFirstDayOfWeekFirst(true);
+    }
+
+    public void refreshHeaderTexts(){
+        currentWeekNumber = mWeekView.getCurrentWeekNumber();
+        firstVisibleDayMonth = mWeekView.getCurrentFirstVisibleDayMonth();
+        lastVisibleDayMonth = mWeekView.getCurrentLastVisibleDayMonth();
+
+        weekNumber.setText("W" + currentWeekNumber);
+        if(firstVisibleDayMonth != lastVisibleDayMonth){
+            monthString.setText(monthStrings[firstVisibleDayMonth] + "/" + monthStrings[lastVisibleDayMonth]);
+        }
+        else{
+            monthString.setText(monthStrings[firstVisibleDayMonth]);
         }
     }
 
