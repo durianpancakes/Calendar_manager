@@ -43,11 +43,10 @@ public class CalendarWeekFragment extends Fragment {
         // Inflate the layout for this fragment
         myFragmentView = inflater.inflate(R.layout.fragment_calendar_week, container, false);
         mWeekView = (WeekView)myFragmentView.findViewById(R.id.calendar_week_view);
-        weekNumber = (TextView)myFragmentView.findViewById(R.id.week_view_weeknumber);
+        weekNumber = (TextView)myFragmentView.findViewById(R.id.week_view_weekNumber);
         monthString = (TextView)myFragmentView.findViewById(R.id.week_view_month);
 
         setupWeekView();
-        refreshHeaderTexts();
 
         return myFragmentView;
     }

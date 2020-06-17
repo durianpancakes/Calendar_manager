@@ -128,6 +128,8 @@ public class WeekView extends View {
     private int mCurrentWeekNumber;
     private int mCurrentFirstVisibleDayMonth;
     private int mCurrentLastVisibleDayMonth;
+    private int mCurrentDayYear;
+    private int mCurrentDay;
 
     private boolean mIsFirstDraw = true;
     private boolean mAreDimensionsInvalid = true;
@@ -494,6 +496,11 @@ public class WeekView extends View {
     private void init() {
         resetHomeDate();
 
+        // Initialize week and month parameters
+        mCurrentWeekNumber = mHomeDate.get(Calendar.WEEK_OF_YEAR);
+        mCurrentFirstVisibleDayMonth = mHomeDate.get(Calendar.MONTH);
+        mCurrentLastVisibleDayMonth = mHomeDate.get(Calendar.MONTH);
+
         // Scrolling initialization.
         mGestureDetector = new GestureDetectorCompat(mContext, mGestureListener);
         mScroller = new OverScroller(mContext, new FastOutLinearInInterpolator());
@@ -612,9 +619,6 @@ public class WeekView extends View {
         }
 
         mHomeDate = newHomeDate;
-
-        // Set current week and month number
-        mCurrentWeekNumber = newHomeDate.get(Calendar.WEEK_OF_YEAR);
     }
 
     private float getXOriginForDate(Calendar date) {
@@ -977,7 +981,6 @@ public class WeekView extends View {
             drawAllDayEvents(day, startPixel, canvas);
             startPixel += mWidthPerDay + mColumnGap;
         }
-
     }
 
     /**
@@ -2061,6 +2064,8 @@ public class WeekView extends View {
         return mLastVisibleDay;
     }
 
+
+
     /**
      * Get the scrolling speed factor in horizontal direction.
      *
@@ -2621,28 +2626,38 @@ public class WeekView extends View {
             if (mCurrentFlingDirection != Direction.NONE) {
                 // Snap to day after fling is finished.
                 goToNearestOrigin();
-                updateWeekAndMonthNumbers();
+                updateHeaderParameters();
             }
         } else {
             if (mCurrentFlingDirection != Direction.NONE && forceFinishScroll()) {
                 goToNearestOrigin();
-                updateWeekAndMonthNumbers();
+                updateHeaderParameters();
             } else if (mScroller.computeScrollOffset()) {
                 mCurrentOrigin.y = mScroller.getCurrY();
                 mCurrentOrigin.x = mScroller.getCurrX();
-                updateWeekAndMonthNumbers();
+                updateHeaderParameters();
                 ViewCompat.postInvalidateOnAnimation(this);
             }
         }
     }
 
-    public void updateWeekAndMonthNumbers(){
-        // Update week and month numbers
+    public void updateHeaderParameters(){
+        // Fetching necessary calendars
         Calendar firstVisibleDayCal = getFirstVisibleDay();
-        mCurrentFirstVisibleDayMonth = firstVisibleDayCal.get(Calendar.MONTH);
         Calendar lastVisibleDayCal = getLastVisibleDay();
+
+        // Updating month numbers
+        mCurrentFirstVisibleDayMonth = firstVisibleDayCal.get(Calendar.MONTH);
         mCurrentLastVisibleDayMonth = lastVisibleDayCal.get(Calendar.MONTH);
+
+        // Updating week number
         mCurrentWeekNumber = firstVisibleDayCal.get(Calendar.WEEK_OF_YEAR);
+
+        // Updating year number
+        mCurrentDayYear = firstVisibleDayCal.get(Calendar.YEAR);
+
+        // Updating day number
+        mCurrentDay = firstVisibleDayCal.get(Calendar.DAY_OF_YEAR);
     }
 
     /**
@@ -2921,5 +2936,13 @@ public class WeekView extends View {
 
     public int getCurrentLastVisibleDayMonth(){
         return mCurrentLastVisibleDayMonth;
+    }
+
+    public int getCurrentDayYear(){
+        return mCurrentDayYear;
+    }
+
+    public int getCurrentDayNumber(){
+        return mCurrentDay;
     }
 }
