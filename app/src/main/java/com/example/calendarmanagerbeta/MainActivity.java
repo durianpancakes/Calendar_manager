@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
             if(mProfilePicture != null) {
+                // Profile picture is present
                 mProfilePicture = resizeProfilePicture(mProfilePicture);
                 userProfilePicture.setImageDrawable(mProfilePicture);
             }
@@ -213,6 +214,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             userEmail.setText("");
         }
     }
+
+
 
     // Resize the profile picture
     public Drawable resizeProfilePicture(Drawable image){
