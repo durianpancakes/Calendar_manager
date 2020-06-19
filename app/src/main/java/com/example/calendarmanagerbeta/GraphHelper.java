@@ -73,21 +73,9 @@ public class GraphHelper implements IAuthenticationProvider {
     }
 
 
-    // BUG: profile picture still cannot be fetched
-    public void getProfilePicture(String accessToken, final ICallback<JsonObject> callback){
+    public void getProfilePicture(String accessToken, final ICallback<InputStream> callback){
         mAccessToken = accessToken;
-
-        mClient.me().photo().buildRequest().get(new ICallback<ProfilePhoto>(){
-            @Override
-            public void success(ProfilePhoto profilePhoto){
-                callback.success(profilePhoto.getRawObject());
-            }
-
-            @Override
-            public void failure(ClientException ex){
-                callback.failure(ex);
-            }
-        });
+        mClient.me().photo().content().buildRequest().get(callback);
     }
 
     // Debug function to get the JSON representation of a Graph

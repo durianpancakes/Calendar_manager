@@ -39,6 +39,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0-rc01"
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -55,7 +56,12 @@ dependencies {
 
     // implementation Google Firebase
     // added Firebase SDK for Google Analytics
-    implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    implementation 'com.google.firebase:firebase-analytics:17.4.3'
     // Future SDKs for any other desired Firebase products can be added here
     // https://firebase.google.com/docs/android/setup#available-libraries
+    implementation 'com.google.firebase:firebase-database:19.3.1'
+
+    // CircularImageView by mikhaellopez
+    implementation ('com.mikhaellopez:circularimageview:4.2.0')
+        {exclude group: 'org.jetbrains', module:'annotations'}
 }

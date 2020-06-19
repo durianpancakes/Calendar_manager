@@ -1,6 +1,9 @@
 package com.example.calendarmanagerbeta;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.Menu;
@@ -19,6 +22,11 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.JsonObject;
 import com.microsoft.graph.models.extensions.Calendar;
 import com.microsoft.graph.models.extensions.ProfilePhoto;
@@ -37,15 +45,19 @@ import com.microsoft.graph.models.extensions.User;
 import com.example.calendarmanagerbeta.R;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.InputStream;
+import java.util.stream.Stream;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout mDrawer;
     private NavigationView mNavigationView;
     private View mHeaderView;
-    private ImageView mProfilePicture;
+    private Drawable mProfilePicture;
     private boolean mIsSignedIn = false;
     private String mUserName = null;
     private String mUserEmail = null;
     private AuthenticationHelper mAuthHelper = null;
+    private FirebaseAuth mFirebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Get the authentication helper
         mAuthHelper = AuthenticationHelper.getInstance(getApplicationContext());
+        mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -182,17 +195,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Set the user name and email in the nav drawer
         TextView userName = mHeaderView.findViewById(R.id.user_name);
         TextView userEmail = mHeaderView.findViewById(R.id.user_email);
+        ImageView userProfilePicture = mHeaderView.findViewById(R.id.user_profile_pic);
 
         if (isSignedIn) {
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
+            mProfilePicture = resizeProfilePicture(mProfilePicture);
+            userProfilePicture.setImageDrawable(mProfilePicture);
         } else {
             mUserName = null;
             mUserEmail = null;
+            mProfilePicture = null;
 
             userName.setText("Please sign in");
             userEmail.setText("");
         }
+    }
+
+    // Resize the profile picture
+    public Drawable resizeProfilePicture(Drawable image){
+        // Final picture must be 240*240
+        Bitmap originalBitmap = ((BitmapDrawable)image).getBitmap();
+        Bitmap newBitmap = Bitmap.createScaledBitmap(originalBitmap, 240, 240, false);
+        Drawable newImage = new BitmapDrawable(getResources(), newBitmap);
+
+        return newImage;
     }
 
     // Load the "Home" fragment
@@ -270,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Get Graph client and get user
                 GraphHelper graphHelper = GraphHelper.getInstance();
                 graphHelper.getUser(accessToken, getUserCallback());
-                graphHelper.getProfilePicture(accessToken, getJsonCallback());
+                graphHelper.getProfilePicture(accessToken, getProfilePhotoCallback());
             }
 
             @Override
@@ -344,16 +371,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
-    private ICallback<JsonObject> getJsonCallback(){
-        return new ICallback<JsonObject>(){
+    private ICallback<InputStream> getProfilePhotoCallback(){
+        return new ICallback<InputStream>() {
             @Override
-            public void success(JsonObject jsonObject){
-                System.out.println("Json success");
+            public void success(InputStream inputStream) {
+                System.out.println("Entered success");
+                mProfilePicture = Drawable.createFromStream(inputStream, "UserProfilePicture");
             }
 
             @Override
-            public void failure(ClientException ex){
-                System.out.println("Json failure");
+            public void failure(ClientException ex) {
+                Log.e("PROFILE PICTURE", "ERROR GETTING PROFILE PICTURE", ex);
             }
         };
     }
