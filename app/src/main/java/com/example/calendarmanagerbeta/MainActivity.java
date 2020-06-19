@@ -200,8 +200,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (isSignedIn) {
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
-            mProfilePicture = resizeProfilePicture(mProfilePicture);
-            userProfilePicture.setImageDrawable(mProfilePicture);
+            if(mProfilePicture != null) {
+                mProfilePicture = resizeProfilePicture(mProfilePicture);
+                userProfilePicture.setImageDrawable(mProfilePicture);
+            }
         } else {
             mUserName = null;
             mUserEmail = null;
@@ -375,7 +377,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return new ICallback<InputStream>() {
             @Override
             public void success(InputStream inputStream) {
-                System.out.println("Entered success");
                 mProfilePicture = Drawable.createFromStream(inputStream, "UserProfilePicture");
             }
 
