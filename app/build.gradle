@@ -64,4 +64,7 @@ dependencies {
     // CircularImageView by mikhaellopez
     implementation ('com.mikhaellopez:circularimageview:4.2.0')
         {exclude group: 'org.jetbrains', module:'annotations'}
+
+    // TextDrawable by amulyakhare
+    implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 }

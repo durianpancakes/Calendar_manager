@@ -1,11 +1,15 @@
 package com.example.calendarmanagerbeta;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Layout;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,6 +26,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -128,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
+
         inflater.inflate(R.menu.toolbar_menu, menu);
 
         menu.findItem(R.id.go_current_day).setVisible(mIsSignedIn);
@@ -182,14 +188,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mIsSignedIn = isSignedIn;
 
         Menu menu = mNavigationView.getMenu();
-
         // Hide/show the Sign in, Calendar, email and Sign Out buttons
         menu.findItem(R.id.nav_email).setVisible(isSignedIn);
-        menu.findItem(R.id.nav_signin).setVisible(!isSignedIn);
-        menu.findItem(R.id.nav_signout).setVisible(isSignedIn);
+        menu.findItem(R.id.nav_calendar).setVisible(isSignedIn);
         menu.findItem(R.id.calendar_day_view).setVisible(isSignedIn);
         menu.findItem(R.id.calendar_month_view).setVisible(isSignedIn);
         menu.findItem(R.id.calendar_week_view).setVisible(isSignedIn);
+        menu.findItem(R.id.nav_signin).setVisible(!isSignedIn);
+        menu.findItem(R.id.nav_signout).setVisible(isSignedIn);
         invalidateOptionsMenu();
 
         // Set the user name and email in the nav drawer
@@ -205,6 +211,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mProfilePicture = resizeProfilePicture(mProfilePicture);
                 userProfilePicture.setImageDrawable(mProfilePicture);
             }
+            else{
+                // Profile picture is not present, create new based on initials
+                mProfilePicture = createProfilePicture(mUserName);
+                userProfilePicture.setImageDrawable(mProfilePicture);
+            }
         } else {
             mUserName = null;
             mUserEmail = null;
@@ -212,10 +223,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             userName.setText("Please sign in");
             userEmail.setText("");
+            userProfilePicture.setImageDrawable(null);
         }
     }
 
+    // Create a new profile picture based on user initials
+    public Drawable createProfilePicture(String userName){
+        LayoutInflater layoutInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        FrameLayout frame1 = (FrameLayout)layoutInflater.inflate(R.layout.default_profile_pic, null);
+        TextView profilePictureInitials = (TextView)frame1.findViewById(R.id.default_profile_pic_name);
 
+        String userInitials = getUserInitials(userName);
+        profilePictureInitials.setText(userInitials);
+
+        frame1.setDrawingCacheEnabled(true);
+        frame1.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        frame1.layout(0, 0, frame1.getMeasuredWidth(), frame1.getMeasuredHeight());
+        frame1.buildDrawingCache(true);
+        Bitmap newBitmap = Bitmap.createBitmap(frame1.getDrawingCache());
+        frame1.setDrawingCacheEnabled(false);
+        Drawable newImage = new BitmapDrawable(getResources(), newBitmap);
+
+        return newImage;
+    }
+
+    public String getUserInitials(String userName){
+        char initial = userName.charAt(0);
+        String initialStr = String.valueOf(initial);
+
+        return initialStr;
+    }
 
     // Resize the profile picture
     public Drawable resizeProfilePicture(Drawable image){

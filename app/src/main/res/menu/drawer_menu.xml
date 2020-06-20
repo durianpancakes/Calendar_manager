@@ -3,6 +3,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
+    <group>
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_menu_home"
+            android:title="Home"/>
+        <item
+            android:id="@+id/nav_email"
+            android:icon="@drawable/ic_email_black_24dp"
+            android:title="Email"/>
+    </group>
+
+    <item
+        android:id="@+id/nav_calendar"
+        android:title="Calendar">
+        <menu>
+            <item
+                android:id="@+id/calendar_month_view"
+                android:icon="@drawable/ic_view_month_24dp"
+                android:title="Month" />
+            <item
+                android:id="@+id/calendar_week_view"
+                android:icon="@drawable/ic_view_week_24dp"
+                android:title="Week" />
+            <item
+                android:id="@+id/calendar_day_view"
+                android:icon="@drawable/ic_view_day_24dp"
+                android:title="Day" />
+        </menu>
+    </item>
+
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_signin"
+                android:icon="@drawable/ic_menu_signin"
+                android:title="Sign In" />
+
+            <item
+                android:id="@+id/nav_signout"
+                android:icon="@drawable/ic_menu_signout"
+                android:title="Sign Out" />
+        </menu>
+    </item>
+
+    <!--
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
@@ -15,7 +60,8 @@
             android:title="Email"/>
 
         <item
-            android:title="Calendar">
+            android:title="Calendar"
+            android:id="@+id/nav_calendar_header">
             <menu>
                 <group android:checkableBehavior="single">
                 <item
@@ -48,5 +94,5 @@
                 android:title="Sign Out" />
         </menu>
     </item>
-
+    -->
 </menu>
