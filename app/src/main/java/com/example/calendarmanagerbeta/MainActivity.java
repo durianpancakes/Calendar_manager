@@ -32,6 +32,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.JsonObject;
 import com.microsoft.graph.models.extensions.Calendar;
 import com.microsoft.graph.models.extensions.ProfilePhoto;
@@ -63,6 +66,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String mUserEmail = null;
     private AuthenticationHelper mAuthHelper = null;
     private FirebaseAuth mFirebaseAuth;
+
+    private FirebaseDatabase mFirebaseDatabase; //firebase database object, entry point for app to access database (needs dependencies)
+    private DatabaseReference mMailEventDatabaseReference;  //class that references a specific part of the database. eg references messages portion of the database
+    private ChildEventListener mChildEventListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +106,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Get the authentication helper
         mAuthHelper = AuthenticationHelper.getInstance(getApplicationContext());
+
+        //firebase stuff
+        //gets the references to the root node then says we are interested in messages part
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mMailEventDatabaseReference = mFirebaseDatabase.getReference().child("mailEvent");
+
+        //initializes auth
         mFirebaseAuth = FirebaseAuth.getInstance();
+
     }
 
     @Override
