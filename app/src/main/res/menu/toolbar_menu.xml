@@ -4,6 +4,9 @@
     <group
         android:id="@+id/toolbar_opt_group">
         <item
+            android:title="Storage"
+            android:id="@+id/toolbar_opt_storage"/>
+        <item
             android:title="Delete"
             android:id="@+id/toolbar_opt_delete"/>
 

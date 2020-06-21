@@ -175,14 +175,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    /*
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-
+            case R.id.toolbar_opt_storage:
+                openFirebaseLoginFragment();
+                break;
         }
+
+        return true;
     }
-    */
+
 
     @Override
     public void onBackPressed() {
@@ -330,6 +334,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setSubtitle("Week View");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarWeekFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_week_view);
+    }
+
+    private void openFirebaseLoginFragment(){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Storage");
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FirebaseLoginFragment()).commit();
     }
 
     private void signIn() {
