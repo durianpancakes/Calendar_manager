@@ -17,29 +17,31 @@ import com.microsoft.identity.client.exception.MsalException;
 public class AuthenticationHelper {
     private static AuthenticationHelper INSTANCE = null;
     private ISingleAccountPublicClientApplication mPCA = null;
-    private String[] mScopes = { "User.Read", "Calendars.Read" };
+    private String[] mScopes = { "User.Read", "Calendars.Read" , "Mail.Read"};
 
-    private AuthenticationHelper(Context ctx) {
+    private AuthenticationHelper(Context ctx, final IAuthenticationHelperCreatedListener listener) {
         PublicClientApplication.createSingleAccountPublicClientApplication(ctx, R.raw.msal_config,
                 new IPublicClientApplication.ISingleAccountApplicationCreatedListener() {
                     @Override
                     public void onCreated(ISingleAccountPublicClientApplication application) {
                         mPCA = application;
+                        listener.onCreated(INSTANCE);
                     }
 
                     @Override
                     public void onError(MsalException exception) {
                         Log.e("AUTHHELPER", "Error creating MSAL application", exception);
+                        listener.onError(exception);
                     }
                 });
     }
 
-    public static synchronized AuthenticationHelper getInstance(Context ctx) {
+    public static synchronized void getInstance(Context ctx, IAuthenticationHelperCreatedListener listener) {
         if (INSTANCE == null) {
-            INSTANCE = new AuthenticationHelper(ctx);
+            INSTANCE = new AuthenticationHelper(ctx, listener);
+        } else {
+            listener.onCreated(INSTANCE);
         }
-
-        return INSTANCE;
     }
 
     // Version called from fragments. Does not create an

@@ -1,14 +1,11 @@
 package com.example.calendarmanagerbeta;
 
-import android.app.Activity;
+
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,15 +23,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
 
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.JsonObject;
-import com.microsoft.graph.models.extensions.Calendar;
-import com.microsoft.graph.models.extensions.ProfilePhoto;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -44,14 +34,10 @@ import com.microsoft.identity.client.exception.MsalUiRequiredException;
 
 import com.microsoft.graph.concurrency.ICallback;
 import com.microsoft.graph.core.ClientException;
-import com.microsoft.graph.models.extensions.IGraphServiceClient;
 import com.microsoft.graph.models.extensions.User;
 
-import com.example.calendarmanagerbeta.R;
 import com.google.android.material.navigation.NavigationView;
-
 import java.io.InputStream;
-import java.util.stream.Stream;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
@@ -66,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String mUserName = null;
     private String mUserEmail = null;
     private AuthenticationHelper mAuthHelper = null;
+    private boolean mAttemptInteractiveSignIn = false;
     private FirebaseAuth mFirebaseAuth;
 
     @Override
@@ -106,8 +93,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setSignedInState(mIsSignedIn);
         }
 
+        // <InitialLoginSnippet>
+        showProgressBar();
         // Get the authentication helper
-        mAuthHelper = AuthenticationHelper.getInstance(getApplicationContext());
+        AuthenticationHelper.getInstance(getApplicationContext(),
+                new IAuthenticationHelperCreatedListener() {
+                    @Override
+                    public void onCreated(AuthenticationHelper authHelper) {
+                        mAuthHelper = authHelper;
+                        if (!mIsSignedIn) {
+                            doSilentSignIn(false);
+                        } else {
+                            hideProgressBar();
+                        }
+                    }
+
+                    @Override
+                    public void onError(MsalException exception) {
+                        Log.e("AUTH", "Error creating auth helper", exception);
+                    }
+                });
+        // </InitialLoginSnippet>
+
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -212,15 +219,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Menu menu = mNavigationView.getMenu();
         // Hide/show the Sign in, Calendar, email and Sign Out buttons
         if (isSignedIn) {
-            menu.removeItem(R.id.nav_signin);
+            menu.findItem(R.id.account_submenu).getSubMenu().removeItem(R.id.nav_signin);
         } else {
             menu.removeItem(R.id.nav_home);
             menu.removeItem(R.id.nav_email);
-            menu.removeItem(R.id.calendar_day_view);
-            menu.removeItem(R.id.calendar_month_view);
-            menu.removeItem(R.id.calendar_week_view);
-            menu.removeItem(R.id.nav_signout);
+            menu.findItem(R.id.calendar_submenu).getSubMenu().removeItem(R.id.calendar_day_view);
+            menu.findItem(R.id.calendar_submenu).getSubMenu().removeItem(R.id.calendar_month_view);
+            menu.findItem(R.id.calendar_submenu).getSubMenu().removeItem(R.id.calendar_week_view);
+            menu.findItem(R.id.account_submenu).getSubMenu().removeItem(R.id.nav_signout);
         }
+        invalidateOptionsMenu();
 
         // Set the user name and email in the nav drawer
         TextView userName = mHeaderView.findViewById(R.id.user_name);
@@ -329,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Attempt silent sign in first
         // if this fails, the callback will handle doing
         // interactive sign in
-        doSilentSignIn();
+        doSilentSignIn(true);
     }
 
     private void signOut() {
@@ -341,7 +349,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Silently sign in - used if there is already a
 // user account in the MSAL cache
-    private void doSilentSignIn() {
+    private void doSilentSignIn(boolean shouldAttemptInteractive) {
+        mAttemptInteractiveSignIn = shouldAttemptInteractive;
         mAuthHelper.acquireTokenSilently(getAuthCallback());
     }
 
@@ -354,6 +363,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public AuthenticationCallback getAuthCallback() {
         return new AuthenticationCallback() {
 
+            // <OnSuccessSnippet>
             @Override
             public void onSuccess(IAuthenticationResult authenticationResult) {
                 // Log the token for debug purposes
@@ -363,20 +373,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Get Graph client and get user
                 GraphHelper graphHelper = GraphHelper.getInstance();
                 graphHelper.getUser(accessToken, getUserCallback());
-                graphHelper.getProfilePicture(accessToken, getProfilePhotoCallback());
             }
+            // </OnSuccessSnippet>
 
             @Override
             public void onError(MsalException exception) {
                 // Check the type of exception and handle appropriately
                 if (exception instanceof MsalUiRequiredException) {
                     Log.d("AUTH", "Interactive login required");
-                    doInteractiveSignIn();
+                    if (mAttemptInteractiveSignIn) {
+                        doInteractiveSignIn();
+                    }
 
                 } else if (exception instanceof MsalClientException) {
-                    if (exception.getErrorCode() == "no_current_account") {
+                    if (exception.getErrorCode() == "no_current_account" ||
+                            exception.getErrorCode() == "no_account_found") {
                         Log.d("AUTH", "No current account, interactive login required");
-                        doInteractiveSignIn();
+                        if (mAttemptInteractiveSignIn) {
+                            doInteractiveSignIn();
+                        }
                     } else {
                         // Exception inside MSAL, more info inside MsalError.java
                         Log.e("AUTH", "Client error authenticating", exception);
@@ -385,6 +400,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     // Exception when communicating with the auth server, likely config issue
                     Log.e("AUTH", "Service error authenticating", exception);
                 }
+
                 hideProgressBar();
             }
 
@@ -397,6 +413,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
+    // <GetUserCallbackSnippet>
     private ICallback<User> getUserCallback() {
         return new ICallback<User>() {
             @Override
@@ -436,6 +453,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         };
     }
+    // </GetUserCallbackSnippet>
 
     private ICallback<InputStream> getProfilePhotoCallback(){
         return new ICallback<InputStream>() {
