@@ -339,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void openFirebaseLoginFragment(){
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Storage");
+        toolbar.setSubtitle("");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FirebaseLoginFragment()).commit();
     }
 
