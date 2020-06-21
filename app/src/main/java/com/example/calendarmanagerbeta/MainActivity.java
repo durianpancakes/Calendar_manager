@@ -54,6 +54,10 @@ import java.io.InputStream;
 import java.util.stream.Stream;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
+    private static final String SAVED_USER_NAME = "userName";
+    private static final String SAVED_USER_EMAIL = "userEmail";
+
     private DrawerLayout mDrawer;
     private NavigationView mNavigationView;
     private View mHeaderView;
@@ -94,12 +98,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Load the home fragment by default on startup
         if (savedInstanceState == null) {
             openHomeFragment(mUserName);
+        } else {
+            // Restore state
+            mIsSignedIn = savedInstanceState.getBoolean(SAVED_IS_SIGNED_IN);
+            mUserName = savedInstanceState.getString(SAVED_USER_NAME);
+            mUserEmail = savedInstanceState.getString(SAVED_USER_EMAIL);
+            setSignedInState(mIsSignedIn);
         }
 
         // Get the authentication helper
         mAuthHelper = AuthenticationHelper.getInstance(getApplicationContext());
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVED_IS_SIGNED_IN, mIsSignedIn);
+        outState.putString(SAVED_USER_NAME, mUserName);
+        outState.putString(SAVED_USER_EMAIL, mUserEmail);
+    }
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -187,16 +206,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setSignedInState(boolean isSignedIn) {
         mIsSignedIn = isSignedIn;
 
+        mNavigationView.getMenu().clear();
+        mNavigationView.inflateMenu(R.menu.drawer_menu);
+
         Menu menu = mNavigationView.getMenu();
         // Hide/show the Sign in, Calendar, email and Sign Out buttons
-        menu.findItem(R.id.nav_email).setVisible(isSignedIn);
-        menu.findItem(R.id.nav_calendar).setVisible(isSignedIn);
-        menu.findItem(R.id.calendar_day_view).setVisible(isSignedIn);
-        menu.findItem(R.id.calendar_month_view).setVisible(isSignedIn);
-        menu.findItem(R.id.calendar_week_view).setVisible(isSignedIn);
-        menu.findItem(R.id.nav_signin).setVisible(!isSignedIn);
-        menu.findItem(R.id.nav_signout).setVisible(isSignedIn);
-        invalidateOptionsMenu();
+        if (isSignedIn) {
+            menu.removeItem(R.id.nav_signin);
+        } else {
+            menu.removeItem(R.id.nav_home);
+            menu.removeItem(R.id.nav_email);
+            menu.removeItem(R.id.calendar_day_view);
+            menu.removeItem(R.id.calendar_month_view);
+            menu.removeItem(R.id.calendar_week_view);
+            menu.removeItem(R.id.nav_signout);
+        }
 
         // Set the user name and email in the nav drawer
         TextView userName = mHeaderView.findViewById(R.id.user_name);
