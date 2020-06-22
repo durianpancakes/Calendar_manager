@@ -37,6 +37,8 @@ import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.extensions.User;
 
 import com.google.android.material.navigation.NavigationView;
+
+import java.io.IOException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -384,6 +386,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Get Graph client and get user
                 GraphHelper graphHelper = GraphHelper.getInstance();
                 graphHelper.getUser(accessToken, getUserCallback());
+
+                // TESTING: Get NUSmods API
+                NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getApplicationContext());
+                nusmodsHelper.refreshModulesDatabase();
+                nusmodsHelper.refreshSpecificModule("CS1010");
             }
             // </OnSuccessSnippet>
 
