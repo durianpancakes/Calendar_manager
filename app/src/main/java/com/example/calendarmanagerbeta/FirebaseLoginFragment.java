@@ -158,7 +158,7 @@ public class FirebaseLoginFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-        inflater.inflate(R.menu.firebase_main_menu, menu);
+        //inflater.inflate(R.menu.toolbar_menu, menu);
         super.onCreateOptionsMenu(menu,inflater);
 
     }
@@ -166,16 +166,18 @@ public class FirebaseLoginFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.sign_out_menu:
+            case R.id.toolbar_opt_signout:
                 //signout, normal code for signout button
                 AuthUI.getInstance().signOut(getActivity());
+                //User = null;
                 mUsername = "signed out";
                 System.out.println(mUsername);
                 //easy to sign out of firebase UI
                 return true;
-            default:
-                return super.onOptionsItemSelected(item);
+
+
         }
+        return false;
 
     }
 

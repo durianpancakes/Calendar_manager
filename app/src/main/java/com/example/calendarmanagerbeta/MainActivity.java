@@ -181,10 +181,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch(item.getItemId()){
             case R.id.toolbar_opt_storage:
                 openFirebaseLoginFragment();
-                break;
+                return true;
+                //break;
         }
 
-        return true;
+        return false;
     }
 
 
