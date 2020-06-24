@@ -149,6 +149,8 @@ public class FirebaseLoginFragment extends Fragment {
             } else if (resultCode == RESULT_CANCELED) {
 
                 Toast.makeText(getActivity(), "Sign in cancelled", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
                 getActivity().finish(); //finish activity
             }
         }
@@ -210,7 +212,7 @@ public class FirebaseLoginFragment extends Fragment {
 
     private void onSignedOutCleanup() {
         //tears down UI
-        mUsername = "Signed out cleanup";
+        mUsername = "Please Sign In!";
         //mMessageAdapter.clear(); //clears messages
 
 
