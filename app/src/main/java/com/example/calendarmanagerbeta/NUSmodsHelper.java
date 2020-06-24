@@ -125,8 +125,9 @@ public class NUSmodsHelper{
                 jsonString = response.toString();
 
                 mapFullModule(jsonString);
-
-                System.out.println(nusModuleFull.getModuleCode() + " " + nusModuleFull.getTitle());
+                if(mOnRefreshListener != null){
+                    mOnRefreshListener.onRefresh();
+                }
             }
 
         }, new Response.ErrorListener(){

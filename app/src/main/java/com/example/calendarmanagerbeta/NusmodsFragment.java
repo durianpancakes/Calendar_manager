@@ -26,6 +26,8 @@ public class NusmodsFragment extends Fragment {
     private AutoCompleteTextView moduleEditText;
     private Button addModuleButton;
     private addModuleListener moduleAddListener;
+    // Temporary holder
+    private List<NUSModuleMain> userModulesAdded;
 
     public NusmodsFragment() {
         // Required empty public constructor
@@ -66,7 +68,6 @@ public class NusmodsFragment extends Fragment {
         nusmodsHelper.refreshModulesDatabase();
 
         // Refreshing full module database
-        System.out.println("Called1");
         nusmodsHelper.setOnRefreshListener(new onRefreshListener() {
             @Override
             public void onRefresh() {
@@ -101,11 +102,13 @@ public class NusmodsFragment extends Fragment {
                 String[] moduleCode = inputString.split("\\s+");
                 boolean isFound = false;
 
+                // Input validation
                 for(int i = 0; i < nusModuleLiteList.size(); i++){
                     if(moduleCode[0].equals(nusModuleLiteList.get(i).getModuleCode())){
                         moduleAddListener.onModuleAdd(moduleCode[0]);
                         isFound = true;
                         moduleEditText.setText("");
+                        Toast.makeText(getActivity(), "Module successfully added", Toast.LENGTH_LONG).show();
                         break;
                     }
                 }
