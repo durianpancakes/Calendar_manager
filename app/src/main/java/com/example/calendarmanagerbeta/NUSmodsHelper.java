@@ -1,7 +1,9 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import com.android.volley.Request;
@@ -19,27 +21,43 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
 
-public class NUSmodsHelper {
+public class NUSmodsHelper{
     private static NUSmodsHelper INSTANCE = null;
     private final RequestQueue mRequestQueue;
     private final Context mContext;
     private final String mBaseUrl;
-    private final String mUrl1;
     private String jsonString;
     private List<NUSModuleLite> nusModulesLite;
     private NUSModuleMain nusModuleFull;
-    boolean debug = true;
+    private onRefreshListener mOnRefreshListener;
+
+    public void setOnRefreshListener(onRefreshListener refreshListener){
+        mOnRefreshListener = refreshListener;
+    }
+
+    public List<NUSModuleLite> getNusModulesLite() {
+        return nusModulesLite;
+    }
+
+    public NUSModuleMain getNusModuleFull() {
+        return nusModuleFull;
+    }
 
     private NUSmodsHelper(Context context){
         mContext = context;
         mRequestQueue = Volley.newRequestQueue(mContext);
         mBaseUrl = "https://api.nusmods.com/v2/2019-2020/";
-        mUrl1 = "https://api.nusmods.com/v2/2019-2020/moduleList.json";
     }
 
     public static synchronized NUSmodsHelper getInstance(Context context){
@@ -49,25 +67,43 @@ public class NUSmodsHelper {
         return INSTANCE;
     }
 
+    public void mapModuleDatabase(String jsonString){
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        List<NUSModuleLite> nusModules;
+        try{
+            nusModules = Arrays.asList(mapper.readValue(jsonString, NUSModuleLite[].class));
+            nusModulesLite = nusModules;
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void mapFullModule(String jsonString){
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        NUSModuleMain nusModule;
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        mapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
+        mapper.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try{
+            nusModule = mapper.readValue(jsonString, NUSModuleMain.class);
+            nusModuleFull = nusModule;
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
     public void refreshModulesDatabase(){
         JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, mBaseUrl + "moduleList.json", null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                Log.e("NUSmodsHelper refreshModulesDatabase success", response.toString());
+                Log.d("NUSmodsHelper refreshModulesDatabase success", response.toString());
                 jsonString = response.toString();
 
-                ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                try{
-                    nusModulesLite = Arrays.asList(mapper.readValue(jsonString, NUSModuleLite[].class));
-
-                    // Debugging purposes:
-                    if(debug == true){
-                        for(NUSModuleLite numModules : nusModulesLite){
-                            System.out.println(numModules.getModuleCode() + " " + numModules.getTitle());
-                        }
-                    }
-                } catch(IOException e){
-                    e.printStackTrace();
+                mapModuleDatabase(jsonString);
+                if(mOnRefreshListener != null){
+                    mOnRefreshListener.onRefresh();
                 }
             }
         }, new Response.ErrorListener() {
@@ -80,39 +116,17 @@ public class NUSmodsHelper {
         mRequestQueue.add(arrayRequest);
     }
 
-    public void refreshSpecificModule(String moduleCode){
+    public void refreshSpecificModule(final String moduleCode){
         String url = completeModuleUrl(moduleCode);
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>(){
             @Override
             public void onResponse(JSONObject response){
-                Log.e("NUSmodsHelper refreshSpecificModule success", response.toString());
+                Log.d("NUSmodsHelper refreshSpecificModule success", response.toString());
                 jsonString = response.toString();
 
-                ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-                mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-                mapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
-                mapper.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                try{
-                    nusModuleFull = mapper.readValue(jsonString, NUSModuleMain.class);
+                mapFullModule(jsonString);
 
-                    // Debugging purposes:
-                    if(debug == true){
-                        System.out.println(nusModuleFull.getTitle());
-                        System.out.println(nusModuleFull.getModuleCode());
-                        System.out.println(nusModuleFull.getDepartment());
-                        System.out.println(nusModuleFull.getFaculty());
-                        System.out.println(nusModuleFull.getSemesterData().get(1).getTimetable().get(0).getVenue());
-                        System.out.println(nusModuleFull.getSemesterData().get(1).getTimetable().get(0).getClassNo());
-                        System.out.println(nusModuleFull.getSemesterData().get(1).getTimetable().get(0).getDay());
-                        System.out.println(nusModuleFull.getSemesterData().get(1).getTimetable().get(0).getStartTime());
-                        System.out.println(nusModuleFull.getSemesterData().get(1).getTimetable().get(0).getEndTime());
-                        System.out.println(nusModuleFull.getSemesterData().get(1).getTimetable().get(0).getLessonType());
-                    }
-                } catch(IOException e){
-                    e.printStackTrace();
-                }
+                System.out.println(nusModuleFull.getModuleCode() + " " + nusModuleFull.getTitle());
             }
 
         }, new Response.ErrorListener(){

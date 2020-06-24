@@ -148,6 +148,7 @@ public class WeekView extends View {
     private boolean mShowDistinctPastFutureColor = false;
     private boolean mHorizontalFlingEnabled = true;
     private boolean mVerticalFlingEnabled = true;
+    private boolean mNUSmodsView = false;
     private int mAllDayEventHeight = 100;
     private float mZoomFocusPoint = 0;
     private boolean mZoomFocusPointEnabled = true;
