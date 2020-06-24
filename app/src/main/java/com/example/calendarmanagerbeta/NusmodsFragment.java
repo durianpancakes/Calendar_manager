@@ -14,6 +14,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -97,7 +98,21 @@ public class NusmodsFragment extends Fragment {
             public void onClick(View v){
                 CharSequence input = moduleEditText.getText();
                 String inputString = input.toString();
-                moduleAddListener.onModuleAdd(input);
+                String[] moduleCode = inputString.split("\\s+");
+                boolean isFound = false;
+
+                for(int i = 0; i < nusModuleLiteList.size(); i++){
+                    if(moduleCode[0].equals(nusModuleLiteList.get(i).getModuleCode())){
+                        moduleAddListener.onModuleAdd(moduleCode[0]);
+                        isFound = true;
+                        moduleEditText.setText("");
+                        break;
+                    }
+                }
+
+                if(!isFound){
+                    Toast.makeText(getActivity(), "Invalid module code", Toast.LENGTH_LONG).show();
+                }
             }
         });
 

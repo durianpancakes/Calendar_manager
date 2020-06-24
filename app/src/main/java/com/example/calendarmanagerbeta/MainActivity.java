@@ -498,6 +498,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Callback method for module added -- to be passed into Firebase for storage
     @Override
     public void onModuleAdd(CharSequence moduleCode) {
-        System.out.println("BUTTON PRESSED");
+        System.out.println(moduleCode + " main activity");
     }
 }
