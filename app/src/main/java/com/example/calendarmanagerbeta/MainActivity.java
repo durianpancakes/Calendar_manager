@@ -37,9 +37,11 @@ import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.extensions.User;
 
 import com.google.android.material.navigation.NavigationView;
+
+import java.io.IOException;
 import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.addModuleListener {
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -181,11 +183,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch(item.getItemId()){
             case R.id.toolbar_opt_storage:
                 openFirebaseLoginFragment();
-                return true;
-                //break;
+                break;
+            case R.id.toolbar_opt_modules:
+                openNusmodsFragment();
+                break;
         }
 
-        return false;
+        return true;
     }
 
 
@@ -344,6 +348,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FirebaseLoginFragment()).commit();
     }
 
+    private void openNusmodsFragment() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Modules");
+        toolbar.setSubtitle("");
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new NusmodsFragment()).commit();
+    }
+
     private void signIn() {
         showProgressBar();
         // Attempt silent sign in first
@@ -385,6 +396,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Get Graph client and get user
                 GraphHelper graphHelper = GraphHelper.getInstance();
                 graphHelper.getUser(accessToken, getUserCallback());
+
+                // Get NUSmods helper
+                NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getApplicationContext());
             }
             // </OnSuccessSnippet>
 
@@ -479,5 +493,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.e("PROFILE PICTURE", "ERROR GETTING PROFILE PICTURE", ex);
             }
         };
+    }
+
+    // Callback method for module added -- to be passed into Firebase for storage
+    @Override
+    public void onModuleAdd(CharSequence moduleCode) {
+        System.out.println(moduleCode + " main activity");
     }
 }
