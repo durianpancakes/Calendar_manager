@@ -18,20 +18,22 @@
             android:title="Calendar"
             android:id="@+id/calendar_submenu">
             <menu>
-                <item
-                    android:id="@+id/calendar_month_view"
-                    android:icon="@drawable/ic_view_month_24dp"
-                    android:title="Month" />
+                <group android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/calendar_month_view"
+                        android:icon="@drawable/ic_view_month_24dp"
+                        android:title="Month" />
 
-                <item
-                    android:id="@+id/calendar_week_view"
-                    android:icon="@drawable/ic_view_week_24dp"
-                    android:title="Week" />
+                    <item
+                        android:id="@+id/calendar_week_view"
+                        android:icon="@drawable/ic_view_week_24dp"
+                        android:title="Week" />
 
-                <item
-                    android:id="@+id/calendar_day_view"
-                    android:icon="@drawable/ic_view_day_24dp"
-                    android:title="Day" />
+                    <item
+                        android:id="@+id/calendar_day_view"
+                        android:icon="@drawable/ic_view_day_24dp"
+                        android:title="Day" />
+                </group>
             </menu>
         </item>
 
@@ -39,15 +41,17 @@
             android:title="Account"
             android:id="@+id/account_submenu">
             <menu>
-                <item
-                   android:id="@+id/nav_signin"
-                    android:icon="@drawable/ic_menu_signin"
-                    android:title="Sign In" />
+                <group android:checkableBehavior="single">
+                    <item
+                       android:id="@+id/nav_signin"
+                        android:icon="@drawable/ic_menu_signin"
+                        android:title="Sign In" />
 
-                <item
-                    android:id="@+id/nav_signout"
-                    android:icon="@drawable/ic_menu_signout"
-                    android:title="Sign Out" />
+                    <item
+                        android:id="@+id/nav_signout"
+                        android:icon="@drawable/ic_menu_signout"
+                        android:title="Sign Out" />
+                </group>
             </menu>
         </item>
     </group>

@@ -36,7 +36,7 @@ import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link FirebaseLoginFragment#newInstance} factory method to
+ * Use the {@link FirebaseLoginFragment} factory method to
  * create an instance of this fragment.
  */
 public class FirebaseLoginFragment extends Fragment {
@@ -44,6 +44,7 @@ public class FirebaseLoginFragment extends Fragment {
     public static final String ANONYMOUS = "anonymous";
     public static final int RC_SIGN_IN = 1;
     private String mUsername;
+    private View firebaseView;
 
     private FirebaseDatabase mFirebaseDatabase; //firebase database object, entry point for app to access database (needs dependencies)
     private DatabaseReference mMessagesDatabaseReference;  //class that references a specific part of the database. eg references messages portion of the database
@@ -57,7 +58,7 @@ public class FirebaseLoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View firebaseView = inflater.inflate(R.layout.fragment_firebase_login, container, false);
+        firebaseView = inflater.inflate(R.layout.fragment_firebase_login, container, false);
 
         //mUsername = ANONYMOUS;
 

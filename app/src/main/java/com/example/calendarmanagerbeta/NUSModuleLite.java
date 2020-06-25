@@ -1,8 +1,19 @@
 package com.example.calendarmanagerbeta;
 
+import java.util.List;
+
 public class NUSModuleLite {
     private String moduleCode;
     private String title;
+    private List<Integer> semesters;
+
+    public List<Integer> getSemesters() {
+        return semesters;
+    }
+
+    public void setSemesters(List<Integer> semesters) {
+        this.semesters = semesters;
+    }
 
     public String getModuleCode() {
         return moduleCode;

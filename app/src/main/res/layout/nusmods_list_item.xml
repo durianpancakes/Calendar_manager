@@ -21,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="CS2040C Data Structures and Algorithms"
+                android:text="CG1112 Engineering Principles and Practices II"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -40,7 +40,6 @@
                 android:layout_marginLeft="-2dp"
                 android:layout_toRightOf="@id/exam_date"
                 android:paddingHorizontal="8dp"
-                android:textStyle="bold"
                 android:text="·" />
 
             <TextView
@@ -54,10 +53,10 @@
 
         <ImageButton
             android:id="@+id/delete_module"
-            style="@style/Widget.MaterialComponents.MaterialCalendar.HeaderToggleButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="@null"
             app:srcCompat="@drawable/ic_baseline_delete_outline_24" />
 
     </LinearLayout>

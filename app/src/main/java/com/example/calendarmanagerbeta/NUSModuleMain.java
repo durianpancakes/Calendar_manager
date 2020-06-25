@@ -3,11 +3,29 @@ package com.example.calendarmanagerbeta;
 import java.util.List;
 
 public class NUSModuleMain {
+    private String acadYear;
     private String title;
     private String department;
     private String faculty;
+    private String moduleCredit;
     private String moduleCode;
     private List<ModuleSemesterData> semesterData;
+
+    public String getAcadYear() {
+        return acadYear;
+    }
+
+    public void setAcadYear(String acadYear) {
+        this.acadYear = acadYear;
+    }
+
+    public String getModuleCredit() {
+        return moduleCredit;
+    }
+
+    public void setModuleCredit(String moduleCredits) {
+        this.moduleCredit = moduleCredits;
+    }
 
     public String getTitle() {
         return title;
