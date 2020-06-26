@@ -1,10 +1,12 @@
 package com.example.calendarmanagerbeta;
 
+import java.util.List;
+
 public class ModuleTimetable {
     private String classNo;
     private int startTime;
     private int endTime;
-    // private int[] weeks;
+    private List<Integer> weeks;
     private String venue;
     private String day;
     private String lessonType;
@@ -34,13 +36,13 @@ public class ModuleTimetable {
         this.endTime = endTime;
     }
 
-//    public int[] getWeeks() {
-//        return weeks;
-//    }
-//
-//    public void setWeeks(int[] weeks) {
-//        this.weeks = weeks;
-//    }
+    public List<Integer> getWeeks() {
+        return weeks;
+    }
+
+    public void setWeeks(List<Integer> weeks) {
+        this.weeks = weeks;
+    }
 
     public String getVenue() {
         return venue;

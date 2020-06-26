@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
         // </InitialLoginSnippet>
 
+        // Initializing FirebaseAuth
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
 

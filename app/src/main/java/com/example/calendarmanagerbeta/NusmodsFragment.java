@@ -31,7 +31,7 @@ import java.util.ListIterator;
 public class NusmodsFragment extends Fragment {
     View myFragmentView;
     private String currentAcadYear = "2019/2020";
-    private int currentSemester = 1;
+    private int currentSemester = 2;
     private ProgressBar mProgress = null;
     private List<NUSModuleLite> nusModuleLiteList;
     private ArrayList<String> moduleDatabase;
