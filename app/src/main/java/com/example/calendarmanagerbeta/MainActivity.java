@@ -22,9 +22,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -497,6 +504,73 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Callback method for module added -- to be passed into Firebase for storage
     @Override
     public void onModuleAdd(CharSequence moduleCode) {
-        System.out.println(moduleCode + " main activity");
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+        if(user != null) {
+            System.out.println(user.getDisplayName() + " is adding the module " + moduleCode);
+            String uid = user.getUid();
+            System.out.println("uid is " + uid);
+            //UserInfo mUserInfo = new UserInfo();
+        }
+        else {
+            System.out.println("error in fetching user at onModuleAdd");
+        }
+        String uid = user.getUid();
+        final UserInfo mUserInfo = new UserInfo();
+        mUserInfo.module = moduleCode.toString();
+
+        final DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(user.getDisplayName()).child("modules");
+
+
+        mModulesDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.getValue(String.class) != null) {
+                    String modules = snapshot.getValue(String.class);
+                    System.out.println("before" + modules + " saved in firebase");
+
+                    mModulesDatabaseReference.setValue(modules + " " + mUserInfo.module);
+                    //System.out.println("all modules: " + snapshot.getValue(String.class)); //broken cos the snapshot hasnt updated
+
+                }
+                else {
+                    System.out.println("Empty modules");
+
+                    mModulesDatabaseReference.setValue(mUserInfo.module);
+                    System.out.println("newly added module:  " + mUserInfo.module);
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("The read failed: " + error.getCode());
+
+            }
+        });
+
+
+        System.out.println("Module save successful!");
+
+        //Toast.makeText(getContext(), "Saved", Toast.LENGTH_SHORT).show();
+
+
+
+
+
+          /*DatabaseReference pushRef = mModulesDatabaseReference.push();
+        String pushId = pushRef.getKey();
+        mUserInfo.setPushId(pushId);
+        pushRef.setValue(mUserInfo.module);  //can i try adding mUserinfo.module only?*/
+
+        //Toast.makeText(getContext(), "Saved", Toast.LENGTH_SHORT).show();
+
+
+
+
+        //moduleCode.toString();
     }
 }
