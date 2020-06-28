@@ -196,6 +196,13 @@ public class NusmodsFragment extends Fragment{
             public void recitationChanged(String moduleCode, String lessonType, String classNo) {
                 changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
             }
+
+            @Override
+            public void moduleRemoved(String moduleCode) {
+                System.out.println("moduleremoved");
+                removeModule(moduleCode);
+                moduleRemoveListener.onModuleRemove(moduleCode);
+            }
         });
 
         addModuleButton.setOnClickListener(new View.OnClickListener(){
@@ -225,6 +232,21 @@ public class NusmodsFragment extends Fragment{
         return myFragmentView;
     }
 
+    private void removeModule(String moduleCode){
+        System.out.println("entered");
+        for(int i = 0; i < userModulesAdded.size(); i++){
+            System.out.println(userModulesAdded.get(i).getModuleCode());
+            if(moduleCode.equals(userModulesAdded.get(i).getModuleCode())){
+                System.out.println("found");
+                userModulesAdded.remove(i);
+                databaseUserModules.remove(i);
+                adapter.notifyDataSetChanged();
+                return;
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
     private void addModule(String moduleCode){
         final NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getContext());
 
@@ -249,6 +271,7 @@ public class NusmodsFragment extends Fragment{
         if(context instanceof addModuleListener){
             moduleAddListener = (addModuleListener)context;
             changedModuleParamsListener = (moduleParamsChangedListener)context;
+            moduleRemoveListener = (removeModuleListener)context;
         }
         else{
             throw new RuntimeException(context.toString() + " must implement addModuleListener");
@@ -259,6 +282,7 @@ public class NusmodsFragment extends Fragment{
     public void onDetach() {
         super.onDetach();
         moduleAddListener = null;
+        moduleRemoveListener = null;
         changedModuleParamsListener = null;
     }
 }

@@ -2,28 +2,24 @@ package com.example.calendarmanagerbeta;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.fasterxml.jackson.databind.Module;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
     private Context mContext;
@@ -63,6 +59,7 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
             convertView = inflater.inflate(R.layout.nusmods_list_item, null);
             System.out.println("CONVERT VIEW NULL " + position);
 
+            ImageButton removeModuleButton = (ImageButton) convertView.findViewById(R.id.delete_module);
             TextView moduleCodeAndTitle = (TextView) convertView.findViewById(R.id.module_code_and_title);
             TextView examDate = (TextView) convertView.findViewById(R.id.exam_date);
             TextView moduleCredits = (TextView) convertView.findViewById(R.id.module_credits);
@@ -197,6 +194,14 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                     }
                 });
             }
+            removeModuleButton.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    String moduleCode = nusModuleMain.getModuleCode();
+                    Toast.makeText(mContext, moduleCode, Toast.LENGTH_LONG);
+                    mParamsChangedListener.moduleRemoved(moduleCode);
+                }
+            });
         } else {
             return convertView;
         }
