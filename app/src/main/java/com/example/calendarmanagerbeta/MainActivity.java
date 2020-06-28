@@ -518,7 +518,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //mModulesDatabaseReference.child(moduleCode);
             mModulesDatabaseReference.child(moduleCode).child("Module Name").setValue(moduleCode);
             mModulesDatabaseReference.child(moduleCode).child(lessonType).setValue(classNo);
-            // will it update by replacing?
 
 
         }
@@ -529,6 +528,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onModuleRemove(CharSequence moduleCode) {
-        System.out.println(moduleCode);
+        System.out.println(moduleCode + " is being removed");
+
+
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null) {
+            System.out.println("User is not signed in, cannot remove modules");
+        }
+        else {
+            System.out.println(user.getDisplayName() + " is removing the module " + moduleCode);
+            DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(user.getDisplayName()).child("modules");
+            mModulesDatabaseReference.child(moduleCode.toString()).removeValue();
+
+        }
+
+
     }
 }

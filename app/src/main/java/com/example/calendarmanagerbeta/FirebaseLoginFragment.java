@@ -90,17 +90,6 @@ public class FirebaseLoginFragment extends Fragment {
                     //Toast.makeText(MainActivity.this, "You're now signed in. Welcome to FriendlyChat.", Toast.LENGTH_SHORT).show();
                     onSignedInInitialize(user.getDisplayName());
                     mUsername = user.getDisplayName();
-                    //String uid = user.getUid();
-                    //UserInfo.setName(mUsername);
-
-                    //check if user is a new user. why was i trying to do this.
-                    // basicaly get the UID and save a class under the UID.
-                    // can you change stuff in the class?????????
-                    // like the module codes etc.
-                    // if not then can you just save the module code itself and not a class?
-
-
-                    //boolean newuser = .getAdditionalUserInfo().isNewUser()
 
                     System.out.println(mUsername + " has signed in");
                     if (mUsername != null) {
