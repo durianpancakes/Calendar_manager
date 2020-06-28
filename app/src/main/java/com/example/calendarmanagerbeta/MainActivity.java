@@ -48,7 +48,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.addModuleListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,NusmodsFragment.addModuleListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -504,12 +504,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Callback method for module added -- to be passed into Firebase for storage
     @Override
     public void onModuleAdd(CharSequence moduleCode) {
+        System.out.println("onmoduleadd called in main");
         // Put toast if user is not signed in?? or when the add button is clicked?
         // work on new function and try to branch it out nicely
 
-
-
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        /*FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
 
@@ -556,32 +555,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+     System.out.println("Module save successful!");
+
+        //DatabaseReference pushRef = mModulesDatabaseReference.push();
+        //String pushId = pushRef.getKey();
+        //mUserInfo.setPushId(pushId);
+        //pushRef.setValue(mUserInfo.module);  //can i try adding mUserinfo.module only?
+        */
 
 
-        System.out.println("Module save successful!");
-
-        //Toast.makeText(getContext(), "Saved", Toast.LENGTH_SHORT).show();
-
-
-
-
-
-          /*DatabaseReference pushRef = mModulesDatabaseReference.push();
-        String pushId = pushRef.getKey();
-        mUserInfo.setPushId(pushId);
-        pushRef.setValue(mUserInfo.module);  //can i try adding mUserinfo.module only?*/
-
-        //Toast.makeText(getContext(), "Saved", Toast.LENGTH_SHORT).show();
-
-
-
-
-        //moduleCode.toString();
     }
 
     @Override
     public void onParamsChanged(String moduleCode, String lessonType, String classNo) {
-        System.out.println(moduleCode + lessonType +  classNo);
+        //if they already exist, change their values. if not then add it in.
+
+
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null) {
+            System.out.println("User is not signed in, cannot add modules");
+        }
+        else {
+            System.out.println(user.getDisplayName() + " is adding the module " + moduleCode + " " + lessonType + " " + classNo);
+            DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(user.getDisplayName()).child("modules");
+            //mModulesDatabaseReference.child(moduleCode);
+            mModulesDatabaseReference.child(moduleCode).child("Module Name").setValue(moduleCode);
+            mModulesDatabaseReference.child(moduleCode).child(lessonType).setValue(classNo);
+            // will it update by replacing?
+
+
+        }
+
+
+
     }
 
     @Override
