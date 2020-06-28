@@ -504,6 +504,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Callback method for module added -- to be passed into Firebase for storage
     @Override
     public void onModuleAdd(CharSequence moduleCode) {
+        // Put toast if user is not signed in?? or when the add button is clicked?
+        // work on new function and try to branch it out nicely
+
+
+
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
