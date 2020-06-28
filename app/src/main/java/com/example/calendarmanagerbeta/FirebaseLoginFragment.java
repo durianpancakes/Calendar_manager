@@ -36,7 +36,7 @@ import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link FirebaseLoginFragment} factory method to
+ * Use the {@link FirebaseLoginFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class FirebaseLoginFragment extends Fragment {
@@ -44,7 +44,6 @@ public class FirebaseLoginFragment extends Fragment {
     public static final String ANONYMOUS = "anonymous";
     public static final int RC_SIGN_IN = 1;
     private String mUsername;
-    private View firebaseView;
 
     private FirebaseDatabase mFirebaseDatabase; //firebase database object, entry point for app to access database (needs dependencies)
     private DatabaseReference mMessagesDatabaseReference;  //class that references a specific part of the database. eg references messages portion of the database
@@ -58,13 +57,13 @@ public class FirebaseLoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        firebaseView = inflater.inflate(R.layout.fragment_firebase_login, container, false);
+        final View firebaseView = inflater.inflate(R.layout.fragment_firebase_login, container, false);
 
         //mUsername = ANONYMOUS;
 
         //gets the references to the root node then says we are interested in messages part
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("messages");
+        //mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("messages");
 
         //initializes auth
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -76,7 +75,7 @@ public class FirebaseLoginFragment extends Fragment {
         mMessageAdapter = new MessageAdapter(this, R.layout.item_message, friendlyMessages);
         mMessageListView.setAdapter(mMessageAdapter);*/
 
-         //Initialize progress bar
+        //Initialize progress bar
         //mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
 
@@ -91,6 +90,18 @@ public class FirebaseLoginFragment extends Fragment {
                     //Toast.makeText(MainActivity.this, "You're now signed in. Welcome to FriendlyChat.", Toast.LENGTH_SHORT).show();
                     onSignedInInitialize(user.getDisplayName());
                     mUsername = user.getDisplayName();
+                    //String uid = user.getUid();
+                    //UserInfo.setName(mUsername);
+
+                    //check if user is a new user. why was i trying to do this.
+                    // basicaly get the UID and save a class under the UID.
+                    // can you change stuff in the class?????????
+                    // like the module codes etc.
+                    // if not then can you just save the module code itself and not a class?
+
+
+                    //boolean newuser = .getAdditionalUserInfo().isNewUser()
+
                     System.out.println(mUsername + " has signed in");
                     if (mUsername != null) {
                         TextView userName = firebaseView.findViewById(R.id.firebase_username);
@@ -175,6 +186,9 @@ public class FirebaseLoginFragment extends Fragment {
                 //User = null;
                 mUsername = "signed out";
                 System.out.println(mUsername);
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
+                getActivity().finish();
                 //easy to sign out of firebase UI
                 return true;
 
