@@ -48,7 +48,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.addModuleListener, NusmodsFragment.moduleParamsChangedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.addModuleListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -582,5 +582,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onParamsChanged(String moduleCode, String lessonType, String classNo) {
         System.out.println(moduleCode + lessonType +  classNo);
+    }
+
+    @Override
+    public void onModuleRemove(CharSequence moduleCode) {
+        System.out.println(moduleCode);
     }
 }
