@@ -39,7 +39,6 @@ public class NusmodsFragment extends Fragment{
     private AutoCompleteTextView moduleEditText;
     private Button addModuleButton;
     private ImageButton deleteModuleButton;
-    private addModuleListener moduleAddListener;
     private removeModuleListener moduleRemoveListener;
     private moduleParamsChangedListener changedModuleParamsListener;
     private ListView moduleList;
@@ -50,10 +49,6 @@ public class NusmodsFragment extends Fragment{
 
     public NusmodsFragment() {
         // Required empty public constructor
-    }
-
-    public interface addModuleListener{
-        void onModuleAdd(CharSequence moduleCode);
     }
 
     public interface removeModuleListener{
@@ -219,7 +214,6 @@ public class NusmodsFragment extends Fragment{
                         moduleEditText.setText("");
                     } else {
                         addModule(moduleCode);
-                        moduleAddListener.onModuleAdd(moduleCode);
                         moduleEditText.setText("");
                         Toast.makeText(getActivity(), "Module successfully added", Toast.LENGTH_LONG).show();
                     }
@@ -268,8 +262,7 @@ public class NusmodsFragment extends Fragment{
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if(context instanceof addModuleListener){
-            moduleAddListener = (addModuleListener)context;
+        if(context instanceof moduleParamsChangedListener){
             changedModuleParamsListener = (moduleParamsChangedListener)context;
             moduleRemoveListener = (removeModuleListener)context;
         }
@@ -281,7 +274,6 @@ public class NusmodsFragment extends Fragment{
     @Override
     public void onDetach() {
         super.onDetach();
-        moduleAddListener = null;
         moduleRemoveListener = null;
         changedModuleParamsListener = null;
     }

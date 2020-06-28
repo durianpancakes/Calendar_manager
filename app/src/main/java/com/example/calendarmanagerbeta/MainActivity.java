@@ -48,7 +48,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,NusmodsFragment.addModuleListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -499,71 +499,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.e("PROFILE PICTURE", "ERROR GETTING PROFILE PICTURE", ex);
             }
         };
-    }
-
-    // Callback method for module added -- to be passed into Firebase for storage
-    @Override
-    public void onModuleAdd(CharSequence moduleCode) {
-        System.out.println("onmoduleadd called in main");
-        // Put toast if user is not signed in?? or when the add button is clicked?
-        // work on new function and try to branch it out nicely
-
-        /*FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-
-        if(user != null) {
-            System.out.println(user.getDisplayName() + " is adding the module " + moduleCode);
-            String uid = user.getUid();
-            System.out.println("uid is " + uid);
-            //UserInfo mUserInfo = new UserInfo();
-        }
-        else {
-            System.out.println("error in fetching user at onModuleAdd");
-        }
-        String uid = user.getUid();
-        final UserInfo mUserInfo = new UserInfo();
-        mUserInfo.module = moduleCode.toString();
-
-        final DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(user.getDisplayName()).child("modules");
-
-
-        mModulesDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.getValue(String.class) != null) {
-                    String modules = snapshot.getValue(String.class);
-                    System.out.println("before" + modules + " saved in firebase");
-
-                    mModulesDatabaseReference.setValue(modules + " " + mUserInfo.module);
-                    //System.out.println("all modules: " + snapshot.getValue(String.class)); //broken cos the snapshot hasnt updated
-
-                }
-                else {
-                    System.out.println("Empty modules");
-
-                    mModulesDatabaseReference.setValue(mUserInfo.module);
-                    System.out.println("newly added module:  " + mUserInfo.module);
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println("The read failed: " + error.getCode());
-
-            }
-        });
-     System.out.println("Module save successful!");
-
-        //DatabaseReference pushRef = mModulesDatabaseReference.push();
-        //String pushId = pushRef.getKey();
-        //mUserInfo.setPushId(pushId);
-        //pushRef.setValue(mUserInfo.module);  //can i try adding mUserinfo.module only?
-        */
-
-
     }
 
     @Override
