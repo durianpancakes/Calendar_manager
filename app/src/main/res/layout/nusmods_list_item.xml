@@ -3,10 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
     android:orientation="horizontal"
     android:padding="10dp">
 
     <LinearLayout
+        android:id="@+id/module_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -60,4 +62,65 @@
             app:srcCompat="@drawable/ic_baseline_delete_outline_24" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/module_lecture"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_below="@id/module_info"
+        android:gravity="center"
+        android:text="Lecture: "
+        android:textAlignment="gravity" />
+
+    <Spinner
+        android:id="@+id/select_lecture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/module_info"
+        android:layout_toRightOf="@id/module_lecture" />
+
+    <TextView
+        android:id="@+id/module_tutorial"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_below="@id/select_lecture"
+        android:gravity="center"
+        android:text="Tutorial: " />
+
+    <Spinner
+        android:id="@+id/select_tutorial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/select_lecture"
+        android:layout_toRightOf="@id/module_tutorial" />
+
+    <TextView
+        android:id="@+id/module_sectional_teaching"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_below="@id/select_tutorial"
+        android:gravity="center"
+        android:text="Sectional Teaching:" />
+
+    <Spinner
+        android:id="@+id/select_sectional_teaching"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/select_tutorial"
+        android:layout_toRightOf="@id/module_sectional_teaching" />
+
+    <TextView
+        android:id="@+id/module_recitation"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_below="@id/select_sectional_teaching"
+        android:gravity="center|center_horizontal"
+        android:text="Recitation: " />
+
+    <Spinner
+        android:id="@+id/select_recitation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/select_sectional_teaching"
+        android:layout_toRightOf="@id/module_recitation" />
 </RelativeLayout>

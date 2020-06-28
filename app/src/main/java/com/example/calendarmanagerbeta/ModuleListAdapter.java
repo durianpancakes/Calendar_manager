@@ -2,19 +2,25 @@ package com.example.calendarmanagerbeta;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+
+import com.fasterxml.jackson.databind.Module;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -23,49 +29,183 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
     private Context mContext;
     private int mResource;
     private List<NUSModuleMain> mModules;
-    private int mSemester = 4;
+    private int mSemester;
+    private onParamsChangedListener mParamsChangedListener;
+
 
     public ModuleListAdapter(Context context, int resource, List<NUSModuleMain> userModules, int semester) {
         super(context, resource, userModules);
         this.mContext = context;
         this.mResource = resource;
         this.mModules = userModules;
-        this.mSemester = semester;
+        this.mSemester = semester - 1; // Compensate for the index of ArrayList
+    }
+
+    public void setOnParamsChangedListener(onParamsChangedListener paramsChangedListener){
+        mParamsChangedListener = paramsChangedListener;
     }
 
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        NUSModuleMain nusModuleMain = getItem(position);
+        final NUSModuleMain nusModuleMain = getItem(position);
         Boolean isInCurrentSemester = false;
         int semesterIdx = 0;
 
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.nusmods_list_item, null);
+        ArrayList<String> mModuleLecture = new ArrayList<String>();
+        ArrayList<String> mModuleTutorial = new ArrayList<String>();
+        ArrayList<String> mModuleSectionalTeaching = new ArrayList<String>();
+        ArrayList<String> mModuleRecitation = new ArrayList<String>();
 
-        TextView moduleCodeAndTitle = (TextView) view.findViewById(R.id.module_code_and_title);
-        TextView examDate = (TextView) view.findViewById(R.id.exam_date);
-        TextView moduleCredits = (TextView) view.findViewById(R.id.module_credits);
 
-        moduleCodeAndTitle.setText(nusModuleMain.getModuleCode() + " " + nusModuleMain.getTitle());
+        if(convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.nusmods_list_item, null);
+            System.out.println("CONVERT VIEW NULL " + position);
 
-        for(int i = 0; i < nusModuleMain.getSemesterData().size(); i++){
-            if(nusModuleMain.getSemesterData().get(i).getSemester() == mSemester){
-                semesterIdx = i;
-                break;
+            TextView moduleCodeAndTitle = (TextView) convertView.findViewById(R.id.module_code_and_title);
+            TextView examDate = (TextView) convertView.findViewById(R.id.exam_date);
+            TextView moduleCredits = (TextView) convertView.findViewById(R.id.module_credits);
+            TextView textLecture = (TextView) convertView.findViewById(R.id.module_lecture);
+            TextView textTutorial = (TextView) convertView.findViewById(R.id.module_tutorial);
+            TextView textSectionalTeaching = (TextView) convertView.findViewById(R.id.module_sectional_teaching);
+            TextView textRecitation = (TextView) convertView.findViewById(R.id.module_recitation);
+            Spinner spinnerLecture = (Spinner) convertView.findViewById(R.id.select_lecture);
+            final Spinner spinnerTutorial = (Spinner) convertView.findViewById(R.id.select_tutorial);
+            Spinner spinnerSectionalTeaching = (Spinner) convertView.findViewById(R.id.select_sectional_teaching);
+            Spinner spinnerRecitation = (Spinner) convertView.findViewById(R.id.select_recitation);
+
+            moduleCodeAndTitle.setText(nusModuleMain.getModuleCode() + " " + nusModuleMain.getTitle());
+
+            for(int i = 0; i < nusModuleMain.getSemesterData().size(); i++){
+                if(nusModuleMain.getSemesterData().get(i).getSemester() == mSemester){
+                    semesterIdx = i;
+                    break;
+                }
             }
-        }
 
-        String dateString = nusModuleMain.getSemesterData().get(semesterIdx).getExamDate();
-        if (dateString != null) {
-            examDate.setText("Exam: " + parseDate(dateString));
+            String dateString = nusModuleMain.getSemesterData().get(semesterIdx).getExamDate();
+            if (dateString != null) {
+                examDate.setText("Exam: " + parseDate(dateString));
+            } else {
+                examDate.setText("No exam");
+            }
+
+            moduleCredits.setText(nusModuleMain.getModuleCredit() + " MCs");
+
+            for(int i = 0; i < nusModuleMain.getSemesterData().get(mSemester).getTimetable().size(); i++){
+                switch(whatIsThisClass(nusModuleMain, i)){
+                    case "Tutorial":
+                        mModuleTutorial.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        break;
+                    case "Recitation":
+                        mModuleRecitation.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        break;
+                    case "Lecture":
+                        mModuleLecture.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        break;
+                    case "Sectional Teaching":
+                        mModuleSectionalTeaching.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        break;
+                }
+            }
+
+            ArrayAdapter<String> spinnerLectureAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, mModuleLecture);
+            spinnerLectureAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerLecture.setAdapter(spinnerLectureAdapter);
+            if(mModuleLecture.size() == 0){
+                textLecture.setVisibility(View.GONE);
+                spinnerLecture.setVisibility(View.GONE);
+            } else {
+                spinnerLecture.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
+                        String lessonType = "Lecture";
+                        String params = parent.getItemAtPosition(pos).toString();
+                        mParamsChangedListener.lectureChanged(nusModuleMain.getModuleCode(), lessonType, params);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent){
+
+                    }
+                });
+            }
+
+            ArrayAdapter<String> spinnerTutorialAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, mModuleTutorial);
+            spinnerTutorialAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerTutorial.setAdapter(spinnerTutorialAdapter);
+            if(mModuleTutorial.size() == 0){
+                textTutorial.setVisibility(View.GONE);
+                spinnerTutorial.setVisibility(View.GONE);
+            } else {
+                spinnerTutorial.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
+                        String lessonType = "Tutorial";
+                        String params = parent.getItemAtPosition(pos).toString();
+                        mParamsChangedListener.tutorialChanged(nusModuleMain.getModuleCode(), lessonType, params);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent){
+
+                    }
+                });
+            }
+
+            ArrayAdapter<String> spinnerSectionalTeachingAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, mModuleSectionalTeaching);
+            spinnerSectionalTeachingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerSectionalTeaching.setAdapter(spinnerSectionalTeachingAdapter);
+            if(mModuleSectionalTeaching.size() == 0){
+                textSectionalTeaching.setVisibility(View.GONE);
+                spinnerSectionalTeaching.setVisibility(View.GONE);
+            } else {
+                spinnerSectionalTeaching.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
+                        String lessonType = "Sectional Teaching";
+                        String params = parent.getItemAtPosition(pos).toString();
+                        mParamsChangedListener.stChanged(nusModuleMain.getModuleCode(), lessonType, params);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent){
+
+                    }
+                });
+            }
+
+            ArrayAdapter<String> spinnerRecitationAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, mModuleRecitation);
+            spinnerRecitationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerRecitation.setAdapter(spinnerRecitationAdapter);
+            if(mModuleRecitation.size() == 0){
+                textRecitation.setVisibility(View.GONE);
+                spinnerRecitation.setVisibility(View.GONE);
+            } else {
+                spinnerRecitation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
+                        String lessonType = "Recitation";
+                        String params = parent.getItemAtPosition(pos).toString();
+                        mParamsChangedListener.recitationChanged(nusModuleMain.getModuleCode(), lessonType, params);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent){
+
+                    }
+                });
+            }
         } else {
-            examDate.setText("No exam");
+            return convertView;
         }
 
-        moduleCredits.setText(nusModuleMain.getModuleCredit() + " MCs");
+        return convertView;
+    }
 
-        return view;
+    private String whatIsThisClass(NUSModuleMain module, int index) {
+        return module.getSemesterData().get(mSemester).getTimetable().get(index).getLessonType();
     }
 
     private String parseDate(String dateString){

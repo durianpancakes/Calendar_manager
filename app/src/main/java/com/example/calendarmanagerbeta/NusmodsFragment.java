@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public class NusmodsFragment extends Fragment {
+public class NusmodsFragment extends Fragment{
     View myFragmentView;
     private String currentAcadYear = "2019/2020";
     private int currentSemester = 1;
@@ -41,6 +41,7 @@ public class NusmodsFragment extends Fragment {
     private ImageButton deleteModuleButton;
     private addModuleListener moduleAddListener;
     private removeModuleListener moduleRemoveListener;
+    private moduleParamsChangedListener changedModuleParamsListener;
     private ListView moduleList;
     ModuleListAdapter adapter;
     // Temporary holder
@@ -57,6 +58,10 @@ public class NusmodsFragment extends Fragment {
 
     public interface removeModuleListener{
         void onModuleRemove(CharSequence moduleCode);
+    }
+
+    public interface moduleParamsChangedListener{
+        void onParamsChanged(String moduleCode, String lessonType, String classNo);
     }
 
     private void showProgressBar() {
@@ -166,8 +171,33 @@ public class NusmodsFragment extends Fragment {
 
         semesterData.setText(getSemesterString());
 
-        adapter = new ModuleListAdapter(getActivity(), R.layout.nusmods_list_item, userModulesAdded, currentSemester);
-        moduleList.setAdapter(adapter);
+        if(adapter == null){
+            adapter = new ModuleListAdapter(getActivity(), R.layout.nusmods_list_item, userModulesAdded, currentSemester);
+            moduleList.setAdapter(adapter);
+        }
+
+        adapter.setOnParamsChangedListener(new onParamsChangedListener() {
+            @Override
+            public void lectureChanged(String moduleCode, String lessonType, String classNo) {
+                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+            }
+
+            @Override
+            public void tutorialChanged(String moduleCode, String lessonType, String classNo) {
+                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+            }
+
+            @Override
+            public void stChanged(String moduleCode, String lessonType, String classNo) {
+                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+            }
+
+            @Override
+            public void recitationChanged(String moduleCode, String lessonType, String classNo) {
+                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+            }
+        });
+
         addModuleButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -207,8 +237,8 @@ public class NusmodsFragment extends Fragment {
                 userModulesAdded.add(nusModule);
                 if(isFoundInDatabase(nusModule.getModuleCode()) == false){
                     databaseUserModules.add(nusModule.getModuleCode());
+                    adapter.notifyDataSetChanged();
                 }
-                adapter.notifyDataSetChanged();
             }
         });
     }
@@ -218,6 +248,7 @@ public class NusmodsFragment extends Fragment {
         super.onAttach(context);
         if(context instanceof addModuleListener){
             moduleAddListener = (addModuleListener)context;
+            changedModuleParamsListener = (moduleParamsChangedListener)context;
         }
         else{
             throw new RuntimeException(context.toString() + " must implement addModuleListener");
@@ -228,5 +259,6 @@ public class NusmodsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         moduleAddListener = null;
+        changedModuleParamsListener = null;
     }
 }
