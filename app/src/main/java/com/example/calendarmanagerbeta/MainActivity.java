@@ -32,9 +32,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.microsoft.graph.models.extensions.ItemBody;
-import com.microsoft.graph.models.extensions.Message;
-import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -50,7 +47,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
@@ -66,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String mUserEmail = null;
     private AuthenticationHelper mAuthHelper = null;
     private boolean mAttemptInteractiveSignIn = false;
-    private ArrayList<String> messages = null;
+    private FirebaseAuth mFirebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
         // </InitialLoginSnippet>
 
-        messages = new ArrayList<>();
+        mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -406,7 +402,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Get Graph client and get user
                 GraphHelper graphHelper = GraphHelper.getInstance();
                 graphHelper.getUser(accessToken, getUserCallback());
-                graphHelper.getEmails(accessToken, getEmailCallback());
 
                 // Get NUSmods helper
                 NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getApplicationContext());
@@ -449,24 +444,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         };
     }
-
-    private ICallback<IMessageCollectionPage> getEmailCallback(){
-        return new ICallback<IMessageCollectionPage>() {
-            @Override
-            public void success(IMessageCollectionPage iMessageCollectionPage) {
-                Log.d("EMAIL", "Refresh successful");
-                for(Message message : iMessageCollectionPage.getCurrentPage()){
-                    messages.add(message.subject);
-                }
-            }
-
-            @Override
-            public void failure(ClientException ex) {
-                Log.e("EMAIL", "Failed to refresh");
-            }
-        };
-    }
-
 
     // <GetUserCallbackSnippet>
     private ICallback<User> getUserCallback() {
@@ -541,12 +518,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //mModulesDatabaseReference.child(moduleCode);
             mModulesDatabaseReference.child(moduleCode).child("Module Name").setValue(moduleCode);
             mModulesDatabaseReference.child(moduleCode).child(lessonType).setValue(classNo);
-            // will it update by replacing?
+
+
         }
+
+
+
     }
 
     @Override
     public void onModuleRemove(CharSequence moduleCode) {
-        System.out.println(moduleCode);
+        System.out.println(moduleCode + " is being removed");
+
+
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null) {
+            System.out.println("User is not signed in, cannot remove modules");
+        }
+        else {
+            System.out.println(user.getDisplayName() + " is removing the module " + moduleCode);
+            DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(user.getDisplayName()).child("modules");
+            mModulesDatabaseReference.child(moduleCode.toString()).removeValue();
+
+        }
+
+
     }
 }
