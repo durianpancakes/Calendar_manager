@@ -75,7 +75,7 @@ public class GraphHelper implements IAuthenticationProvider {
 
     public void getEmails(String accessToken, ICallback<IMessageCollectionPage> callback){
         mAccessToken = accessToken;
-        mClient.me().messages().buildRequest().get(callback);
+        mClient.me().mailFolders("inbox").messages().buildRequest().select("sender,subject,bodyPreview,isRead").get(callback);
     }
 
 

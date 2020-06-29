@@ -22,16 +22,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
-import android.widget.Toast;
 
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -45,7 +41,6 @@ import com.microsoft.graph.models.extensions.User;
 
 import com.google.android.material.navigation.NavigationView;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
@@ -143,6 +138,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_home:
                 openHomeFragment(mUserName);
                 break;
+            case R.id.nav_email:
+                openEmailFragment();
+                break;
             case R.id.nav_signin:
                 signIn();
                 break;
@@ -190,12 +188,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch(item.getItemId()){
             case R.id.toolbar_opt_storage:
                 openFirebaseLoginFragment();
+                uncheckAllNavItems();
                 return true;
             case R.id.toolbar_opt_modules:
                 openNusmodsFragment();
+                uncheckAllNavItems();
                 return true;
         }
         return false;
+    }
+
+    private void uncheckAllNavItems(){
+        int size = mNavigationView.getMenu().size();
+        for(int i = 0; i < size; i++){
+            mNavigationView.getMenu().getItem(i).setChecked(false);
+        }
     }
 
 
@@ -321,6 +328,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .replace(R.id.fragment_container, fragment)
                 .commit();
         mNavigationView.setCheckedItem(R.id.nav_home);
+    }
+
+    public void openEmailFragment(){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Email");
+        toolbar.setSubtitle("");
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new EmailFragment()).commit();
+        mNavigationView.setCheckedItem(R.id.nav_email);
     }
 
     private void openDayCalendar(){
@@ -504,8 +519,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onParamsChanged(String moduleCode, String lessonType, String classNo) {
         //if they already exist, change their values. if not then add it in.
-
-
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -521,15 +534,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         }
-
-
-
     }
 
     @Override
     public void onModuleRemove(CharSequence moduleCode) {
         System.out.println(moduleCode + " is being removed");
-
 
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -541,9 +550,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             System.out.println(user.getDisplayName() + " is removing the module " + moduleCode);
             DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(user.getDisplayName()).child("modules");
             mModulesDatabaseReference.child(moduleCode.toString()).removeValue();
-
         }
-
-
     }
 }
