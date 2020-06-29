@@ -14,6 +14,7 @@ import com.microsoft.graph.requests.extensions.GraphServiceClient;
 import com.microsoft.graph.options.Option;
 import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.extensions.IEventCollectionPage;
+import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
 import com.microsoft.graph.requests.extensions.ProfilePhotoStreamRequest;
 
 import java.io.InputStream;
@@ -70,6 +71,11 @@ public class GraphHelper implements IAuthenticationProvider {
                 .select("subject,organizer,start,end")
                 .get(callback);
 
+    }
+
+    public void getEmails(String accessToken, ICallback<IMessageCollectionPage> callback){
+        mAccessToken = accessToken;
+        mClient.me().messages().buildRequest().get(callback);
     }
 
 
