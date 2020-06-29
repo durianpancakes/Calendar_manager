@@ -513,13 +513,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             System.out.println("User is not signed in, cannot add modules");
         }
         else {
+            String uid = user.getUid();
             System.out.println(user.getDisplayName() + " is adding the module " + moduleCode + " " + lessonType + " " + classNo);
-            DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(user.getDisplayName()).child("modules");
-            //mModulesDatabaseReference.child(moduleCode);
-            mModulesDatabaseReference.child(moduleCode).child("Module Name").setValue(moduleCode);
-            mModulesDatabaseReference.child(moduleCode).child(lessonType).setValue(classNo);
-
-
+            DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+            mModulesDatabaseReference.child("Name").setValue(user.getDisplayName());
+            mModulesDatabaseReference.child("modules").child(moduleCode).child("Module Name").setValue(moduleCode);
+            mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).setValue(classNo);
+            //may be made to be more efficient i think?
         }
 
 
@@ -538,8 +538,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             System.out.println("User is not signed in, cannot remove modules");
         }
         else {
+            String uid = user.getUid();
             System.out.println(user.getDisplayName() + " is removing the module " + moduleCode);
-            DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(user.getDisplayName()).child("modules");
+            DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("modules");
             mModulesDatabaseReference.child(moduleCode.toString()).removeValue();
 
         }
