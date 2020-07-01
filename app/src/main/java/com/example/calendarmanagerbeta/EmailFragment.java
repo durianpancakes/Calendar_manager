@@ -99,7 +99,7 @@ public class EmailFragment extends Fragment {
                         final GraphHelper graphHelper = GraphHelper.getInstance();
 
                         // Get the user's events
-                        graphHelper.getEmails(authenticationResult.getAccessToken(),
+                        graphHelper.getSpecificEmails(authenticationResult.getAccessToken(), "CS1010",
                                 getEmailCallback());
 
                         hideProgressBar();
