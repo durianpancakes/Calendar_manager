@@ -47,6 +47,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
@@ -520,6 +521,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mModulesDatabaseReference.child("modules").child(moduleCode).child("Module Name").setValue(moduleCode);
             mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).setValue(classNo);
             //may be made to be more efficient i think?
+
+            mModulesDatabaseReference.child("modules").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    ArrayList<NUSModuleMain> allModules;
+                    if(snapshot.getChildren() != null) {
+                        for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            //String allModules = " ";
+                            String modCode = userSnapshot.child("Module Name").getValue(String.class);
+                            allModules.add
+
+                            System.out.println(allModules);
+
+                        }
+                    }
+                    else {
+                        System.out.println("There are no children");
+
+
+
+
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    System.out.println("The read failed: " + error.getCode());
+
+                }
+            });
         }
 
 
