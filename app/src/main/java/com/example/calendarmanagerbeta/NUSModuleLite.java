@@ -1,18 +1,19 @@
 package com.example.calendarmanagerbeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NUSModuleLite {
     private String moduleCode;
     private String title;
-    private List<ModuleInfo> classesSelected;
+    private ArrayList<ModuleInfo> classesSelected;
     private List<Integer> semesters;
 
-    public List<ModuleInfo> getClassesSelected() {
+    public ArrayList<ModuleInfo> getClassesSelected() {
         return classesSelected;
     }
 
-    public void setClassesSelected(List<ModuleInfo> classesSelected) {
+    public void setClassesSelected(ArrayList<ModuleInfo> classesSelected) {
         this.classesSelected = classesSelected;
     }
 

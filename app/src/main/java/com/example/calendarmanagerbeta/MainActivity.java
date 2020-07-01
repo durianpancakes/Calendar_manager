@@ -26,8 +26,11 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -43,6 +46,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
@@ -535,25 +539,78 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).setValue(classNo);
             //may be made to be more efficient i think?
 
+
             mModulesDatabaseReference.child("modules").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    ArrayList<NUSModuleMain> allModules;
+                    ArrayList<NUSModuleLite> allModules = new ArrayList<>();
+                    String moduleString = new String();
                     if(snapshot.getChildren() != null) {
                         for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                            //String allModules = " ";
-                            String modCode = userSnapshot.child("Module Name").getValue(String.class);
-                            allModules.add
 
-                            System.out.println(allModules);
+                            // original testing
+                            String modCode = userSnapshot.child("Module Name").getValue(String.class);
+                            moduleString = moduleString + " " + modCode;
+                            System.out.println(moduleString);
+                            //
+
+                            NUSModuleLite nusModuleLite = new NUSModuleLite();
+                            nusModuleLite.setModuleCode(modCode);
+
+                            ArrayList<ModuleInfo> moduleInfoList = new ArrayList<>();
+
+                            if (userSnapshot.child("Sectional Teaching").exists()) {
+                                ModuleInfo moduleInfo = new ModuleInfo("Sectional Teaching",
+                                        userSnapshot.child("Sectional Teaching").getValue(String.class));
+                                moduleInfoList.add(moduleInfo);
+
+                            }
+
+                            if (userSnapshot.child("Tutorial").exists()) {
+                                ModuleInfo moduleInfo = new ModuleInfo("Tutorial",
+                                        userSnapshot.child("Tutorial").getValue(String.class));
+                                moduleInfoList.add(moduleInfo);
+                            }
+
+                            if (userSnapshot.child("Recitation").exists()) {
+                                ModuleInfo moduleInfo = new ModuleInfo("Recitation",
+                                        userSnapshot.child("Recitation").getValue(String.class));
+                                moduleInfoList.add(moduleInfo);
+                            }
+
+                            if (userSnapshot.child("Lecture").exists()) {
+                                ModuleInfo moduleInfo = new ModuleInfo("Lecture",
+                                        userSnapshot.child("Lecture").getValue(String.class));
+                                moduleInfoList.add(moduleInfo);
+                            }
+
+
+                            System.out.println(moduleInfoList.get(0).lessonType);
+
+
+                            // works up to here
+                            // get(1) works if the mod has a 2nd lessontype (tested)
+                            nusModuleLite.setClassesSelected(moduleInfoList);
+
+                            allModules.add(nusModuleLite);
 
                         }
+
+
                     }
                     else {
                         System.out.println("There are no children");
+                    }
 
-
-
+                    //test allModules here
+                    for(NUSModuleLite nusModuleLite : allModules) {
+                        System.out.println(nusModuleLite.getModuleCode() + " in test zone");
+                        // works up to here
+                        ArrayList<ModuleInfo> moduleInfoArrayList = nusModuleLite.getClassesSelected();
+                        for(ModuleInfo moduleInfo : moduleInfoArrayList) {
+                            System.out.println(moduleInfo.lessonType + " " +
+                                    moduleInfo.classNo);
+                        }
 
                     }
 
@@ -565,6 +622,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 }
             });
+
         }
     }
 
