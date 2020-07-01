@@ -16,6 +16,7 @@ import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.extensions.IEventCollectionPage;
 import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
 import com.microsoft.graph.requests.extensions.ProfilePhotoStreamRequest;
+import com.sun.research.ws.wadl.Link;
 
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -75,7 +76,22 @@ public class GraphHelper implements IAuthenticationProvider {
 
     public void getEmails(String accessToken, ICallback<IMessageCollectionPage> callback){
         mAccessToken = accessToken;
-        mClient.me().messages().buildRequest().get(callback);
+        mClient.me().mailFolders("inbox").messages().buildRequest().select("sender,subject,bodyPreview,isRead").get(callback);
+    }
+
+    public void getSpecificEmails(String accessToken, String moduleCode, ICallback<IMessageCollectionPage> callback){
+        mAccessToken = accessToken;
+        LinkedList<Option> requestOptions = new LinkedList<Option>();
+        String completedRequest = completeRequest(moduleCode);
+        requestOptions.add(new QueryOption("orderby", "receivedDateTime%20desc"));
+        requestOptions.add(new QueryOption("filter", completedRequest));
+
+        mClient.me().mailFolders("inbox").messages().buildRequest(requestOptions).get(callback);
+    }
+
+    // Helper function to complete module email request
+    private String completeRequest(String moduleCode){
+        return "receivedDateTime ge 1900-01-01T00:00:00Z and contains(subject,'" + moduleCode + "')";
     }
 
 
