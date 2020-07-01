@@ -5,7 +5,16 @@ import java.util.List;
 public class NUSModuleLite {
     private String moduleCode;
     private String title;
+    private List<ModuleInfo> classesSelected;
     private List<Integer> semesters;
+
+    public List<ModuleInfo> getClassesSelected() {
+        return classesSelected;
+    }
+
+    public void setClassesSelected(List<ModuleInfo> classesSelected) {
+        this.classesSelected = classesSelected;
+    }
 
     public List<Integer> getSemesters() {
         return semesters;
