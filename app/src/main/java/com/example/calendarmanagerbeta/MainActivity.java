@@ -542,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //may be made to be more efficient i think?
 
             //regex tester
-            String test = "The quiz will be held on 12 Feb and 12th Feb and 12 Feb 2020, and 12th Feb 2020 and 12th May, 2020 and 51 May and 10-Aug-2020 ";
+            /*String test = "The quiz will be held on 12 Feb and 12th Feb and 12 Feb 2020, and 12th Feb 2020 and 12th May, 2020 and 51 May and 10-Aug-2020 ";
             Pattern pattern = Pattern.compile("\\b(([0]?[0-9])|([0-2][0-9])|([3][0-1]))(st|nd|rd|th)?\\b[\\h-](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec),?([\\h-]\\d{4})?");
             // what if they wrote january/february/march -> add to original pattern
             // caps problems too -> convert whole test string to caps? -> change th/st/rd/nd into caps, month names too. second month pattern should be able to pull short form out.
@@ -570,93 +570,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
 
 
-            }
+            }*/
 
 
 
 
-            /*mModulesDatabaseReference.child("modules").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    ArrayList<NUSModuleLite> allModules = new ArrayList<>();
-                    String moduleString = new String();
-                    if(snapshot.getChildren() != null) {
-                        for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-
-                            // original testing
-                            String modCode = userSnapshot.child("Module Name").getValue(String.class);
-                            moduleString = moduleString + " " + modCode;
-                            System.out.println(moduleString);
-                            //
-
-                            NUSModuleLite nusModuleLite = new NUSModuleLite();
-                            nusModuleLite.setModuleCode(modCode);
-
-                            ArrayList<ModuleInfo> moduleInfoList = new ArrayList<>();
-
-                            if (userSnapshot.child("Sectional Teaching").exists()) {
-                                ModuleInfo moduleInfo = new ModuleInfo("Sectional Teaching",
-                                        userSnapshot.child("Sectional Teaching").getValue(String.class));
-                                moduleInfoList.add(moduleInfo);
-
-                            }
-
-                            if (userSnapshot.child("Tutorial").exists()) {
-                                ModuleInfo moduleInfo = new ModuleInfo("Tutorial",
-                                        userSnapshot.child("Tutorial").getValue(String.class));
-                                moduleInfoList.add(moduleInfo);
-                            }
-
-                            if (userSnapshot.child("Recitation").exists()) {
-                                ModuleInfo moduleInfo = new ModuleInfo("Recitation",
-                                        userSnapshot.child("Recitation").getValue(String.class));
-                                moduleInfoList.add(moduleInfo);
-                            }
-
-                            if (userSnapshot.child("Lecture").exists()) {
-                                ModuleInfo moduleInfo = new ModuleInfo("Lecture",
-                                        userSnapshot.child("Lecture").getValue(String.class));
-                                moduleInfoList.add(moduleInfo);
-                            }
-
-
-                            System.out.println(moduleInfoList.get(0).lessonType);
-
-
-                            // works up to here
-                            // get(1) works if the mod has a 2nd lessontype (tested)
-                            nusModuleLite.setClassesSelected(moduleInfoList);
-
-                            allModules.add(nusModuleLite);
-
-                        }
-
-
-                    }
-                    else {
-                        System.out.println("There are no children");
-                    }
-
-                    //test allModules here
-                    for(NUSModuleLite nusModuleLite : allModules) {
-                        System.out.println(nusModuleLite.getModuleCode() + " in test zone");
-                        // works up to here
-                        ArrayList<ModuleInfo> moduleInfoArrayList = nusModuleLite.getClassesSelected();
-                        for(ModuleInfo moduleInfo : moduleInfoArrayList) {
-                            System.out.println(moduleInfo.lessonType + " " +
-                                    moduleInfo.classNo);
-                        }
-
-                    }
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    System.out.println("The read failed: " + error.getCode());
-
-                }
-            });*/
 
         }
     }
