@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class FirebaseHelper {
     private static FirebaseHelper INSTANCE = null;
     private FirebaseCallback callbackHelper;
+
     private Context mContext;
 
     private FirebaseHelper(Context context) {
@@ -46,14 +47,14 @@ public class FirebaseHelper {
         mModulesDatabaseReference.child("modules").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String moduleString = new String();
+                //String moduleString = new String();
                 if (snapshot.getChildren() != null) {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {
 
                         // original testing
                         String modCode = userSnapshot.child("Module Name").getValue(String.class);
-                        moduleString = moduleString + " " + modCode;
-                        System.out.println(moduleString);
+                        //moduleString = moduleString + " " + modCode;
+                        //System.out.println(moduleString);
                         //
 
                         NUSModuleLite nusModuleLite = new NUSModuleLite();
@@ -87,9 +88,8 @@ public class FirebaseHelper {
                         }
 
 
-                        System.out.println(moduleInfoList.get(0).lessonType);
+                        //System.out.println(moduleInfoList.get(0).lessonType);
 
-                        // works up to here
                         // get(1) works if the mod has a 2nd lessontype (tested)
                         nusModuleLite.setClassesSelected(moduleInfoList);
 
@@ -117,9 +117,47 @@ public class FirebaseHelper {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println("The read failed: " + error.getCode());
+                System.out.println("The read failed: @getAllModules" + error.getCode());
             }
 
         });
+    }
+
+    public void getAllKeywords() {
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+        final ArrayList<String> allKeywords = new ArrayList<>();
+
+        mModulesDatabaseReference.child("modules").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.getChildren() != null) {
+                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                        String modCode = userSnapshot.child("Module Name").getValue(String.class);
+                        allKeywords.add(modCode);
+
+                    }
+
+
+                }
+                else {
+                    System.out.println("getallkeywords no children");
+                }
+
+                if(callbackHelper != null){
+                    callbackHelper.onGetKeyword(allKeywords);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("The read failed: @getkeywords " + error.getCode());
+
+            }
+        });
+
     }
 }
