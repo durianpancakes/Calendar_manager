@@ -40,6 +40,7 @@ public class EmailFragment extends Fragment {
     View myFragmentView;
     private ProgressBar mProgress = null;
     private ArrayList<Message> mEmailList = new ArrayList<>();
+    private String mKeyword;
 
     private void showProgressBar() {
         getActivity().runOnUiThread(new Runnable() {
@@ -48,6 +49,10 @@ public class EmailFragment extends Fragment {
                 mProgress.setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    public EmailFragment(String keyword) {
+        mKeyword = keyword;
     }
 
     private void hideProgressBar() {
@@ -105,8 +110,12 @@ public class EmailFragment extends Fragment {
                         final GraphHelper graphHelper = GraphHelper.getInstance();
 
                         // Get the user's events
-                        graphHelper.getSpecificEmails(authenticationResult.getAccessToken(), "CG1112",
-                                getEmailCallback());
+                        if(mKeyword.equals("Inbox")){
+                            graphHelper.getEmails(authenticationResult.getAccessToken(), getEmailCallback());
+                        } else {
+                            graphHelper.getSpecificEmails(authenticationResult.getAccessToken(), mKeyword,
+                                    getEmailCallback());
+                        }
 
                         hideProgressBar();
                     }

@@ -11,9 +11,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -65,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AuthenticationHelper mAuthHelper = null;
     private boolean mAttemptInteractiveSignIn = false;
     private FirebaseAuth mFirebaseAuth;
+    private Spinner mToolbarSpinner;
+    private ArrayList<String> mUserKeywords = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Set the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        mToolbarSpinner = toolbar.findViewById(R.id.toolbar_spinner);
 
         mDrawer = findViewById(R.id.drawer_layout);
 
@@ -328,6 +333,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Load the "Home" fragment
     public void openHomeFragment(String userName) {
         Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Home");
         toolbar.setSubtitle("");
         HomeFragment fragment = HomeFragment.createInstance(userName);
@@ -338,15 +344,60 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void openEmailFragment(){
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Email");
-        toolbar.setSubtitle("");
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new EmailFragment()).commit();
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+
+        // Get the user's keywords from Firebase
+        // TEMPORARY: problem -- if user is not logged into Firebase
+        // The whole application will crash
+        // Need to find a way to check if user is signed into Firebase
+        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
+        firebaseHelper.getAllKeywords();
+        firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
+            @Override
+            public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
+                // Not required here
+            }
+
+            @Override
+            public void onGetKeyword(final ArrayList<String> userKeywords) {
+                if(userKeywords.size() == 0){
+                    // Nothing in database, revert to no options (show inbox only)
+                    toolbar.setTitle("Inbox");
+                    toolbar.setSubtitle("");
+                    mToolbarSpinner.setVisibility(View.GONE);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new EmailFragment("Inbox")).commit();
+                } else {
+                    toolbar.setTitle("");
+                    toolbar.setSubtitle("");
+                    ArrayAdapter<String> mToolbarSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, mUserKeywords);
+                    mToolbarSpinnerAdapter.add("Inbox");
+                    mToolbarSpinner.setVisibility(View.VISIBLE);
+                    for(int i = 0; i < userKeywords.size(); i++){
+                        mToolbarSpinnerAdapter.add(userKeywords.get(i));
+                    }
+                    mToolbarSpinner.setAdapter(mToolbarSpinnerAdapter);
+                    mToolbarSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                            String keywordSelected = parent.getItemAtPosition(pos).toString();
+                            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new EmailFragment(keywordSelected)).commit();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+
+                        }
+                    });
+                }
+            }
+        });
+
         mNavigationView.setCheckedItem(R.id.nav_email);
     }
 
     private void openDayCalendar(){
         Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Calendar");
         toolbar.setSubtitle("Day View");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarDayFragment()).commit();
@@ -355,6 +406,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openMonthCalendar(){
         Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Calendar");
         toolbar.setSubtitle("Month View");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarMonthFragment()).commit();
@@ -363,6 +415,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openWeekCalendar(){
         Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Calendar");
         toolbar.setSubtitle("Week View");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarWeekFragment()).commit();
@@ -371,6 +424,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openFirebaseLoginFragment(){
         Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Storage");
         toolbar.setSubtitle("");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FirebaseLoginFragment()).commit();
@@ -378,6 +432,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openNusmodsFragment() {
         Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Modules");
         toolbar.setSubtitle("");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new NusmodsFragment()).commit();
