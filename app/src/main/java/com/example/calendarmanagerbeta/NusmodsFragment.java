@@ -233,6 +233,11 @@ public class NusmodsFragment extends Fragment{
                     }
                 });
             }
+
+            @Override
+            public void onGetKeyword(ArrayList<String> userKeywords) {
+                // Not required here
+            }
         });
 
         return myFragmentView;
