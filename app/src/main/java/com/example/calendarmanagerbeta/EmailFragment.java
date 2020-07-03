@@ -66,8 +66,6 @@ public class EmailFragment extends Fragment {
                 Log.d("EMAIL", "Pull successful");
                 for (Message message : iMessageCollectionPage.getCurrentPage()) {
                     mEmailList.add(message);
-                    System.out.println(message.subject);
-                    System.out.println(message.sender.emailAddress.address);
                 }
                 addEmailsToList();
 

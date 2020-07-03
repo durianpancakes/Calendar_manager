@@ -46,7 +46,6 @@ public class FirebaseHelper {
         mModulesDatabaseReference.child("modules").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
                 String moduleString = new String();
                 if (snapshot.getChildren() != null) {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {

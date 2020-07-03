@@ -27,7 +27,20 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
             android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/toolbar_spinner"
+                app:popupTheme="@style/Theme.AppCompat.Light"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_below="@id/toolbar"
+                android:layout_alignLeft="@id/nav_view"
+                android:layout_alignStart="@id/nav_view"/>
+
+        </androidx.appcompat.widget.Toolbar>
 
         <FrameLayout
             android:id="@+id/fragment_container"
