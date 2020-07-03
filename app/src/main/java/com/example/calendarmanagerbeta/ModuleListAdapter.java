@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,16 +25,19 @@ import java.util.List;
 public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
     private Context mContext;
     private int mResource;
-    private List<NUSModuleMain> mModules;
+    private List<NUSModuleLite> mUserDatabase;
     private int mSemester;
     private onParamsChangedListener mParamsChangedListener;
+    String lectureChosenDB;
+    String tutorialChosenDB;
+    String stChosenDB;
+    String recitationChosenDB;
 
-
-    public ModuleListAdapter(Context context, int resource, List<NUSModuleMain> userModules, int semester) {
+    public ModuleListAdapter(Context context, int resource, List<NUSModuleMain> userModules, List<NUSModuleLite> databaseUserModules, int semester) {
         super(context, resource, userModules);
         this.mContext = context;
         this.mResource = resource;
-        this.mModules = userModules;
+        this.mUserDatabase = databaseUserModules;
         this.mSemester = semester - 1; // Compensate for the index of ArrayList
     }
 
@@ -53,11 +57,9 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
         ArrayList<String> mModuleSectionalTeaching = new ArrayList<String>();
         ArrayList<String> mModuleRecitation = new ArrayList<String>();
 
-
         if(convertView == null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.nusmods_list_item, null);
-            System.out.println("CONVERT VIEW NULL " + position);
 
             ImageButton removeModuleButton = (ImageButton) convertView.findViewById(R.id.delete_module);
             TextView moduleCodeAndTitle = (TextView) convertView.findViewById(R.id.module_code_and_title);
@@ -107,6 +109,28 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                 }
             }
 
+            for(int i = 0; i < mUserDatabase.size(); i++){
+                if(nusModuleMain.getModuleCode().equals(mUserDatabase.get(i).getModuleCode()) && mUserDatabase.get(i).getClassesSelected() != null){
+                    // Module is found in database
+                    for(int n = 0; n < mUserDatabase.get(i).getClassesSelected().size(); n++){
+                        switch(whatIsThisClassSelection(mUserDatabase.get(i), n)){
+                            case "Tutorial":
+                                tutorialChosenDB = mUserDatabase.get(i).getClassesSelected().get(n).getClassNo();
+                                break;
+                            case "Lecture":
+                                lectureChosenDB = mUserDatabase.get(i).getClassesSelected().get(n).getClassNo();
+                                break;
+                            case "Sectional Teaching":
+                                stChosenDB = mUserDatabase.get(i).getClassesSelected().get(n).getClassNo();
+                                break;
+                            case "Recitation":
+                                recitationChosenDB = mUserDatabase.get(i).getClassesSelected().get(n).getClassNo();
+                                break;
+                        }
+                    }
+                }
+            }
+
             ArrayAdapter<String> spinnerLectureAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, mModuleLecture);
             spinnerLectureAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerLecture.setAdapter(spinnerLectureAdapter);
@@ -114,6 +138,11 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                 textLecture.setVisibility(View.GONE);
                 spinnerLecture.setVisibility(View.GONE);
             } else {
+                for(int i = 0; i < spinnerLecture.getCount(); i++){
+                    if(spinnerLecture.getItemAtPosition(i).equals(lectureChosenDB)){
+                        spinnerLecture.setSelection(i);
+                    }
+                }
                 spinnerLecture.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
@@ -136,6 +165,11 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                 textTutorial.setVisibility(View.GONE);
                 spinnerTutorial.setVisibility(View.GONE);
             } else {
+                for(int i = 0; i < spinnerTutorial.getCount(); i++){
+                    if(spinnerTutorial.getItemAtPosition(i).equals(tutorialChosenDB)){
+                        spinnerTutorial.setSelection(i);
+                    }
+                }
                 spinnerTutorial.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
@@ -158,6 +192,11 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                 textSectionalTeaching.setVisibility(View.GONE);
                 spinnerSectionalTeaching.setVisibility(View.GONE);
             } else {
+                for(int i = 0; i < spinnerSectionalTeaching.getCount(); i++){
+                    if(spinnerSectionalTeaching.getItemAtPosition(i).equals(stChosenDB)){
+                        spinnerSectionalTeaching.setSelection(i);
+                    }
+                }
                 spinnerSectionalTeaching.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
@@ -180,6 +219,11 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                 textRecitation.setVisibility(View.GONE);
                 spinnerRecitation.setVisibility(View.GONE);
             } else {
+                for(int i = 0; i < spinnerLecture.getCount(); i++){
+                    if(spinnerRecitation.getItemAtPosition(i).equals(recitationChosenDB)){
+                        spinnerRecitation.setSelection(i);
+                    }
+                }
                 spinnerRecitation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
@@ -194,6 +238,7 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                     }
                 });
             }
+
             removeModuleButton.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
@@ -211,6 +256,10 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
 
     private String whatIsThisClass(NUSModuleMain module, int index) {
         return module.getSemesterData().get(mSemester).getTimetable().get(index).getLessonType();
+    }
+
+    private String whatIsThisClassSelection(NUSModuleLite module, int index){
+        return module.getClassesSelected().get(index).getLessonType();
     }
 
     private String parseDate(String dateString){
