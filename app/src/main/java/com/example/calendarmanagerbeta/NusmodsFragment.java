@@ -45,7 +45,7 @@ public class NusmodsFragment extends Fragment{
     ModuleListAdapter adapter;
     // Temporary holder
     private ArrayList<NUSModuleMain> userModulesAdded = new ArrayList<NUSModuleMain>();
-    private ArrayList<String> databaseUserModules = new ArrayList<String>();
+    private ArrayList<NUSModuleLite> databaseUserModules = new ArrayList<NUSModuleLite>();
 
     public NusmodsFragment() {
         // Required empty public constructor
@@ -106,7 +106,7 @@ public class NusmodsFragment extends Fragment{
                 moduleEditText.setAdapter(adapter);
 
                 for(i = 0; i < databaseUserModules.size(); i++){
-                    addModule(databaseUserModules.get(i));
+                    addModule(databaseUserModules.get(i).getModuleCode());
                 }
 
                 hideProgressBar();
@@ -138,7 +138,7 @@ public class NusmodsFragment extends Fragment{
 
     public boolean isFoundInDatabase(String moduleCode){
         for(int i = 0; i < databaseUserModules.size(); i++){
-            if(moduleCode.equals(databaseUserModules.get(i))){
+            if(moduleCode.equals(databaseUserModules.get(i).getModuleCode())){
                 return true;
             }
         }
@@ -166,60 +166,72 @@ public class NusmodsFragment extends Fragment{
 
         semesterData.setText(getSemesterString());
 
-        if(adapter == null){
-            adapter = new ModuleListAdapter(getActivity(), R.layout.nusmods_list_item, userModulesAdded, currentSemester);
-            moduleList.setAdapter(adapter);
-        }
-
-        adapter.setOnParamsChangedListener(new onParamsChangedListener() {
+        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getContext());
+        firebaseHelper.getAllModules();
+        firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
             @Override
-            public void lectureChanged(String moduleCode, String lessonType, String classNo) {
-                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
-            }
-
-            @Override
-            public void tutorialChanged(String moduleCode, String lessonType, String classNo) {
-                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
-            }
-
-            @Override
-            public void stChanged(String moduleCode, String lessonType, String classNo) {
-                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
-            }
-
-            @Override
-            public void recitationChanged(String moduleCode, String lessonType, String classNo) {
-                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
-            }
-
-            @Override
-            public void moduleRemoved(String moduleCode) {
-                System.out.println("moduleremoved");
-                removeModule(moduleCode);
-                moduleRemoveListener.onModuleRemove(moduleCode);
-            }
-        });
-
-        addModuleButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                CharSequence input = moduleEditText.getText();
-                String inputString = input.toString();
-                String[] moduleData = inputString.split("\\s+");
-                String moduleCode = moduleData[0];
-
-                if(isValidModule(moduleCode)){
-                    if(isFoundInDatabase(moduleCode) == true){
-                        Toast.makeText(getActivity(), "Module already exists", Toast.LENGTH_LONG).show();
-                        moduleEditText.setText("");
-                    } else {
-                        addModule(moduleCode);
-                        moduleEditText.setText("");
-                        Toast.makeText(getActivity(), "Module successfully added", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(getActivity(), "Invalid module code", Toast.LENGTH_LONG).show();
+            public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
+                databaseUserModules = userModules;
+                for(int i = 0; i < databaseUserModules.size(); i++){
+                    addModule(databaseUserModules.get(i).getModuleCode());
                 }
+
+                if(adapter == null){
+                    adapter = new ModuleListAdapter(getActivity(), R.layout.nusmods_list_item, userModulesAdded, databaseUserModules, currentSemester);
+                    moduleList.setAdapter(adapter);
+                }
+
+                adapter.setOnParamsChangedListener(new onParamsChangedListener() {
+                    @Override
+                    public void lectureChanged(String moduleCode, String lessonType, String classNo) {
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                    }
+
+                    @Override
+                    public void tutorialChanged(String moduleCode, String lessonType, String classNo) {
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                    }
+
+                    @Override
+                    public void stChanged(String moduleCode, String lessonType, String classNo) {
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                    }
+
+                    @Override
+                    public void recitationChanged(String moduleCode, String lessonType, String classNo) {
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                    }
+
+                    @Override
+                    public void moduleRemoved(String moduleCode) {
+                        System.out.println("moduleremoved");
+                        removeModule(moduleCode);
+                        moduleRemoveListener.onModuleRemove(moduleCode);
+                    }
+                });
+
+                addModuleButton.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v){
+                        CharSequence input = moduleEditText.getText();
+                        String inputString = input.toString();
+                        String[] moduleData = inputString.split("\\s+");
+                        String moduleCode = moduleData[0];
+
+                        if(isValidModule(moduleCode)){
+                            if(isFoundInDatabase(moduleCode) == true){
+                                Toast.makeText(getActivity(), "Module already exists", Toast.LENGTH_LONG).show();
+                                moduleEditText.setText("");
+                            } else {
+                                addModule(moduleCode);
+                                moduleEditText.setText("");
+                                Toast.makeText(getActivity(), "Module successfully added", Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            Toast.makeText(getActivity(), "Invalid module code", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
         });
 
@@ -228,17 +240,18 @@ public class NusmodsFragment extends Fragment{
 
     private void removeModule(String moduleCode){
         System.out.println("entered");
+
         for(int i = 0; i < userModulesAdded.size(); i++){
             System.out.println(userModulesAdded.get(i).getModuleCode());
             if(moduleCode.equals(userModulesAdded.get(i).getModuleCode())){
-                System.out.println("found");
+                NUSModuleMain temp = userModulesAdded.get(i);
                 userModulesAdded.remove(i);
                 databaseUserModules.remove(i);
                 adapter.notifyDataSetChanged();
+                moduleList.setAdapter(adapter);
                 return;
             }
         }
-        adapter.notifyDataSetChanged();
     }
 
     private void addModule(String moduleCode){
@@ -249,10 +262,17 @@ public class NusmodsFragment extends Fragment{
             @Override
             public void onRefresh() {
                 NUSModuleMain nusModule;
+                NUSModuleLite nusModuleConverted = new NUSModuleLite();
+
                 nusModule = nusmodsHelper.getNusModuleFull();
-                userModulesAdded.add(nusModule);
-                if(isFoundInDatabase(nusModule.getModuleCode()) == false){
-                    databaseUserModules.add(nusModule.getModuleCode());
+
+                if(!isFoundInDatabase(nusModule.getModuleCode())){
+                    userModulesAdded.add(nusModule);
+                    nusModuleConverted.setModuleCode(nusModule.getModuleCode());
+                    databaseUserModules.add(nusModuleConverted);
+                    adapter.notifyDataSetChanged();
+                } else { // Initialization falls under here.
+                    userModulesAdded.add(nusModule);
                     adapter.notifyDataSetChanged();
                 }
             }

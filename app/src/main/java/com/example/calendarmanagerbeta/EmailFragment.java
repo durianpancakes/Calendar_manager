@@ -139,10 +139,7 @@ public class EmailFragment extends Fragment {
             }
         });
     }
-
-    private ArrayList<NUSModuleLite> getAllModules() {
-
-
+    public ArrayList<NUSModuleLite> getAllModules() {
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
@@ -197,16 +194,12 @@ public class EmailFragment extends Fragment {
 
                         System.out.println(moduleInfoList.get(0).lessonType);
 
-
                         // works up to here
                         // get(1) works if the mod has a 2nd lessontype (tested)
                         nusModuleLite.setClassesSelected(moduleInfoList);
 
                         allModules.add(nusModuleLite);
-
                     }
-
-
                 } else {
                     System.out.println("There are no children");
                 }
@@ -220,9 +213,7 @@ public class EmailFragment extends Fragment {
                         System.out.println(moduleInfo.lessonType + " " +
                                 moduleInfo.classNo);
                     }
-
                 }
-
             }
 
             @Override
@@ -234,8 +225,5 @@ public class EmailFragment extends Fragment {
         });
 
         return allModules;
-
-
     }
-
 }
