@@ -1,5 +1,5 @@
 package com.example.calendarmanagerbeta;
 
-public interface onRefreshListener {
+public interface onRefreshSpecificListener {
     void onRefresh();
 }

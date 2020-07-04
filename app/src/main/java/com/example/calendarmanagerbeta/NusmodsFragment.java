@@ -90,7 +90,7 @@ public class NusmodsFragment extends Fragment{
         nusmodsHelper.refreshModulesDatabase();
 
         // Refreshing full module database
-        nusmodsHelper.setOnRefreshListener(new onRefreshListener() {
+        nusmodsHelper.setOnRefreshFullListener(new onRefreshFullListener() {
             @Override
             public void onRefresh() {
                 nusModuleLiteList = nusmodsHelper.getNusModulesLite();
@@ -104,10 +104,6 @@ public class NusmodsFragment extends Fragment{
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, moduleDatabase);
                 moduleEditText.setAdapter(adapter);
-
-                for(i = 0; i < databaseUserModules.size(); i++){
-                    addModule(databaseUserModules.get(i).getModuleCode());
-                }
 
                 hideProgressBar();
             }
@@ -204,7 +200,6 @@ public class NusmodsFragment extends Fragment{
 
                     @Override
                     public void moduleRemoved(String moduleCode) {
-                        System.out.println("moduleremoved");
                         removeModule(moduleCode);
                         moduleRemoveListener.onModuleRemove(moduleCode);
                     }
@@ -236,7 +231,7 @@ public class NusmodsFragment extends Fragment{
 
             @Override
             public void onGetKeyword(ArrayList<String> userKeywords) {
-                // Not required here
+                return;
             }
         });
 
@@ -244,8 +239,6 @@ public class NusmodsFragment extends Fragment{
     }
 
     private void removeModule(String moduleCode){
-        System.out.println("entered");
-
         for(int i = 0; i < userModulesAdded.size(); i++){
             System.out.println(userModulesAdded.get(i).getModuleCode());
             if(moduleCode.equals(userModulesAdded.get(i).getModuleCode())){
@@ -263,14 +256,14 @@ public class NusmodsFragment extends Fragment{
         final NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getContext());
 
         nusmodsHelper.refreshSpecificModule(moduleCode);
-        nusmodsHelper.setOnRefreshListener(new onRefreshListener() {
+        nusmodsHelper.setOnRefreshSpecificListener(new onRefreshSpecificListener() {
             @Override
             public void onRefresh() {
                 NUSModuleMain nusModule;
                 NUSModuleLite nusModuleConverted = new NUSModuleLite();
 
                 nusModule = nusmodsHelper.getNusModuleFull();
-
+                System.out.println("HERE" + nusModule.getModuleCode());
                 if(!isFoundInDatabase(nusModule.getModuleCode())){
                     userModulesAdded.add(nusModule);
                     nusModuleConverted.setModuleCode(nusModule.getModuleCode());
@@ -292,7 +285,7 @@ public class NusmodsFragment extends Fragment{
             moduleRemoveListener = (removeModuleListener)context;
         }
         else{
-            throw new RuntimeException(context.toString() + " must implement addModuleListener");
+            throw new RuntimeException(context.toString() + " must implement listener");
         }
     }
 

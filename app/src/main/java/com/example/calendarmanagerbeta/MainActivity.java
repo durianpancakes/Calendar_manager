@@ -355,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
             @Override
             public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
-                // Not required here
+                return;
             }
 
             @Override
@@ -370,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     toolbar.setTitle("");
                     toolbar.setSubtitle("");
                     ArrayAdapter<String> mToolbarSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, mUserKeywords);
+                    mToolbarSpinnerAdapter.clear();
                     mToolbarSpinnerAdapter.add("Inbox");
                     mToolbarSpinner.setVisibility(View.VISIBLE);
                     for(int i = 0; i < userKeywords.size(); i++){

@@ -40,10 +40,15 @@ public class NUSmodsHelper{
     private String jsonString;
     private List<NUSModuleLite> nusModulesLite;
     private NUSModuleMain nusModuleFull;
-    private onRefreshListener mOnRefreshListener;
+    private onRefreshFullListener mOnRefreshFullListener;
+    private onRefreshSpecificListener mOnRefreshSpecificListener;
 
-    public void setOnRefreshListener(onRefreshListener refreshListener){
-        mOnRefreshListener = refreshListener;
+    public void setOnRefreshFullListener(onRefreshFullListener refreshListener){
+        mOnRefreshFullListener = refreshListener;
+    }
+
+    public void setOnRefreshSpecificListener(onRefreshSpecificListener refreshListener){
+        mOnRefreshSpecificListener = refreshListener;
     }
 
     public List<NUSModuleLite> getNusModulesLite() {
@@ -100,10 +105,9 @@ public class NUSmodsHelper{
             public void onResponse(JSONArray response) {
                 Log.d("NUSmodsHelper refreshModulesDatabase success", response.toString());
                 jsonString = response.toString();
-
                 mapModuleDatabase(jsonString);
-                if(mOnRefreshListener != null){
-                    mOnRefreshListener.onRefresh();
+                if(mOnRefreshFullListener != null){
+                    mOnRefreshFullListener.onRefresh();
                 }
             }
         }, new Response.ErrorListener() {
@@ -125,8 +129,8 @@ public class NUSmodsHelper{
                 jsonString = response.toString();
 
                 mapFullModule(jsonString);
-                if(mOnRefreshListener != null){
-                    mOnRefreshListener.onRefresh();
+                if(mOnRefreshSpecificListener != null){
+                    mOnRefreshSpecificListener.onRefresh();
                 }
             }
 

@@ -149,7 +149,6 @@ public class FirebaseHelper {
                 if(callbackHelper != null){
                     callbackHelper.onGetKeyword(allKeywords);
                 }
-
             }
 
             @Override
