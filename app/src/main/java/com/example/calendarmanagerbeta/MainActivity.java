@@ -369,7 +369,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 } else {
                     toolbar.setTitle("");
                     toolbar.setSubtitle("");
-                    ArrayAdapter<String> mToolbarSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, mUserKeywords);
+                    ArrayAdapter<String> mToolbarSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.email_checked_title, mUserKeywords);
+                    mToolbarSpinnerAdapter.setDropDownViewResource(R.layout.email_spinner_dropdown_item);
                     mToolbarSpinnerAdapter.clear();
                     mToolbarSpinnerAdapter.add("Inbox");
                     mToolbarSpinner.setVisibility(View.VISIBLE);
