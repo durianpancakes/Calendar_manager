@@ -73,7 +73,8 @@ public class EmailFragment extends Fragment {
                     mEmailList.add(message);
                 }
                 addEmailsToList();
-
+                String emailContent = mEmailList.get(0).body.content;
+                System.out.println(emailContent);
                 hideProgressBar();
             }
 
