@@ -2,6 +2,8 @@ package com.example.calendarmanagerbeta;
 
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -34,6 +36,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.microsoft.graph.models.extensions.Shared;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
+    public static final String PREFS_NAME = "CalendarManagerPreferences";
 
     private DrawerLayout mDrawer;
     private NavigationView mNavigationView;
@@ -270,6 +274,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ImageView userProfilePicture = mHeaderView.findViewById(R.id.user_profile_pic);
 
         if (isSignedIn) {
+            // Check if this is application's first launch
+            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+            boolean firstRun = settings.getBoolean("firstRun", true);
+
+            if(firstRun){
+                Log.w("Application activity", "First launch");
+                startActivity(new Intent(this, MyAppIntro.class));
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putBoolean("firstRun", false);
+                editor.commit();
+            }
+
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
             if(mProfilePicture != null) {

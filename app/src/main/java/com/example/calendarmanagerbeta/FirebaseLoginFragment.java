@@ -122,9 +122,6 @@ public class FirebaseLoginFragment extends Fragment {
                                     .build(),
                             RC_SIGN_IN);  //RC is quest code, flag for when return from starting the activity for result
                 }
-
-
-
             }
 
         };
@@ -138,7 +135,6 @@ public class FirebaseLoginFragment extends Fragment {
         // Inflate the layout for this fragment
         return firebaseView;
     }
-
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
