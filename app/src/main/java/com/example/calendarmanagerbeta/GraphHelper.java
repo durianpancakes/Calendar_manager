@@ -1,5 +1,6 @@
 package com.example.calendarmanagerbeta;
 
+import android.app.DownloadManager;
 import android.provider.ContactsContract;
 
 import com.google.gson.JsonObject;
@@ -10,6 +11,7 @@ import com.microsoft.graph.http.IHttpRequest;
 import com.microsoft.graph.models.extensions.IGraphServiceClient;
 import com.microsoft.graph.models.extensions.ProfilePhoto;
 import com.microsoft.graph.models.extensions.User;
+import com.microsoft.graph.options.HeaderOption;
 import com.microsoft.graph.requests.extensions.GraphServiceClient;
 import com.microsoft.graph.options.Option;
 import com.microsoft.graph.options.QueryOption;
@@ -76,7 +78,9 @@ public class GraphHelper implements IAuthenticationProvider {
 
     public void getEmails(String accessToken, ICallback<IMessageCollectionPage> callback){
         mAccessToken = accessToken;
-        mClient.me().mailFolders("inbox").messages().buildRequest().select("sender,subject,bodyPreview,isRead").get(callback);
+        LinkedList<Option> requestOptions = new LinkedList<Option>();
+        requestOptions.add(new HeaderOption("Prefer", "outlook.body-content-type=\"text\""));
+        mClient.me().mailFolders("inbox").messages().buildRequest(requestOptions).select("sender,subject,bodyPreview,isRead,body").get(callback);
     }
 
     public void getSpecificEmails(String accessToken, String moduleCode, ICallback<IMessageCollectionPage> callback){
