@@ -73,8 +73,28 @@ public class EmailFragment extends Fragment {
                     mEmailList.add(message);
                 }
                 addEmailsToList();
-                String emailContent = mEmailList.get(0).body.content;
-                System.out.println(emailContent);
+
+                for(int i = 0; i < mEmailList.size(); i++) {
+                    String emailContent = mEmailList.get(i).body.content;
+                    System.out.println(emailContent);
+                    EmailParser mEmailParser = new EmailParser();
+                    ArrayList<Integer> DMY = mEmailParser.DateParse(emailContent);
+
+                    if(DMY.get(0) != 0) {
+                        //set date
+                    }
+                    if(DMY.get(1) != 0) {
+                        //set month
+                    }
+                    if(DMY.get(2) != 0) {
+                        //set year
+                    }
+
+                    //default d / m / y is 0 so if == 0 means not detected.
+
+
+                }
+
                 hideProgressBar();
             }
 
