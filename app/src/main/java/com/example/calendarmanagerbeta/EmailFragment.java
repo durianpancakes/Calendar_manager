@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -24,6 +25,7 @@ import com.microsoft.graph.concurrency.ICallback;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.extensions.Message;
 import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
+import com.microsoft.graph.requests.extensions.IMessageCollectionRequestBuilder;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalException;
@@ -41,6 +43,8 @@ public class EmailFragment extends Fragment {
     private ProgressBar mProgress = null;
     private ArrayList<Message> mEmailList = new ArrayList<>();
     private String mKeyword;
+    private IMessageCollectionRequestBuilder nextPage = null;
+    private EmailListAdapter listAdapter = null;
 
     private void showProgressBar() {
         getActivity().runOnUiThread(new Runnable() {
@@ -72,28 +76,8 @@ public class EmailFragment extends Fragment {
                 for (Message message : iMessageCollectionPage.getCurrentPage()) {
                     mEmailList.add(message);
                 }
+                nextPage = iMessageCollectionPage.getNextPage();
                 addEmailsToList();
-
-                for(int i = 0; i < mEmailList.size(); i++) {
-                    String emailContent = mEmailList.get(i).body.content;
-                    System.out.println(emailContent);
-                    EmailParser mEmailParser = new EmailParser();
-                    ArrayList<Integer> DMY = mEmailParser.DateParse(emailContent);
-
-                    if(DMY.get(0) != 0) {
-                        //set date
-                    }
-                    if(DMY.get(1) != 0) {
-                        //set month
-                    }
-                    if(DMY.get(2) != 0) {
-                        //set year
-                    }
-
-                    //default d / m / y is 0 so if == 0 means not detected.
-
-
-                }
 
                 hideProgressBar();
             }
@@ -158,100 +142,33 @@ public class EmailFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ListView emailListView = getView().findViewById(R.id.emaillist);
+                final ListView emailListView = getView().findViewById(R.id.emaillist);
 
-                EmailListAdapter listAdapter = new EmailListAdapter(getActivity(),
-                        R.layout.email_list_item, mEmailList);
-
-                emailListView.setAdapter(listAdapter);
-            }
-        });
-    }
-    public ArrayList<NUSModuleLite> getAllModules() {
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = user.getUid();
-        DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
-
-        final ArrayList<NUSModuleLite> allModules = new ArrayList<>();
-
-        mModulesDatabaseReference.child("modules").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                String moduleString = new String();
-                if (snapshot.getChildren() != null) {
-                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-
-                        // original testing
-                        String modCode = userSnapshot.child("Module Name").getValue(String.class);
-                        moduleString = moduleString + " " + modCode;
-                        System.out.println(moduleString);
-                        //
-
-                        NUSModuleLite nusModuleLite = new NUSModuleLite();
-                        nusModuleLite.setModuleCode(modCode);
-
-                        ArrayList<ModuleInfo> moduleInfoList = new ArrayList<>();
-
-                        if (userSnapshot.child("Sectional Teaching").exists()) {
-                            ModuleInfo moduleInfo = new ModuleInfo("Sectional Teaching",
-                                    userSnapshot.child("Sectional Teaching").getValue(String.class));
-                            moduleInfoList.add(moduleInfo);
-
-                        }
-
-                        if (userSnapshot.child("Tutorial").exists()) {
-                            ModuleInfo moduleInfo = new ModuleInfo("Tutorial",
-                                    userSnapshot.child("Tutorial").getValue(String.class));
-                            moduleInfoList.add(moduleInfo);
-                        }
-
-                        if (userSnapshot.child("Recitation").exists()) {
-                            ModuleInfo moduleInfo = new ModuleInfo("Recitation",
-                                    userSnapshot.child("Recitation").getValue(String.class));
-                            moduleInfoList.add(moduleInfo);
-                        }
-
-                        if (userSnapshot.child("Lecture").exists()) {
-                            ModuleInfo moduleInfo = new ModuleInfo("Lecture",
-                                    userSnapshot.child("Lecture").getValue(String.class));
-                            moduleInfoList.add(moduleInfo);
-                        }
-
-
-                        System.out.println(moduleInfoList.get(0).lessonType);
-
-                        // works up to here
-                        // get(1) works if the mod has a 2nd lessontype (tested)
-                        nusModuleLite.setClassesSelected(moduleInfoList);
-
-                        allModules.add(nusModuleLite);
-                    }
+                if(listAdapter == null){
+                    listAdapter = new EmailListAdapter(getActivity(), R.layout.email_list_item, mEmailList);
+                    emailListView.setAdapter(listAdapter);
                 } else {
-                    System.out.println("There are no children");
+                    listAdapter.notifyDataSetChanged();
                 }
 
-                //test allModules here
-                for (NUSModuleLite nusModuleLite : allModules) {
-                    System.out.println(nusModuleLite.getModuleCode() + " in test zone");
-                    // works up to here
-                    ArrayList<ModuleInfo> moduleInfoArrayList = nusModuleLite.getClassesSelected();
-                    for (ModuleInfo moduleInfo : moduleInfoArrayList) {
-                        System.out.println(moduleInfo.lessonType + " " +
-                                moduleInfo.classNo);
+                emailListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(AbsListView absListView, int i) {
+                        if(i == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (emailListView.getLastVisiblePosition() - emailListView.getHeaderViewsCount() - emailListView.getFooterViewsCount()) >= (listAdapter.getCount() - 5)){
+                            final GraphHelper graphHelper = GraphHelper.getInstance();
+
+                            if(nextPage != null) {
+                                graphHelper.getNextEmails(nextPage, getEmailCallback());
+                            }
+                        }
                     }
-                }
+
+                    @Override
+                    public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+
+                    }
+                });
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println("The read failed: " + error.getCode());
-
-            }
-
         });
-
-        return allModules;
     }
 }
