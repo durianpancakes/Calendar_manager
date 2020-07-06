@@ -17,6 +17,7 @@ import com.microsoft.graph.options.Option;
 import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.extensions.IEventCollectionPage;
 import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
+import com.microsoft.graph.requests.extensions.IMessageCollectionRequestBuilder;
 import com.microsoft.graph.requests.extensions.ProfilePhotoStreamRequest;
 import com.sun.research.ws.wadl.Link;
 
@@ -91,6 +92,10 @@ public class GraphHelper implements IAuthenticationProvider {
         requestOptions.add(new QueryOption("filter", completedRequest));
 
         mClient.me().mailFolders("inbox").messages().buildRequest(requestOptions).get(callback);
+    }
+
+    public void getNextEmails(IMessageCollectionRequestBuilder nextPage, ICallback<IMessageCollectionPage> callback) {
+        nextPage.buildRequest().get(callback);
     }
 
     // Helper function to complete module email request
