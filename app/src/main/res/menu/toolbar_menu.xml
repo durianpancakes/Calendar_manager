@@ -4,9 +4,6 @@
     <group
         android:id="@+id/toolbar_opt_group">
         <item
-            android:title="Storage"
-            android:id="@+id/toolbar_opt_storage"/>
-        <item
             android:title="Delete"
             android:id="@+id/toolbar_opt_delete"/>
 
@@ -22,9 +19,6 @@
             android:title="Settings"
             android:id="@+id/toolbar_opt_settings"/>
 
-        <item
-            android:title= "Fb SignOut"
-            android:id="@+id/toolbar_opt_signout"/>
     </group>
 
     <item

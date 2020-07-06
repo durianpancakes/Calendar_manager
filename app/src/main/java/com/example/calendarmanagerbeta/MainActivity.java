@@ -202,10 +202,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-            case R.id.toolbar_opt_storage:
-                openFirebaseLoginFragment();
-                uncheckAllNavItems();
-                return true;
             case R.id.toolbar_opt_modules:
                 openNusmodsFragment();
                 uncheckAllNavItems();
@@ -274,17 +270,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ImageView userProfilePicture = mHeaderView.findViewById(R.id.user_profile_pic);
 
         if (isSignedIn) {
-            // Check if this is application's first launch
-            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            boolean firstRun = settings.getBoolean("firstRun", true);
-
-            if(firstRun){
-                Log.w("Application activity", "First launch");
-                startActivity(new Intent(this, MyAppIntro.class));
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putBoolean("firstRun", false);
-                editor.commit();
+            // Check if user is signed into Firebase
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if(user == null){
+                startActivity(new Intent(getApplication(), MyAppIntro.class));
             }
+//            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+//            boolean firstRun = settings.getBoolean("firstRun", true);
+//
+//            if(firstRun){
+//                Log.w("Application activity", "First launch");
+//                startActivity(new Intent(this, MyAppIntro.class));
+//                SharedPreferences.Editor editor = settings.edit();
+//                editor.putBoolean("firstRun", false);
+//                editor.commit();
+//            }
 
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
@@ -440,14 +440,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mNavigationView.setCheckedItem(R.id.calendar_week_view);
     }
 
-    private void openFirebaseLoginFragment(){
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        mToolbarSpinner.setVisibility(View.GONE);
-        toolbar.setTitle("Storage");
-        toolbar.setSubtitle("");
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FirebaseLoginFragment()).commit();
-    }
-
     private void openNusmodsFragment() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
@@ -466,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void signOut() {
         mAuthHelper.signOut();
-
+        mFirebaseAuth.signOut();
         setSignedInState(false);
         openHomeFragment(mUserName);
     }
