@@ -127,7 +127,7 @@ public class EmailParser {
         // use java.util.calendar for Calendar mstarttime mendtime ?
         // uppercase the emailbody
         String UpperBody = emailBody.toUpperCase();
-        String text = "12:00 noon 14 May 2020, 5pm and 7pm, 5pm alone, at 4, 4 o'clock, 4o'clock, 04:00 PM, 5-7pm, 5-5:30pm, 11pm to 1am";
+        String text = "12:00 noon 14 May 2020, 5pm and 7pm, 5pm alone, at 4, 4 o'clock, 4o'clock, 04:00 PM, 5-7pm, 5-5:30pm, 11pm to 1am, there are 2 exams - chapter 1-9";
         String text1 = text.toUpperCase();
         Pattern pattern = Pattern.compile("((AT|BY)[\\h])?\\b(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?[\\h]?(TO|AND|-|O'CLOCK)?\\b([\\h]?(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?)?");
         //\b(2359|23:59)\b
@@ -140,7 +140,7 @@ public class EmailParser {
 
         while (matcher.find()) {
 
-            Pattern pattern1 = Pattern.compile("(AM|PM|O'CLOCK|AT|BY)");
+            //Pattern pattern1 = Pattern.compile("(AM|PM|O'CLOCK|AT|BY)");
             // if has - it could be chapter 1-9 , false parse
             // what about chapter 1 TO 9 ... will be detected
 
@@ -148,17 +148,21 @@ public class EmailParser {
 
             // at 7 / by 7 / 7 o'clock will be parsed. this will not have the correct am/pm though. should i remove at/by?
             String secondParse = matcher.group(0);
+            System.out.println(secondParse + " this includes timings as well as random numbers.");
 
-            Matcher matcher1 = pattern1.matcher(secondParse);
+            //Matcher matcher1 = pattern1.matcher(secondParse);
             // this matcher will eliminate random numbers
 
-            if (matcher1.find()) {
-                // use if because only want 1 entry, should only be 1 entry of something like 7:30 to 8pm
 
-                String thirdParse = matcher1.group(0);
-                // the final form to be split up
-                // eg 7:30-8pm
+            startHour = 0;
+            startMinute = 0;
+            endHour = 0;
+            endMinute = 0;
+            foundInloop = 0;
 
+            if(secondParse.contains("AM") || secondParse.contains("PM")) {
+                String thirdParse = secondParse;
+                System.out.println(thirdParse + " this should only includes am/pm/oclock/at/by ");
                 Pattern pattern2 = Pattern.compile("(1[0-2]|0?[1-9])([:.][0-5][0-9])?");
                 Matcher matcher2 = pattern2.matcher(thirdParse);
                 // just the numbers eg 7:30-9pm -> 7:30 , 9
@@ -176,22 +180,128 @@ public class EmailParser {
                 // right now start/endminute will be = 0 as initialized if they are useless 0s like 04:00, probably need to change this.
 
 
-                if (thirdParse.contains("PM") && !thirdParse.contains("AM") ) {
+                if (thirdParse.contains("AM") && thirdParse.contains("PM")) {
+
+                    //System.out.println(matcher2.group(0) + " this should only be time digits itself ");
+
+                    // thirdParse will be :eg 11am to 1pm... / 11pm to 1am
+                    // means it is definitely a range, don't have to check for a / b / c
+                    // we dont need to user matcher2, we just cut up thirdParse.
+
+                    // check if AM or PM comes first.
+                    Pattern pattern3 = Pattern.compile("(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?");
+                    // splits it into 11am, 1pm
+                    Matcher matcher3 = pattern3.matcher(thirdParse);
+
+                    System.out.println(thirdParse + " should be a range");
+
+                    while(matcher3.find()) {
+                        ArrayList<Integer> temp = splitTime(matcher3.group(0));
+                        if(foundInloop == 0) {
+                            //start timings
+
+                            startHour = temp.get(0);
+                            if(temp.size() == 2) {
+                                startMinute = temp.get(1);
+                            }
+
+                            foundInloop++;
+
+                        }
+                        else if(foundInloop == 1) {
+                            //end timings
+                            startHour = temp.get(0);
+                            if(temp.size() == 2) {
+                                startMinute = temp.get(1);
+                            }
+                            foundInloop = 0;
+
+
+                        }
+
+
+                    }
+                } else if (thirdParse.contains("AM")) {
 
                     if (b) {
                         while(matcher2.find()) {
+                            System.out.println(thirdParse + " should be a range");
                             // find 2 groups, eg 7:30-9pm -> 7:30 , 9
                             ArrayList<Integer> temp = splitTime(matcher2.group(0));
 
                             if(foundInloop == 0) {
+                                startHour = temp.get(0);
+                                if (temp.size() == 2) {
+                                    startMinute = temp.get(1);
+                                }
+                                foundInloop++;
+                            }
+                            else if(foundInloop == 1) {
+                                endHour = temp.get(0);
+                                if(temp.size() == 2) {
+                                    endMinute = temp.get(1);
+                                }
+                                foundInloop = 0;
+                            }
+                        }
+                        // means time range, with start and end time. could include minutes....
 
+                    } else if (c) {
+                        // should only be 1 number since its eg. by 7
+                        if(matcher2.find()) {
+                            ArrayList<Integer> temp = splitTime(matcher2.group(0));
+                            endHour = temp.get(0);
+                            if(temp.size() == 2) {
+                                endMinute = temp.get(1);
+                            }
+
+                        }
+                        // end time only
+
+                    } else if (a) {
+                        // at 7 (am)
+                        //start time only
+
+                        if(matcher2.find()) {
+                            ArrayList<Integer> temp = splitTime(matcher2.group(0));
+                            startHour = temp.get(0);
+                            if(temp.size() == 2) {
+                                startMinute = temp.get(1);
+                            }
+                        }
+
+                    } else {
+                        // 04:00 PM , no at,by,or range indicator
+                        // sets startime to 16:00 immediately
+                        if(matcher2.find()) {
+                            ArrayList<Integer> temp = splitTime(matcher2.group(0));
+                            startHour = temp.get(0);
+                            if(temp.size() == 2) {
+                                startMinute = temp.get(1);
+                            }
+                        }
+
+                    }
+
+
+                } else if (thirdParse.contains("PM")) {
+
+                    if (b) {
+                        System.out.println(thirdParse + " should be a range");
+                        while(matcher2.find()) {
+                            // crashes here.....
+                            // find 2 groups, eg 7:30-9pm -> 7:30 , 9
+                            System.out.println(matcher2.group(0));
+                            ArrayList<Integer> temp = splitTime(matcher2.group(0));
+
+                            if(foundInloop == 0) {
                                 startHour = temp.get(0);
                                 if(startHour != 12) {
                                     startHour = startHour + 12;
                                     // to fit 24hr clock
                                 }
 
-                                if (temp.get(1) != null) {
+                                if (temp.size() == 2) {
                                     startMinute = temp.get(1);
                                 }
                                 foundInloop++;
@@ -201,11 +311,13 @@ public class EmailParser {
                                 if(endHour != 12) {
                                     endHour = endHour + 12;
                                 }
-                                if(temp.get(1) != null) {
+                                if(temp.size() == 2) {
                                     endMinute = temp.get(1);
                                 }
                                 foundInloop = 0;
                             }
+
+                            //System.out.println("b is done");
                         }
                         // means time range, with start and end time. could include minutes....
 
@@ -219,7 +331,7 @@ public class EmailParser {
                                 endHour = endHour + 12;
                             }
 
-                            if(temp.get(1) != null) {
+                            if(temp.size() == 2) {
                                 endMinute = temp.get(1);
                             }
 
@@ -236,142 +348,137 @@ public class EmailParser {
                             if(startHour != 12) {
                                 startHour = startHour + 12;
                             }
-                            if(temp.get(1) != null) {
+                            if(temp.size() == 2) {
                                 startMinute = temp.get(1);
                             }
                         }
 
-                    }
-                } else if (thirdParse.contains("AM") && !thirdParse.contains("PM")) {
-
-                    if (b) {
-                        while(matcher2.find()) {
-                            // find 2 groups, eg 7:30-9pm -> 7:30 , 9
-                            ArrayList<Integer> temp = splitTime(matcher2.group(0));
-
-                            if(foundInloop == 0) {
-                                startHour = temp.get(0);
-                                if (temp.get(1) != null) {
-                                    startMinute = temp.get(1);
-                                }
-                                foundInloop++;
-                            }
-                            else if(foundInloop == 1) {
-                                endHour = temp.get(0);
-                                if(temp.get(1) != null) {
-                                    endMinute = temp.get(1);
-                                }
-                                foundInloop = 0;
-                            }
-                        }
-                        // means time range, with start and end time. could include minutes....
-
-                    } else if (c) {
-                        // should only be 1 number since its eg. by 7
-                        if(matcher2.find()) {
-                            ArrayList<Integer> temp = splitTime(matcher2.group(0));
-                            endHour = temp.get(0);
-                            if(temp.get(1) != null) {
-                                endMinute = temp.get(1);
-                            }
-
-                        }
-                        // end time only
-
-                    } else if (a) {
-                        // at 7 (am)
-                        //start time only
-
+                    } else {
                         if(matcher2.find()) {
                             ArrayList<Integer> temp = splitTime(matcher2.group(0));
                             startHour = temp.get(0);
-                            if(temp.get(1) != null) {
+                            if(startHour != 12) {
+                                startHour = startHour + 12;
+                            }
+                            if(temp.size() == 2) {
                                 startMinute = temp.get(1);
                             }
                         }
 
                     }
 
-
-                } else if (thirdParse.contains("AM") && thirdParse.contains("PM")) {
-                    // thirdParse will be :eg 11am to 1pm... / 11pm to 1am
-                    // means it is definitely a range, don't have to check for a / b / c
-                    // we dont need to user matcher2, we just cut up thirdParse.
-
-                    // check if AM or PM comes first.
-                    Pattern pattern3 = Pattern.compile("(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?");
-                    // splits it into 11am, 1pm
-                    Matcher matcher3 = pattern3.matcher(thirdParse);
-
-                    while(matcher3.find()) {
-                        ArrayList<Integer> temp = splitTime(matcher3.group(0));
-                        if(foundInloop == 0) {
-                            //start timings
-                            if(matcher3.group(0).contains("AM")) {
-                                startHour = temp.get(0);
-                                if(temp.get(1) != null) {
-                                    startMinute = temp.get(1);
-                                }
-
-
-                            }
-                            else if(matcher3.group(0).contains("PM")) {
-                                startHour = temp.get(0);
-                                if(startHour != 12) {
-                                    startHour = startHour + 12;
-                                }
-                                if(temp.get(1) != null) {
-                                    startMinute = temp.get(1);
-                                }
-
-
-                            }
-                            foundInloop++;
-
-                        }
-                        else if(foundInloop == 1) {
-
-                            //end timings
-                            if(matcher3.group(0).contains("AM")) {
-                                endHour = temp.get(0);
-                                if(temp.get(1) != null) {
-                                    endMinute = temp.get(1);
-                                }
-
-
-                            }
-                            else if(matcher3.group(0).contains("PM")) {
-                                endHour = temp.get(0);
-                                if(endHour != 12) {
-                                    endHour = endHour + 12;
-                                }
-                                if(temp.get(1) != null) {
-                                    endMinute = temp.get(1);
-                                }
-
-
-                            }
-                            foundInloop = 0;
-
-
-                        }
-
-
-                    }
-
+                } else {
+                    //thirdparse doesnt have am/pm. eg At 4 or 4 o'clock
+                    System.out.println("Ambiguous timing (no am/pm) but has at/oclock/by : " + thirdParse);
                 }
 
 
                 // Remember to add start and end timings into Time to return to main.
                 // also need to implement the june 08, 2020 etc in dateparse.
 
+                System.out.println("startHour is " + startHour + " startMinute is "+ startMinute + " to " + " endHour is : " +
+                        endHour + " endMinute is " + endMinute);
 
-            } else {
-                    System.out.println("false parse detected");
+
+            }
+            else if (secondParse.contains(":") || secondParse.contains(".")) {
+                // no at/by/range
+                String thirdParse = secondParse;
+                //eg 14:00 or 12:00
+                // should be 24hrclock
+                System.out.println(thirdParse + " this should only include : or . ");
+                Pattern pattern2 = Pattern.compile("(1[0-2]|0?[1-9])([:.][0-5][0-9])?");
+                Matcher matcher2 = pattern2.matcher(thirdParse);
+
+
+                boolean a = thirdParse.contains("AT");
+                // start timing only? or might this be ambiguous
+                boolean b = thirdParse.contains("-") || thirdParse.contains("AND") || thirdParse.contains("TO");
+                // means there's a range , start and end timing
+                boolean c = thirdParse.contains("BY");
+                // end timing only?
+
+                if (b) {
+                    System.out.println(thirdParse + " should be a range");
+                    while(matcher2.find()) {
+                        // find 2 groups, eg 7:30-9pm -> 7:30 , 9
+                        ArrayList<Integer> temp = splitTime(matcher2.group(0));
+
+                        if(foundInloop == 0) {
+                            startHour = temp.get(0);
+
+                            if (temp.size() == 2) {
+                                startMinute = temp.get(1);
+                            }
+                            foundInloop++;
+                        }
+                        else if(foundInloop == 1) {
+                            endHour = temp.get(0);
+
+                            if(temp.size() == 2) {
+                                endMinute = temp.get(1);
+                            }
+                            foundInloop = 0;
+                        }
+                    }
+                    // means time range, with start and end time. could include minutes....
+
+                } else if (c) {
+                    // should only be 1 number since its eg. by 7
+                    if(matcher2.find()) {
+                        ArrayList<Integer> temp = splitTime(matcher2.group(0));
+
+                        endHour = temp.get(0);
+
+                        if(temp.size() == 2) {
+                            endMinute = temp.get(1);
+                        }
+
+                    }
+                    // end time only
+
+                } else if (a) {
+                    // at 7 (am)
+                    //start time only
+
+                    if(matcher2.find()) {
+                        ArrayList<Integer> temp = splitTime(matcher2.group(0));
+                        startHour = temp.get(0);
+                        if(temp.size() == 2) {
+                            startMinute = temp.get(1);
+                        }
+                    }
+
+                }
+                else {
+                    if(matcher2.find()) {
+                        ArrayList<Integer> temp = splitTime(matcher2.group(0));
+
+                        startHour = temp.get(0);
+                        if(temp.size() == 2) {
+                            startMinute = temp.get(1);
+                        }
+                    }
+
+                }
+
+
+
+                System.out.println(startHour + " "+ startMinute + " to " + endHour + " " + endMinute);
+            }
+
+            else if (secondParse.contains("O'CLOCK")){
+                System.out.println(secondParse + " contains o'clock, ambiguous");
+
+            }
+            else {
+                System.out.println(secondParse + " is a false parse.");
             }
 
 
         }
+        //need to add into TIME, havent implemented
+
 
         return Time;
 
@@ -395,33 +502,70 @@ public class EmailParser {
         ArrayList<Integer> timeStorage = new ArrayList<>();
         Pattern pattern = Pattern.compile("(1[0-2]|0?[1-9])");
         Pattern pattern1 = Pattern.compile("[:.][0-5][0-9]");
+        Matcher matcher = pattern.matcher(time);
+        Matcher matcher1 = pattern1.matcher(time);
+        System.out.println("In splitTime, : " + time);
         int hour = 0;
         int minute = 0;
         if(time.contains(".") || time.contains(":")) {
-            Matcher matcher = pattern.matcher(time);
-            Matcher matcher1 = pattern1.matcher(time);
+            // the pm am is already considered in TimeParse code i think
+            System.out.println("contains : or .");
+
+            while(matcher.find() && matcher1.find()) {
+                //should this be ||?
+
+                System.out.println(matcher.group(0));
+
+                if (matcher.group(0).startsWith("0")) {
+                    hour = Integer.parseInt(matcher.group(0).substring(1));
+
+                } else {
+                    hour = Integer.parseInt(matcher.group(0));
+                }
+                System.out.println(hour);
+
+                minute = Integer.parseInt(matcher1.group(0).substring(1));
 
 
-            if (matcher.group(0).startsWith("0")) {
-                hour = Integer.parseInt(matcher.group(0).substring(1));
+                timeStorage.add(hour);
+
+                if (minute != 0) {
+                    timeStorage.add(minute);
+                }
 
             }
-            else {
-                hour = Integer.parseInt(matcher.group(0));
-            }
 
-            minute = Integer.parseInt(matcher1.group(0).substring(1));
+        }
+        else if (time.contains("PM") || time.contains("AM")) {
+            // but no . or :
+            while(matcher.find()) {
+                if(time.contains("PM")) {
+                    if (matcher.group(0).startsWith("0")) {
+                        hour = Integer.parseInt(matcher.group(0).substring(1));
+
+                    } else {
+                        hour = Integer.parseInt(matcher.group(0));
+                        hour = hour + 12;
+                    }
+
+                }
+                else if(time.contains("AM")) {
+                    if (matcher.group(0).startsWith("0")) {
+                        hour = Integer.parseInt(matcher.group(0).substring(1));
+
+                    } else {
+                        hour = Integer.parseInt(matcher.group(0));
+                    }
 
 
-            timeStorage.add(hour);
+                }
 
-            if(minute != 0) {
-                timeStorage.add(minute);
+                timeStorage.add(hour);
             }
 
         }
         else {
-            // just hour, no minutes
+            // just hour, no minutes, no am/pm
             if(time.startsWith("0")) {
                 timeStorage.add(Integer.parseInt(time.substring(1)));
             }
@@ -430,6 +574,8 @@ public class EmailParser {
             }
 
         }
+
+        System.out.println(timeStorage.get(0) + " at end of splittime");
 
         return timeStorage;
 
