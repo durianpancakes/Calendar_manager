@@ -123,11 +123,13 @@ public class EmailParser {
         int endHour = 0;
         int endMinute = 0;
         int foundInloop = 0;
+        int viableDateCount = 0;
         ArrayList<Integer> Time = new ArrayList<>();
         // use java.util.calendar for Calendar mstarttime mendtime ?
         // uppercase the emailbody
         String UpperBody = emailBody.toUpperCase();
-        String text = "12:00 noon 14 May 2020, 5pm and 7pm, 5pm alone, at 4, 4 o'clock, 4o'clock, 04:00 PM, 5-7pm, 5-5:30pm, 11pm to 1am, there are 2 exams - chapter 1-9";
+        //String text = "12:00 noon 14 May 2020, 5pm and 7pm, 5pm alone, at 4, 4 o'clock, 4o'clock, 04:00 PM, 5-7pm, 5-5:30pm, 11pm to 1am, there are 2 exams - chapter 1-9, 11.30am to 1.45pm";
+        String text = "There will be a quiz at 12pm tomorrow";
         String text1 = text.toUpperCase();
         Pattern pattern = Pattern.compile("((AT|BY)[\\h])?\\b(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?[\\h]?(TO|AND|-|O'CLOCK)?\\b([\\h]?(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?)?");
         //\b(2359|23:59)\b
@@ -140,19 +142,8 @@ public class EmailParser {
 
         while (matcher.find()) {
 
-            //Pattern pattern1 = Pattern.compile("(AM|PM|O'CLOCK|AT|BY)");
-            // if has - it could be chapter 1-9 , false parse
-            // what about chapter 1 TO 9 ... will be detected
-
-            // chapter 1 AND 2 will be detected
-
-            // at 7 / by 7 / 7 o'clock will be parsed. this will not have the correct am/pm though. should i remove at/by?
             String secondParse = matcher.group(0);
             System.out.println(secondParse + " this includes timings as well as random numbers.");
-
-            //Matcher matcher1 = pattern1.matcher(secondParse);
-            // this matcher will eliminate random numbers
-
 
             startHour = 0;
             startMinute = 0;
@@ -160,9 +151,12 @@ public class EmailParser {
             endMinute = 0;
             foundInloop = 0;
 
+
+
             if(secondParse.contains("AM") || secondParse.contains("PM")) {
+                viableDateCount++;
                 String thirdParse = secondParse;
-                System.out.println(thirdParse + " this should only includes am/pm/oclock/at/by ");
+                System.out.println(thirdParse + " this should include am/pm ");
                 Pattern pattern2 = Pattern.compile("(1[0-2]|0?[1-9])([:.][0-5][0-9])?");
                 Matcher matcher2 = pattern2.matcher(thirdParse);
                 // just the numbers eg 7:30-9pm -> 7:30 , 9
@@ -201,6 +195,7 @@ public class EmailParser {
                             //start timings
 
                             startHour = temp.get(0);
+
                             if(temp.size() == 2) {
                                 startMinute = temp.get(1);
                             }
@@ -210,9 +205,9 @@ public class EmailParser {
                         }
                         else if(foundInloop == 1) {
                             //end timings
-                            startHour = temp.get(0);
+                            endHour = temp.get(0);
                             if(temp.size() == 2) {
-                                startMinute = temp.get(1);
+                                endMinute = temp.get(1);
                             }
                             foundInloop = 0;
 
@@ -382,6 +377,7 @@ public class EmailParser {
 
             }
             else if (secondParse.contains(":") || secondParse.contains(".")) {
+                viableDateCount++;
                 // no at/by/range
                 String thirdParse = secondParse;
                 //eg 14:00 or 12:00
@@ -468,8 +464,13 @@ public class EmailParser {
             }
 
             else if (secondParse.contains("O'CLOCK")){
+                viableDateCount++;
                 System.out.println(secondParse + " contains o'clock, ambiguous");
 
+            }
+            else if (secondParse.contains("AT") || secondParse.contains("BY")) {
+                viableDateCount++;
+                System.out.println(secondParse + " contains AT or BY but no AM/PM, ambiguous");
             }
             else {
                 System.out.println(secondParse + " is a false parse.");
@@ -477,7 +478,31 @@ public class EmailParser {
 
 
         }
-        //need to add into TIME, havent implemented
+
+
+        // 2359 special case since normally only 12 hour clock is parsed.
+        if(emailBody.toUpperCase().contains("2359") || emailBody.toUpperCase().contains("23:59")) {
+            viableDateCount++;
+            if(emailBody.toUpperCase().contains("BY 2359") || emailBody.toUpperCase().contains("BY 23:59")) {
+                endHour = 23;
+                endMinute = 59;
+            } else if (emailBody.toUpperCase().contains("AT 2359") || emailBody.toUpperCase().contains("AT 23:59")) {
+                startHour = 23;
+                startMinute = 59;
+            }
+
+        }
+
+        if(viableDateCount > 1) {
+            System.out.println("There are more than 1 viable dates in this string.");
+
+        } else if(viableDateCount == 1) {
+            Time.add(startHour);
+            Time.add(startMinute);
+            Time.add(endMinute);
+            Time.add(endHour);
+
+        }
 
 
         return Time;
@@ -487,14 +512,18 @@ public class EmailParser {
 
 
     public String EventParse(String emailBody) {
-        String subject = new String();
+        String eventType = new String();
 
         Pattern pattern = Pattern.compile("(QUIZ|TEST|EXAM)");
-        // incomplete
-        Matcher matcher = pattern.matcher(emailBody);
+        // incomplete, may need add more stuff
+        Matcher matcher = pattern.matcher(emailBody.toUpperCase());
+
+        while(matcher.find()) {
+            eventType = matcher.group(0);
+        }
 
 
-        return subject;
+        return eventType;
     }
 
     public ArrayList<Integer> splitTime(String time) {
@@ -514,17 +543,21 @@ public class EmailParser {
             while(matcher.find() && matcher1.find()) {
                 //should this be ||?
 
-                System.out.println(matcher.group(0));
+                //System.out.println(matcher.group(0));
 
                 if (matcher.group(0).startsWith("0")) {
                     hour = Integer.parseInt(matcher.group(0).substring(1));
 
                 } else {
                     hour = Integer.parseInt(matcher.group(0));
+                    if(time.contains("PM")) {
+                        hour = hour + 12;
+                    }
                 }
-                System.out.println(hour);
+                //System.out.println(hour);
 
                 minute = Integer.parseInt(matcher1.group(0).substring(1));
+                // to skip : or .
 
 
                 timeStorage.add(hour);
@@ -537,6 +570,7 @@ public class EmailParser {
 
         }
         else if (time.contains("PM") || time.contains("AM")) {
+
             // but no . or :
             while(matcher.find()) {
                 if(time.contains("PM")) {
