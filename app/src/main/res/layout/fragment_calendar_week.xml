@@ -1,51 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".CalendarWeekFragment">
+
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:background="#ffefefef"
         android:orientation="horizontal"
-        android:background="#ffefefef">
+        android:id="@+id/week_view_info">
+
         <TextView
             android:id="@+id/week_view_weekNumber"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
+            android:paddingLeft="16dp"
             android:textSize="12sp"
-            android:textStyle="bold"
-            android:paddingLeft="16dp"/>
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/week_view_monthYear"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:textSize="12sp"
-            android:textStyle="bold"
             android:gravity="right"
-            android:paddingRight="4dp"/>
+            android:paddingRight="4dp"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
     </LinearLayout>
 
     <com.alamkanak.weekview.WeekView
         android:id="@+id/calendar_week_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/week_view_info"
+        app:columnGap="1dp"
+        app:dayBackgroundColor="#05000000"
         app:eventTextColor="@android:color/white"
-        app:textSize="12sp"
-        app:hourHeight="60dp"
+        app:firstDayOfWeek="sunday"
+        app:headerColumnBackground="#ffffffff"
         app:headerColumnPadding="8dp"
         app:headerColumnTextColor="#8f000000"
-        app:headerRowPadding="12dp"
-        app:columnGap="1dp"
-        app:showNowLine="true"
-        app:noOfVisibleDays="7"
-        app:firstDayOfWeek="sunday"
         app:headerRowBackgroundColor="#ffefefef"
-        app:dayBackgroundColor="#05000000"
-        app:todayBackgroundColor="#1848adff"
-        app:headerColumnBackground="#ffffffff"/>
-</LinearLayout>
+        app:headerRowPadding="12dp"
+        app:hourHeight="60dp"
+        app:noOfVisibleDays="7"
+        app:showNowLine="true"
+        app:textSize="12sp"
+        app:todayBackgroundColor="#1848adff" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/week_view_add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/calendar_week_view"
+        android:layout_alignRight="@id/calendar_week_view"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:src="@drawable/ic_baseline_add_24"
+        app:layout_anchor="@id/calendar_week_view"
+        app:layout_anchorGravity="bottom|right|end"/>
+
+</RelativeLayout>

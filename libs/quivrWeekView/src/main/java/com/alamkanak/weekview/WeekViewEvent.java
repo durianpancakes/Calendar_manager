@@ -18,6 +18,7 @@ public class WeekViewEvent {
     private String mId;
     private Calendar mStartTime;
     private Calendar mEndTime;
+    private String mDescription;
     private String mName;
     private String mLocation;
     private
@@ -241,6 +242,14 @@ public class WeekViewEvent {
     @ColorInt
     int getColor() {
         return mColor;
+    }
+
+    public String getDescription() {
+        return mDescription;
+    }
+
+    public void setDescription(String mDescription) {
+        this.mDescription = mDescription;
     }
 
     public void setColor(int color) {

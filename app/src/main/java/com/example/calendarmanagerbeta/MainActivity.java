@@ -26,9 +26,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+
 import android.util.Log;
 
 
+import com.alamkanak.weekview.WeekViewEvent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -36,7 +39,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.microsoft.graph.models.extensions.Message;
 import com.microsoft.graph.models.extensions.Shared;
+import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
+import com.microsoft.graph.requests.extensions.IMessageCollectionRequestBuilder;
+import com.microsoft.graph.requests.extensions.IMessageDeltaCollectionPage;
+import com.microsoft.graph.requests.extensions.IMessageDeltaCollectionRequestBuilder;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -51,12 +59,17 @@ import com.microsoft.graph.models.extensions.User;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener, CalendarEventInputFragment.eventInputListener, CalendarDayFragment.addEventListener, CalendarWeekFragment.addEventListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -275,16 +288,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if(user == null){
                 startActivity(new Intent(getApplication(), MyAppIntro.class));
             }
-//            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-//            boolean firstRun = settings.getBoolean("firstRun", true);
-//
-//            if(firstRun){
-//                Log.w("Application activity", "First launch");
-//                startActivity(new Intent(this, MyAppIntro.class));
-//                SharedPreferences.Editor editor = settings.edit();
-//                editor.putBoolean("firstRun", false);
-//                editor.commit();
-//            }
 
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
@@ -298,6 +301,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mProfilePicture = createProfilePicture(mUserName);
                 userProfilePicture.setImageDrawable(mProfilePicture);
             }
+
+            AuthenticationHelper.getInstance()
+                    .acquireTokenSilently(new AuthenticationCallback() {
+                        @Override
+                        public void onSuccess(IAuthenticationResult authenticationResult) {
+                            final GraphHelper graphHelper = GraphHelper.getInstance();
+                            String lastDateTimeString = getLastDateTimeString();
+                            graphHelper.getDeltaSpecificEmails(authenticationResult.getAccessToken(), lastDateTimeString, "CS0000", getDeltaEmailCallback());
+                        }
+
+                        @Override
+                        public void onError(MsalException exception) {
+                            Log.e("AUTH", "Could not get token silently", exception);
+                            hideProgressBar();
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            hideProgressBar();
+                        }
+                    });
         } else {
             mUserName = null;
             mUserEmail = null;
@@ -307,6 +331,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             userEmail.setText("");
             userProfilePicture.setImageDrawable(null);
         }
+    }
+
+    public String getLastDateTimeString(){
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        String lastSyncDateTime = sharedPreferences.getString("lastSyncDateTime", getCurrentDateTimeString());
+        System.out.println("Previous synchronized at: " + lastSyncDateTime);
+
+        return lastSyncDateTime;
+    }
+
+    public void setLastDateTimeString(){
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        System.out.println("New synchronized at: "+ getCurrentDateTimeString());
+        editor.putString("lastSyncDateTime", getCurrentDateTimeString());
+        editor.commit();
+    }
+
+    public String getCurrentDateTimeString(){
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        df.setTimeZone(tz);
+        String nowAsISO = df.format(new Date());
+
+        return nowAsISO;
     }
 
     // Create a new profile picture based on user initials
@@ -363,9 +412,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final Toolbar toolbar = findViewById(R.id.toolbar);
 
         // Get the user's keywords from Firebase
-        // TEMPORARY: problem -- if user is not logged into Firebase
-        // The whole application will crash
-        // Need to find a way to check if user is signed into Firebase
         FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
         firebaseHelper.getAllKeywords();
         firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
@@ -438,6 +484,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setSubtitle("Week View");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarWeekFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_week_view);
+    }
+
+    private void openCalendarInput(){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarSpinner.setVisibility(View.GONE);
+        toolbar.setTitle("Add event");
+        toolbar.setSubtitle("");
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left).addToBackStack(null).replace(R.id.fragment_container, new CalendarEventInputFragment()).commit();
     }
 
     private void openNusmodsFragment() {
@@ -588,6 +642,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
+    private ICallback<IMessageCollectionPage> getDeltaEmailCallback() {
+        return new ICallback<IMessageCollectionPage>() {
+            @Override
+            public void success(IMessageCollectionPage iMessageCollectionPage) {
+                Log.d("DELTA EMAIL", "Pull successful");
+                int deltaEmails = 0;
+
+                setLastDateTimeString();
+                deltaEmails = iMessageCollectionPage.getCurrentPage().size();
+                System.out.println("New emails: " + deltaEmails);
+
+                for(Message message : iMessageCollectionPage.getCurrentPage()){
+                    System.out.println(message.subject);
+                    deltaEmails++;
+                }
+
+                hideProgressBar();
+            }
+
+            @Override
+            public void failure(ClientException ex) {
+                Log.d("DELTA EMAIL", "Pull failed");
+
+                hideProgressBar();
+            }
+        };
+    }
+
     @Override
     public void onParamsChanged(String moduleCode, String lessonType, String classNo) {
         //if they already exist, change their values. if not then add it in.
@@ -608,9 +690,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             EmailParser mEmailParser = new EmailParser();
             mEmailParser.TimeParse("test(not used)");
-
-
-
         }
     }
 
@@ -630,5 +709,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("modules");
             mModulesDatabaseReference.child(moduleCode.toString()).removeValue();
         }
+    }
+
+    @Override
+    public void onAddEventButtonPressed() {
+        openCalendarInput();
+    }
+
+    @Override
+    public void onCancelPressed() {
+        getSupportFragmentManager().popBackStackImmediate();
+    }
+
+    @Override
+    public void onAddPressed(WeekViewEvent event) {
+        System.out.println("EVENT RECEIVED");
+        System.out.println(event.getName());
+        System.out.println(event.getLocation());
+        System.out.println("START: " + event.getStartTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getStartTime().get(Calendar.MONTH) + 1) + "/" + event.getStartTime().get(Calendar.YEAR));
+        System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
+        getSupportFragmentManager().popBackStackImmediate();
+    }
+
+    @Override
+    public void onDateReceive(int year, int month, int day) {
+        CalendarEventInputFragment.updateDateButton(year, month, day);
+    }
+
+    @Override
+    public void onTimeReceive(int hours, int min) {
+        CalendarEventInputFragment.updateTimeButton(hours, min);
     }
 }
