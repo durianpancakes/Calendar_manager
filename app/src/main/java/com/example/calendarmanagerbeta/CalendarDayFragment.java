@@ -1,8 +1,10 @@
 package com.example.calendarmanagerbeta;
 
+import android.content.Context;
 import android.graphics.RectF;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -14,6 +16,7 @@ import android.widget.TextView;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,12 +34,17 @@ public class CalendarDayFragment extends Fragment {
     private int currentDayNumber;
     private int currentMonth;
     private int currentYear;
+    private FloatingActionButton addEventButton;
+    private CalendarDayFragment.addEventListener mAddEventListener;
     private String[] monthStrings = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
     public CalendarDayFragment() {
         // Required empty public constructor
     }
 
+    public interface addEventListener{
+        void onAddEventButtonPressed();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,6 +54,7 @@ public class CalendarDayFragment extends Fragment {
         mDayView = (WeekView)myFragmentView.findViewById(R.id.calendar_day_view);
         dayNumber = (TextView)myFragmentView.findViewById(R.id.day_view_dayNumber);
         monthYearString = (TextView)myFragmentView.findViewById(R.id.day_view_monthYear);
+        addEventButton = (FloatingActionButton)myFragmentView.findViewById(R.id.day_view_add);
 
         setupDayView();
 
@@ -86,8 +95,15 @@ public class CalendarDayFragment extends Fragment {
                 refreshHeaderTexts();
                 }
             });
-        }
 
+            addEventButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mAddEventListener.onAddEventButtonPressed();
+                }
+            });
+        }
+        mDayView.goToToday();
         // setup necessary characteristics of the week view
     }
 
@@ -106,5 +122,22 @@ public class CalendarDayFragment extends Fragment {
 
     public void onPause(){
         super.onPause();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if(context instanceof CalendarDayFragment.addEventListener){
+            mAddEventListener = (CalendarDayFragment.addEventListener)context;
+        }
+        else{
+            throw new RuntimeException(context.toString() + " must implement listener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mAddEventListener = null;
     }
 }

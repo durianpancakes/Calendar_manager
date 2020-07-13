@@ -123,16 +123,7 @@
         android:layout_height="445dp"
         android:layout_gravity="center"
         android:numColumns="7"
-        android:stretchMode="columnWidth"
-        />
-
-    <Button
-        android:id="@+id/button"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="match_parent"
-        android:layout_height="111dp"
-        android:text="No event\n Tap to add event"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:stretchMode="columnWidth" />
 
 
 </LinearLayout>

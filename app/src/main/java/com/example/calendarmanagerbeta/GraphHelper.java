@@ -1,6 +1,8 @@
 package com.example.calendarmanagerbeta;
 
 import android.app.DownloadManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.provider.ContactsContract;
 
 import com.google.gson.JsonObject;
@@ -18,12 +20,18 @@ import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.extensions.IEventCollectionPage;
 import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
 import com.microsoft.graph.requests.extensions.IMessageCollectionRequestBuilder;
+import com.microsoft.graph.requests.extensions.IMessageDeltaCollectionPage;
+import com.microsoft.graph.requests.extensions.IMessageDeltaCollectionRequestBuilder;
 import com.microsoft.graph.requests.extensions.ProfilePhotoStreamRequest;
 import com.sun.research.ws.wadl.Link;
 
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Stream;
 
 // Singleton class - the app only needs a single instance
@@ -74,7 +82,6 @@ public class GraphHelper implements IAuthenticationProvider {
         mClient.me().events().buildRequest(options)
                 .select("subject,organizer,start,end")
                 .get(callback);
-
     }
 
     public void getEmails(String accessToken, ICallback<IMessageCollectionPage> callback){
@@ -84,13 +91,24 @@ public class GraphHelper implements IAuthenticationProvider {
         mClient.me().mailFolders("inbox").messages().buildRequest(requestOptions).select("sender,subject,bodyPreview,isRead,body").get(callback);
     }
 
+    public void getDeltaSpecificEmails(String accessToken, String dateTimeString, String moduleCode, ICallback<IMessageCollectionPage> callback){
+        mAccessToken = accessToken;
+        LinkedList<Option> requestOptions = new LinkedList<Option>();
+        String completedRequest = completeDeltaRequest(moduleCode, dateTimeString);
+        requestOptions.add(new QueryOption("orderby", "receivedDateTime%20desc"));
+        requestOptions.add(new QueryOption("filter", completedRequest));
+        requestOptions.add(new QueryOption("top", 100));
+        requestOptions.add(new QueryOption("count", true));
+        mClient.me().mailFolders("inbox").messages().buildRequest(requestOptions).get(callback);
+    }
+
     public void getSpecificEmails(String accessToken, String moduleCode, ICallback<IMessageCollectionPage> callback){
         mAccessToken = accessToken;
         LinkedList<Option> requestOptions = new LinkedList<Option>();
-        String completedRequest = completeRequest(moduleCode);
+        String completedRequest = completeNormalRequest(moduleCode);
+        requestOptions.add(new HeaderOption("Prefer", "outlook.body-content-type=\"text\""));
         requestOptions.add(new QueryOption("orderby", "receivedDateTime%20desc"));
         requestOptions.add(new QueryOption("filter", completedRequest));
-
         mClient.me().mailFolders("inbox").messages().buildRequest(requestOptions).get(callback);
     }
 
@@ -98,9 +116,17 @@ public class GraphHelper implements IAuthenticationProvider {
         nextPage.buildRequest().get(callback);
     }
 
-    // Helper function to complete module email request
-    private String completeRequest(String moduleCode){
+    public void getNextDeltaEmails(IMessageDeltaCollectionRequestBuilder nextPage, ICallback<IMessageDeltaCollectionPage> callback) {
+        nextPage.buildRequest().get(callback);
+    }
+
+    // Helper functions to complete module email request
+    private String completeNormalRequest(String moduleCode){
         return "receivedDateTime ge 1900-01-01T00:00:00Z and contains(subject,'" + moduleCode + "')";
+    }
+
+    private String completeDeltaRequest(String moduleCode, String dateTimeString){
+        return "receivedDatetime ge " + dateTimeString + " and contains(subject,'" + moduleCode + "')";
     }
 
 

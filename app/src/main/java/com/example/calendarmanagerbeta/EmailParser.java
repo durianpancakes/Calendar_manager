@@ -7,8 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EmailParser {
-
-
     public ArrayList<Integer> DateParse(String emailBody) {
         int date = 99;
         int month = 99;

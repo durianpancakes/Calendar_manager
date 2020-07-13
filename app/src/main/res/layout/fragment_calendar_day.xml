@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".CalendarDayFragment">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:background="#ffefefef">
+        android:background="#ffefefef"
+        android:id="@+id/day_view_info">
         <TextView
             android:id="@+id/day_view_dayNumber"
             android:layout_width="wrap_content"
@@ -34,6 +34,7 @@
         android:id="@+id/calendar_day_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/day_view_info"
         app:eventTextColor="@android:color/white"
         app:textSize="12sp"
         app:hourHeight="60dp"
@@ -47,4 +48,16 @@
         app:dayBackgroundColor="#05000000"
         app:todayBackgroundColor="#1848adff"
         app:headerColumnBackground="#ffffffff"/>
-</LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/day_view_add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/calendar_day_view"
+        android:layout_alignRight="@id/calendar_day_view"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:src="@drawable/ic_baseline_add_24"
+        app:layout_anchor="@id/calendar_day_view"
+        app:layout_anchorGravity="bottom|right|end"/>
+</RelativeLayout>
