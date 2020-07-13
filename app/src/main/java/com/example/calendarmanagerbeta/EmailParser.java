@@ -10,25 +10,38 @@ public class EmailParser {
 
 
     public ArrayList<Integer> DateParse(String emailBody) {
-        int date = 0;
-        int month = 0;
-        int year = 0;
+        int date = 99;
+        int month = 99;
+        int year = 99;
         int DMYcount = 0;
         ArrayList<Integer> DMY = new ArrayList<>();
+        //
+        //
+        //
+        //TO DO: MAKE OPTIONS FOR JUNE 08, 2020 , can also use the date = 32, month = 13, year = 9999 to check if the variables are used/changed.
+        //
+        //
+        //
+        //
 
         String UpperBody = emailBody.toUpperCase();
         //regex tester
         //String test = "The quiz will be held on 09 Feb and 12th February and 12 Feb 2020, and 12th Feb 2020 and 12th May, 2020 and 51 May and 10-Aug-2020 ";
         //String test1 = test.toUpperCase();
         Pattern pattern = Pattern.compile("\\b(([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?\\b[\\h-](JAN|JANUARY|FEB|FEBRUARY|MAR|MARCH|APR|APRIL|MAY|JUN|JUNE|JUL|JULY|AUG|AUGUST|SEP|SEPTEMBER|OCT|OCTOBER|NOV|NOVEMBER|DEC|DECEMBER),?([\\h-]\\d{4})?");
+        Pattern patternx = Pattern.compile("\\b(JAN|JANUARY|FEB|FEBRUARY|MAR|MARCH|APR|APRIL|MAY|JUN|JUNE|JUL|JULY|AUG|AUGUST|SEP|SEPTEMBER|OCT|OCTOBER|NOV|NOVEMBER|DEC|DECEMBER)\\b[\\h-](([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?,?([\\h-]\\d{4})?");
+        //(([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?
         // what if they wrote january/february/march -> add to original pattern
         // caps problems too -> convert whole test string to caps? -> change th/st/rd/nd into caps, month names too. second month pattern should be able to pull short form out.
         Matcher matcher = pattern.matcher(UpperBody);
+        Matcher matcherx = patternx.matcher(UpperBody);
 
         while (matcher.find()) {
             DMYcount++;
             if(DMYcount > 1) {
                 //means there is more than 1 date found.. not sure what to do yet
+                System.out.println("More than 1 date found. reject/ambiguous");
+                break;
             }
             System.out.println(matcher.group(0));
 
@@ -36,6 +49,7 @@ public class EmailParser {
             String subDate = matcher.group(0).substring(0,2);
 
             Pattern pattern1 = Pattern.compile("(([0]?[0-9])|([0-2][0-9])|([3][0-1])){2}");
+            // why is there a {2} ....
             // leading zero date possible
             Pattern pattern2 = Pattern.compile("(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)");
             Pattern pattern3 = Pattern.compile("\\d{4}");
@@ -50,7 +64,7 @@ public class EmailParser {
                     date = Integer.parseInt(matcher1.group(0));
                 }
                 System.out.println( date );
-                DMY.add(date);
+
                 //fixed
             }
             while(matcher2.find()) {
@@ -96,18 +110,105 @@ public class EmailParser {
                 }
                 System.out.println("Month Number is " + month + ", " + matcher2.group(0));
                 //works
-                DMY.add(month);
+
 
             }
             while(matcher3.find()) {
                 year = Integer.parseInt(matcher3.group(0));
                 System.out.println(year);
                 //works
+
+
+            }
+            DMY.add(date);
+            DMY.add(month);
+            DMY.add(year);
+
+        }
+
+        if(DMYcount == 0) {
+            // check for June 08, 2020
+            while(matcherx.find()) {
+                Pattern pattern1 = Pattern.compile("\\b(([0]?[0-9])|([0-2][0-9])|([3][0-1])){2}\\b");
+                // leading zero date possible
+                Pattern pattern2 = Pattern.compile("(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)");
+                Pattern pattern3 = Pattern.compile("\\d{4}");
+                Matcher matcher1 = pattern1.matcher(matcher.group(0));
+                Matcher matcher2 = pattern2.matcher(matcher.group(0));
+                Matcher matcher3 = pattern3.matcher(matcher.group(0));
+                while(matcher1.find()) {
+                    if(matcher1.group(0).startsWith("0")) {
+                        date = Integer.parseInt(matcher1.group(0).substring(1));
+                    }
+                    else {
+                        date = Integer.parseInt(matcher1.group(0));
+                    }
+                    System.out.println( date );
+
+
+                    //fixed
+                }
+                while(matcher2.find()) {
+                    switch(matcher2.group(0)) {
+                        case "JAN":
+                            month = 1;
+                            break;
+                        case "FEB":
+                            month = 2;
+                            break;
+                        case "MAR":
+                            month = 3;
+                            break;
+                        case "APR":
+                            month = 4;
+                            break;
+                        case "MAY":
+                            month = 5;
+                            break;
+                        case "JUN":
+                            month = 6;
+                            break;
+                        case "JUL":
+                            month = 7;
+                            break;
+                        case "AUG":
+                            month = 8;
+                            break;
+                        case "SEP":
+                            month = 9;
+                            break;
+                        case "OCT":
+                            month = 10;
+                            break;
+                        case "NOV":
+                            month = 11;
+                            break;
+                        case "DEC":
+                            month = 12;
+                            break;
+                        default:
+                            break;
+                    }
+                    System.out.println("Month Number is " + month + ", " + matcher2.group(0));
+                    //works
+
+
+                }
+                while(matcher3.find()) {
+                    year = Integer.parseInt(matcher3.group(0));
+                    System.out.println(year);
+                    //works
+
+
+                }
+                DMY.add(date);
+                DMY.add(month);
                 DMY.add(year);
 
             }
-
         }
+
+
 
         return DMY;
 
@@ -118,10 +219,10 @@ public class EmailParser {
     }
 
     public ArrayList<Integer> TimeParse(String emailBody) {
-        int startHour = 0;
-        int startMinute = 0;
-        int endHour = 0;
-        int endMinute = 0;
+        int startHour = 99;
+        int startMinute = 99;
+        int endHour = 99;
+        int endMinute = 99;
         int foundInloop = 0;
         int viableDateCount = 0;
         ArrayList<Integer> Time = new ArrayList<>();
@@ -145,11 +246,11 @@ public class EmailParser {
             String secondParse = matcher.group(0);
             System.out.println(secondParse + " this includes timings as well as random numbers.");
 
-            startHour = 0;
-            startMinute = 0;
-            endHour = 0;
-            endMinute = 0;
-            foundInloop = 0;
+            startHour = 99;
+            startMinute = 99;
+            endHour = 99;
+            endMinute = 99;
+            foundInloop = 99;
 
 
 
@@ -377,6 +478,7 @@ public class EmailParser {
 
             }
             else if (secondParse.contains(":") || secondParse.contains(".")) {
+                // but no am/pm
                 viableDateCount++;
                 // no at/by/range
                 String thirdParse = secondParse;
@@ -493,8 +595,13 @@ public class EmailParser {
 
         }
 
-        if(viableDateCount > 1) {
+        if(viableDateCount > 1 || viableDateCount == 0) {
             System.out.println("There are more than 1 viable dates in this string.");
+            Time.add(99);
+            Time.add(99);
+            Time.add(99);
+            Time.add(99);
+            //default
 
         } else if(viableDateCount == 1) {
             Time.add(startHour);
