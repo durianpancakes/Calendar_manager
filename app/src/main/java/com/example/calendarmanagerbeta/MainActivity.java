@@ -709,6 +709,64 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
             DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("modules");
             mModulesDatabaseReference.child(moduleCode.toString()).removeValue();
         }
+
+
+        String emailContent = "There will be a quiz on 29 July 2020 at 6pm.";
+        System.out.println(emailContent);
+        EmailParser mEmailParser = new EmailParser();
+        ArrayList<Integer> DMY = mEmailParser.DateParse(emailContent);
+        ArrayList<Integer> Time = mEmailParser.TimeParse(emailContent);
+
+        /*public WeekViewEvent(long id, String name, int startYear, int startMonth, int startDay, int startHour, int startMinute, int endYear, int endMonth, int endDay, int endHour, int endMinute) {
+            this(String.valueOf(id), name, startYear, startMonth, startDay, startHour, startMinute, endYear, endMonth, endDay, endHour, endMinute);
+        }*/
+        long id = 2222; // change to email uid?
+
+        int startDay;
+        int startMonth;
+        int startYear;
+        int startHour;
+        int startMinute;
+        int endHour;
+        int endMinute;
+
+        if(DMY.get(0) != 99) {
+            startDay = DMY.get(0);
+        }
+        if(DMY.get(1) != 99) {
+            startMonth = DMY.get(1);
+        }
+        if(DMY.get(2) != 99) {
+            startYear = DMY.get(2);
+        }
+        if(Time.get(0) != 99) {
+            startHour = Time.get(0) ;
+        }
+        if(Time.get(1)  != 99) {
+            startMinute = Time.get(1) ;
+        }
+        if(Time.get(2)  != 99) {
+            endHour = Time.get(2) ;
+        }
+        if(Time.get(3)  != 99) {
+            endMinute= Time.get(3) ;
+        }
+        //WeekViewEvent mWeekViewEvent = new WeekViewEvent(id, "event", startYear, )
+
+        // how to set null if they dont exist.
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     @Override
