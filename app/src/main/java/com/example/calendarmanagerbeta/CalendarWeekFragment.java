@@ -46,6 +46,7 @@ public class CalendarWeekFragment extends Fragment {
 
     public interface addEventListener{
         void onAddEventButtonPressed();
+        void onEventClicked(WeekViewEvent event);
     }
 
     @Override
@@ -67,9 +68,30 @@ public class CalendarWeekFragment extends Fragment {
         if(mWeekView != null){
             mWeekView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
                 @Override
-                public List<? extends WeekViewEvent> onMonthChange(int i, int i1) {
-                    return new ArrayList<WeekViewEvent>();
-                    //TODO: Handle month change (return new list of events)
+                public List<? extends WeekViewEvent> onMonthChange(int year, int month) {
+                    ArrayList<WeekViewEvent> events = new ArrayList<WeekViewEvent>();
+                    // To add events, simply add the events into the ArrayList
+                    // Required fields:
+                    // 1. Event name
+                    // 2. Event start time
+                    // 3. Event end time
+                    // 4. Event boolean allDay
+                    // Optional fields:
+                    // 1. Event description
+                    // 2. Event location
+                    WeekViewEvent event = new WeekViewEvent();
+                    event.setName("CS1231 Lecture");
+                    Calendar startCal = Calendar.getInstance();
+                    startCal.set(2020, 6, 13, 7, 00);
+                    event.setStartTime(startCal);
+                    Calendar endCal = Calendar.getInstance();
+                    endCal.set(2020, 6, 13, 8, 00);
+                    event.setEndTime(endCal);
+                    event.setAllDay(false);
+                    event.setLocation("LT26");
+                    events.add(event);
+
+                    return events;
                 }
             });
 
@@ -78,6 +100,8 @@ public class CalendarWeekFragment extends Fragment {
                 @Override
                 public void onEventClick(WeekViewEvent event, RectF eventRect) {
                     //TODO: Handle event click
+                    mAddEventListener.onEventClicked(event);
+                    System.out.println("OnEventClick");
                 }
             });
 
@@ -86,6 +110,7 @@ public class CalendarWeekFragment extends Fragment {
                 @Override
                 public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
                     //TODO: Handle event long press
+                    System.out.println("Long press");
                 }
             });
 

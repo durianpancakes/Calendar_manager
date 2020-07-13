@@ -1,5 +1,9 @@
 package com.example.calendarmanagerbeta;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
@@ -7,6 +11,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EmailParser {
+    private parserCallback mParserCallback;
+
+    public interface parserCallback{
+        void onEventAdded(WeekViewEvent event);
+    }
+
+    public void setmParserCallback(parserCallback parserCallback){
+        this.mParserCallback = parserCallback;
+    }
+
+    // CALL THIS IN MAIN ACTIVITY
+    // EmailParser.setCustomEventListener(new parserCallback(){
+    //    public void onEvent(){
+    //        // do whatever you want
+    //    }
+    // });
+
+    // CALL THIS IN THIS CLASS WHEN YOU COMPLETE THE CREATION OF A WEEKVIEWEVENT
+    // if(mParserCallback != null){
+    //    mParserCallback.onEventAdded(event);
+    // }
+
+
     public ArrayList<Integer> DateParse(String emailBody) {
         int date = 0;
         int month = 0;
@@ -610,11 +637,6 @@ public class EmailParser {
         System.out.println(timeStorage.get(0) + " at end of splittime");
 
         return timeStorage;
-
-
     }
-
-
-
 }
 

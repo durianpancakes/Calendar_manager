@@ -69,7 +69,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MainActivity extends AppCompatActivity implements TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener, CalendarEventInputFragment.eventInputListener, CalendarDayFragment.addEventListener, CalendarWeekFragment.addEventListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements EmailParser.parserCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener, CalendarEventInputFragment.eventInputListener, CalendarDayFragment.addEventListener, CalendarWeekFragment.addEventListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -717,12 +717,26 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     }
 
     @Override
+    public void onEventClicked(WeekViewEvent event) {
+
+    }
+
+    @Override
     public void onCancelPressed() {
         getSupportFragmentManager().popBackStackImmediate();
     }
 
     @Override
     public void onAddPressed(WeekViewEvent event) {
+        int startDayOfMonth = event.getStartTime().get(Calendar.DAY_OF_MONTH);
+        int startMonth = event.getStartTime().get(Calendar.MONTH);
+        int startYear = event.getStartTime().get(Calendar.YEAR);
+        int endDayOfMonth = event.getStartTime().get(Calendar.DAY_OF_MONTH);
+        int endMonth = event.getStartTime().get(Calendar.MONTH);
+        int endYear = event.getStartTime().get(Calendar.YEAR);
+        String description = event.getDescription();
+        String location = event.getLocation();
+
         System.out.println("EVENT RECEIVED");
         System.out.println(event.getName());
         System.out.println(event.getLocation());
@@ -739,5 +753,11 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     @Override
     public void onTimeReceive(int hours, int min) {
         CalendarEventInputFragment.updateTimeButton(hours, min);
+    }
+
+    // Function from EmailParser
+    @Override
+    public void onEventAdded(WeekViewEvent event) {
+
     }
 }

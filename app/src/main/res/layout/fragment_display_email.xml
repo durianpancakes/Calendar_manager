@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/email"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".DisplayEmailFragment">
+
+    <TextView
+        android:id="@+id/email_subject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
+        android:text="Subject"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/email_from"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:text="User [user@email.com]"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/email_received_datetime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:text="DD/MM/YYYY hh:mm a" />
+
+    <TextView
+        android:id="@+id/email_weblink"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:text="Weblink:" />
+
+    <TextView
+        android:id="@+id/email_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
+        android:text="Body" />
+</LinearLayout>

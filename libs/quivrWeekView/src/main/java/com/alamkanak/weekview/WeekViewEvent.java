@@ -21,6 +21,7 @@ public class WeekViewEvent {
     private String mDescription;
     private String mName;
     private String mLocation;
+    private String mWeblink;
     private
     @ColorInt
     int mColor;
@@ -274,6 +275,14 @@ public class WeekViewEvent {
 
     public String getIdentifier() {
         return mId;
+    }
+
+    public String getmWeblink() {
+        return mWeblink;
+    }
+
+    public void setmWeblink(String mWeblink) {
+        this.mWeblink = mWeblink;
     }
 
     @Deprecated
