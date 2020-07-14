@@ -181,6 +181,8 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
 
 
         // Initializing current day parameters
+        startTime = Calendar.getInstance();
+        endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY) + 1);
         LocalDateTime currentDateTime = LocalDateTime.now();
         DayOfWeek currentDateTimeDayOfWeek = currentDateTime.getDayOfWeek();
         String currentDayOfWeek = currentDateTimeDayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
@@ -231,7 +233,7 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
             @Override
             public void onClick(View view) {
                 DATE_BUTTON_ID = 1;
-                DialogFragment datePicker = new DatePickerFragment();
+                DialogFragment datePicker = DatePickerFragment.newInstance(startTime);
                 datePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "datePicker");
             }
         });
@@ -242,7 +244,7 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
             @Override
             public void onClick(View view) {
                 TIME_BUTTON_ID = 1;
-                DialogFragment timePicker = new TimePickerFragment();
+                DialogFragment timePicker = TimePickerFragment.newInstance(startTime);
                 timePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "timePicker");
             }
         });
@@ -253,7 +255,7 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
             @Override
             public void onClick(View view) {
                 DATE_BUTTON_ID = 2;
-                DialogFragment datePicker = new DatePickerFragment();
+                DialogFragment datePicker = DatePickerFragment.newInstance(endTime);
                 datePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "datePicker");
             }
         });
@@ -264,7 +266,7 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
             @Override
             public void onClick(View view) {
                 TIME_BUTTON_ID = 2;
-                DialogFragment timePicker = new TimePickerFragment();
+                DialogFragment timePicker = TimePickerFragment.newInstance(endTime);
                 timePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "timePicker");
             }
         });

@@ -17,17 +17,25 @@ import java.util.TimeZone;
 public class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
     private TimePickerFragment.OnTimeReceiveCallback mListener;
     private Context context;
+    private static Calendar mCalendar;
 
     public interface OnTimeReceiveCallback{
         void onTimeReceive(int hours, int min);
     }
 
+    public static TimePickerFragment newInstance(Calendar cal){
+        TimePickerFragment fragment = new TimePickerFragment();
+
+        mCalendar = cal;
+
+        return fragment;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
-        Calendar c = Calendar.getInstance();
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int min = c.get(Calendar.MINUTE);
+        int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
+        int min = mCalendar.get(Calendar.MINUTE);
         return new TimePickerDialog(getActivity(), this, hour, min, false);
     }
 
