@@ -309,7 +309,9 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
                             final GraphHelper graphHelper = GraphHelper.getInstance();
                             String lastDateTimeString = getLastDateTimeString();
                             graphHelper.getDeltaSpecificEmails(authenticationResult.getAccessToken(), lastDateTimeString, "CS0000", getDeltaEmailCallback());
+
                         }
+
 
                         @Override
                         public void onError(MsalException exception) {
@@ -656,7 +658,19 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
                 for(Message message : iMessageCollectionPage.getCurrentPage()){
                     System.out.println(message.subject);
                     deltaEmails++;
+
+                    EmailParser mEmailParser = new EmailParser();
+                    mEmailParser.AllParse(message.body.content);
+                    mEmailParser.setmParserCallback(new EmailParser.parserCallback(){
+                        @Override
+                        public void onEventAdded(WeekViewEvent event) {
+                            System.out.println("delta memailparser success");
+
+                        }
+
+                    });
                 }
+
 
                 hideProgressBar();
             }
@@ -711,61 +725,6 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
         }
 
 
-        String emailContent = "There will be a quiz on 29 July 2020 at 6pm.";
-        System.out.println(emailContent);
-        EmailParser mEmailParser = new EmailParser();
-        ArrayList<Integer> DMY = mEmailParser.DateParse(emailContent);
-        ArrayList<Integer> Time = mEmailParser.TimeParse(emailContent);
-
-        /*public WeekViewEvent(long id, String name, int startYear, int startMonth, int startDay, int startHour, int startMinute, int endYear, int endMonth, int endDay, int endHour, int endMinute) {
-            this(String.valueOf(id), name, startYear, startMonth, startDay, startHour, startMinute, endYear, endMonth, endDay, endHour, endMinute);
-        }*/
-        long id = 2222; // change to email uid?
-
-        int startDay;
-        int startMonth;
-        int startYear;
-        int startHour;
-        int startMinute;
-        int endHour;
-        int endMinute;
-
-        if(DMY.get(0) != 99) {
-            startDay = DMY.get(0);
-        }
-        if(DMY.get(1) != 99) {
-            startMonth = DMY.get(1);
-        }
-        if(DMY.get(2) != 99) {
-            startYear = DMY.get(2);
-        }
-        if(Time.get(0) != 99) {
-            startHour = Time.get(0) ;
-        }
-        if(Time.get(1)  != 99) {
-            startMinute = Time.get(1) ;
-        }
-        if(Time.get(2)  != 99) {
-            endHour = Time.get(2) ;
-        }
-        if(Time.get(3)  != 99) {
-            endMinute= Time.get(3) ;
-        }
-        //WeekViewEvent mWeekViewEvent = new WeekViewEvent(id, "event", startYear, )
-
-        // how to set null if they dont exist.
-
-
-
-
-
-
-
-
-
-
-
-
 
     }
 
@@ -786,14 +745,28 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
 
     @Override
     public void onAddPressed(WeekViewEvent event) {
-        int startDayOfMonth = event.getStartTime().get(Calendar.DAY_OF_MONTH);
-        int startMonth = event.getStartTime().get(Calendar.MONTH);
-        int startYear = event.getStartTime().get(Calendar.YEAR);
-        int endDayOfMonth = event.getStartTime().get(Calendar.DAY_OF_MONTH);
-        int endMonth = event.getStartTime().get(Calendar.MONTH);
-        int endYear = event.getStartTime().get(Calendar.YEAR);
-        String description = event.getDescription();
-        String location = event.getLocation();
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
+        //mModulesDatabaseReference.push().setValue(event);
+        WeekViewEventLite mWeekViewEventLite = new WeekViewEventLite();
+
+        mWeekViewEventLite.startDayOfMonth = event.getStartTime().get(Calendar.DAY_OF_MONTH);
+        mWeekViewEventLite.startMonth = event.getStartTime().get(Calendar.MONTH);
+        mWeekViewEventLite.startYear = event.getStartTime().get(Calendar.YEAR);
+        mWeekViewEventLite.startHour = event.getStartTime().get(Calendar.HOUR_OF_DAY);
+        mWeekViewEventLite.startMinute = event.getStartTime().get(Calendar.MINUTE);
+
+        mWeekViewEventLite.endDayOfMonth = event.getEndTime().get(Calendar.DAY_OF_MONTH);
+        mWeekViewEventLite.endMonth = event.getEndTime().get(Calendar.MONTH);
+        mWeekViewEventLite.endYear = event.getEndTime().get(Calendar.YEAR);
+        mWeekViewEventLite.endHour = event.getEndTime().get(Calendar.HOUR_OF_DAY);
+        mWeekViewEventLite.endMinute = event.getEndTime().get(Calendar.MINUTE);
+
+        mWeekViewEventLite.Description = event.getDescription();
+        mWeekViewEventLite.Location = event.getLocation();
+        mWeekViewEventLite.Name = event.getName();
 
         System.out.println("EVENT RECEIVED");
         System.out.println(event.getName());
@@ -801,6 +774,10 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
         System.out.println("START: " + event.getStartTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getStartTime().get(Calendar.MONTH) + 1) + "/" + event.getStartTime().get(Calendar.YEAR));
         System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
         getSupportFragmentManager().popBackStackImmediate();
+
+        mModulesDatabaseReference.push().setValue(mWeekViewEventLite);
+
+
     }
 
     @Override
@@ -813,9 +790,13 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
         CalendarEventInputFragment.updateTimeButton(hours, min);
     }
 
+
+
+
     // Function from EmailParser
     @Override
     public void onEventAdded(WeekViewEvent event) {
 
     }
+
 }

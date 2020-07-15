@@ -15,6 +15,7 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.alamkanak.weekview.WeekViewEvent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -74,9 +75,27 @@ public class EmailFragment extends Fragment {
             @Override
             public void success(IMessageCollectionPage iMessageCollectionPage) {
                 Log.d("EMAIL", "Pull successful");
+                int i = 1;
                 for (Message message : iMessageCollectionPage.getCurrentPage()) {
                     mEmailList.add(message);
+                    //System.out.println(message.body.content);
+
+                    if(i == 1) {
+                        EmailParser mEmailParser = new EmailParser();
+                        mEmailParser.AllParse("test at 6:00am - 9:00pm on 16 July 2020");
+                        mEmailParser.setmParserCallback(new EmailParser.parserCallback() {
+                            @Override
+                            public void onEventAdded(WeekViewEvent event) {
+                                System.out.println("test memailparser success");
+
+                            }
+
+                        });
+                        i = 0;
+                    }
+
                 }
+
                 nextPage = iMessageCollectionPage.getNextPage();
                 addEmailsToList();
 

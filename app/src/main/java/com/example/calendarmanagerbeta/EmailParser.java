@@ -7,10 +7,16 @@ import androidx.annotation.NonNull;
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmailParser {
+public class EmailParser {// CALL THIS IN MAIN ACTIVITY
+    // EmailParser.setCustomEventListener(new parserCallback(){
+    //    public void onEvent(){
+    //        // do whatever you want
+    //    }
+    // });
     private parserCallback mParserCallback;
 
     public interface parserCallback{
@@ -21,17 +27,70 @@ public class EmailParser {
         this.mParserCallback = parserCallback;
     }
 
-    // CALL THIS IN MAIN ACTIVITY
-    // EmailParser.setCustomEventListener(new parserCallback(){
-    //    public void onEvent(){
-    //        // do whatever you want
-    //    }
-    // });
 
-    // CALL THIS IN THIS CLASS WHEN YOU COMPLETE THE CREATION OF A WEEKVIEWEVENT
-    // if(mParserCallback != null){
-    //    mParserCallback.onEventAdded(event);
-    // }
+    public void AllParse(String emailBody) {
+        //String emailContent = "There will be a quiz on 16 July 2020 at 6pm.";
+        System.out.println("Allparse is called");
+
+        ArrayList<Integer> DMY = DateParse(emailBody);
+        ArrayList<Integer> Time = TimeParse(emailBody);
+
+        int startDay;
+        int startMonth;
+        int startYear;
+        int startHour;
+        int startMinute;
+        int endHour;
+        int endMinute;
+
+
+        WeekViewEvent event = new WeekViewEvent();
+        Calendar startTime = Calendar.getInstance();
+        Calendar endTime = Calendar.getInstance();
+
+        if(DMY.get(0) != 99) {
+            startTime.set(Calendar.DAY_OF_MONTH, DMY.get(0));
+        }
+        if(DMY.get(1) != 99) {
+            startTime.set(Calendar.MONTH, DMY.get(1));
+        }
+        if(DMY.get(2) != 99) {
+            startTime.set(Calendar.YEAR, DMY.get(2));
+        }
+        if(Time.get(0) != 99) {
+            startTime.set(Calendar.HOUR, Time.get(0));
+        }
+        if(Time.get(1)  != 99) {
+            startTime.set(Calendar.MINUTE, Time.get(1));;
+        }
+        if(Time.get(2)  != 99) {
+            endTime.set(Calendar.HOUR, Time.get(2));
+        }
+        if(Time.get(3)  != 99) {
+            endTime.set(Calendar.MINUTE, Time.get(3));
+        }
+
+        event.setName("Test from emailparser");
+        event.setStartTime(startTime);
+        event.setEndTime(endTime);
+        if(Time.get(2) == 99) {
+            event.setAllDay(true);
+        }
+        else {
+            event.setAllDay(false);
+        }
+        event.setLocation("nil");
+
+        System.out.println("made it to end til b4 parsercallback");
+
+
+        //why isnt this called.??
+        mParserCallback.onEventAdded(event);
+        System.out.println("mparsercallback called");
+
+
+
+    }
 
 
     public ArrayList<Integer> DateParse(String emailBody) {
@@ -40,21 +99,14 @@ public class EmailParser {
         int year = 99;
         int DMYcount = 0;
         ArrayList<Integer> DMY = new ArrayList<>();
-        //
-        //
-        //
-        //TO DO: MAKE OPTIONS FOR JUNE 08, 2020 , can also use the date = 32, month = 13, year = 9999 to check if the variables are used/changed.
-        //
-        //
-        //
-        //
+
 
         String UpperBody = emailBody.toUpperCase();
         //regex tester
         //String test = "The quiz will be held on 09 Feb and 12th February and 12 Feb 2020, and 12th Feb 2020 and 12th May, 2020 and 51 May and 10-Aug-2020 ";
         //String test1 = test.toUpperCase();
-        Pattern pattern = Pattern.compile("\\b(([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?\\b[\\h-](JAN|JANUARY|FEB|FEBRUARY|MAR|MARCH|APR|APRIL|MAY|JUN|JUNE|JUL|JULY|AUG|AUGUST|SEP|SEPTEMBER|OCT|OCTOBER|NOV|NOVEMBER|DEC|DECEMBER),?([\\h-]\\d{4})?");
-        Pattern patternx = Pattern.compile("\\b(JAN|JANUARY|FEB|FEBRUARY|MAR|MARCH|APR|APRIL|MAY|JUN|JUNE|JUL|JULY|AUG|AUGUST|SEP|SEPTEMBER|OCT|OCTOBER|NOV|NOVEMBER|DEC|DECEMBER)\\b[\\h-](([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?,?([\\h-]\\d{4})?");
+        Pattern pattern = Pattern.compile("\\b(([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?\\b[\\h-](JAN|JANUARY|FEB|FEBRUARY|MAR|MARCH|APR|APRIL|MAY|JUN|JUNE|JUL|JULY|AUG|AUGUST|SEP|SEPTEMBER|OCT|OCTOBER|NOV|NOVEMBER|DEC|DECEMBER),?\\b([\\h-]\\d{4})?\\b");
+        Pattern patternx = Pattern.compile("\\b(JAN|JANUARY|FEB|FEBRUARY|MAR|MARCH|APR|APRIL|MAY|JUN|JUNE|JUL|JULY|AUG|AUGUST|SEP|SEPTEMBER|OCT|OCTOBER|NOV|NOVEMBER|DEC|DECEMBER)\\b[\\h-](([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?,?\\b([\\h-]\\d{4})?\\b");
         //(([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?
         // what if they wrote january/february/march -> add to original pattern
         // caps problems too -> convert whole test string to caps? -> change th/st/rd/nd into caps, month names too. second month pattern should be able to pull short form out.
@@ -151,9 +203,19 @@ public class EmailParser {
 
         }
 
+
+        // check for June 08, 2020 (other format)
         if(DMYcount == 0) {
-            // check for June 08, 2020
+
             while(matcherx.find()) {
+
+                DMYcount++;
+                if(DMYcount > 1) {
+                    //means there is more than 1 date found.. not sure what to do yet
+                    System.out.println("More than 1 date found. reject/ambiguous");
+                    break;
+                }
+
                 Pattern pattern1 = Pattern.compile("\\b(([0]?[0-9])|([0-2][0-9])|([3][0-1])){2}\\b");
                 // leading zero date possible
                 Pattern pattern2 = Pattern.compile("(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)");
@@ -233,6 +295,16 @@ public class EmailParser {
             }
         }
 
+        // if there are no dates found
+        if(DMYcount == 0) {
+            DMY.add(99);
+            DMY.add(99);
+            DMY.add(99);
+
+        }
+
+        //
+
 
 
         return DMY;
@@ -255,9 +327,9 @@ public class EmailParser {
         // uppercase the emailbody
         String UpperBody = emailBody.toUpperCase();
         //String text = "12:00 noon 14 May 2020, 5pm and 7pm, 5pm alone, at 4, 4 o'clock, 4o'clock, 04:00 PM, 5-7pm, 5-5:30pm, 11pm to 1am, there are 2 exams - chapter 1-9, 11.30am to 1.45pm";
-        String text = "There will be a quiz at 12pm tomorrow";
-        String text1 = text.toUpperCase();
-        Pattern pattern = Pattern.compile("((AT|BY)[\\h])?\\b(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?[\\h]?(TO|AND|-|O'CLOCK)?\\b([\\h]?(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?)?");
+        //String text = "There will be a quiz at 12pm tomorrow";
+        String text1 = emailBody.toUpperCase();
+        Pattern pattern = Pattern.compile("((AT|BY)[\\h])?\\b(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?\\b[\\h]?(TO|AND|-|O'CLOCK)?([\\h]?(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?)?");
         //\b(2359|23:59)\b
         Matcher matcher = pattern.matcher(text1);
 
@@ -275,7 +347,7 @@ public class EmailParser {
             startMinute = 99;
             endHour = 99;
             endMinute = 99;
-            foundInloop = 99;
+            foundInloop = 0;
 
 
 
@@ -317,13 +389,16 @@ public class EmailParser {
 
                     while(matcher3.find()) {
                         ArrayList<Integer> temp = splitTime(matcher3.group(0));
+                        //System.out.println(" foundinloop = " + foundInloop );
                         if(foundInloop == 0) {
                             //start timings
 
                             startHour = temp.get(0);
+                            System.out.println("start Hour set to " + startHour);
 
                             if(temp.size() == 2) {
                                 startMinute = temp.get(1);
+                                System.out.println("start minute set to " + startMinute);
                             }
 
                             foundInloop++;
@@ -629,10 +704,12 @@ public class EmailParser {
             //default
 
         } else if(viableDateCount == 1) {
+
             Time.add(startHour);
             Time.add(startMinute);
             Time.add(endMinute);
             Time.add(endHour);
+            System.out.println("Successfully saved to Time " + Time.get(0));
 
         }
 
@@ -745,5 +822,7 @@ public class EmailParser {
 
         return timeStorage;
     }
+
+
 }
 
