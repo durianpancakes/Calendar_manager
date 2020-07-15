@@ -88,7 +88,7 @@ public class GraphHelper implements IAuthenticationProvider {
         mAccessToken = accessToken;
         LinkedList<Option> requestOptions = new LinkedList<Option>();
         requestOptions.add(new HeaderOption("Prefer", "outlook.body-content-type=\"text\""));
-        mClient.me().mailFolders("inbox").messages().buildRequest(requestOptions).select("sender,subject,bodyPreview,isRead,body").get(callback);
+        mClient.me().mailFolders("inbox").messages().buildRequest(requestOptions).select("sender,subject,bodyPreview,isRead,body,weblink,receivedDateTime").get(callback);
     }
 
     public void getDeltaSpecificEmails(String accessToken, String dateTimeString, String moduleCode, ICallback<IMessageCollectionPage> callback){

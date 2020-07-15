@@ -17,16 +17,24 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
     //        // do whatever you want
     //    }
     // });
-    private parserCallback mParserCallback;
+    private ParserCallback mCallback;
+    private static EmailParser INSTANCE = null;
+    private Context mContext;
 
-    public interface parserCallback{
-        void onEventAdded(WeekViewEvent event);
+    public EmailParser(Context context) {
+        this.mContext = context;
     }
 
-    public void setmParserCallback(parserCallback parserCallback){
-        this.mParserCallback = parserCallback;
+    public void setmCallback(ParserCallback callback){
+        mCallback = callback;
     }
 
+    public static synchronized EmailParser getInstance(Context context){
+        if(INSTANCE == null){
+            INSTANCE = new EmailParser(context);
+        }
+        return INSTANCE;
+    }
 
     public void AllParse(String emailBody) {
         //String emailContent = "There will be a quiz on 16 July 2020 at 6pm.";
@@ -83,13 +91,13 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
         System.out.println("made it to end til b4 parsercallback");
 
-
         //why isnt this called.??
-        mParserCallback.onEventAdded(event);
-        System.out.println("mparsercallback called");
-
-
-
+        if(mCallback != null) {
+            mCallback.onEventAdded(event);
+            System.out.println("mparsercallback called");
+        } else {
+            System.out.println("null mCallback");
+        }
     }
 
 
@@ -696,7 +704,11 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         }
 
         if(viableDateCount > 1 || viableDateCount == 0) {
-            System.out.println("There are more than 1 viable dates in this string.");
+            if(viableDateCount > 1){
+                System.out.println("There are more than 1 viable dates in this string.");
+            } else {
+                System.out.println("NO VIABLE DATES");
+            }
             Time.add(99);
             Time.add(99);
             Time.add(99);

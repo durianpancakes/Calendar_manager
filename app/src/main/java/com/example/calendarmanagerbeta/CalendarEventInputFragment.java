@@ -76,6 +76,11 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
     private String[] mRemindersArrayOptions;
     private String[] mRepeatArrayOptions;
 
+    public interface eventInputListener{
+        void onCancelPressed();
+        void onAddPressed(WeekViewEvent event);
+    }
+
     public static void updateDateButton(int year, int month, int day) {
         Calendar newCal = Calendar.getInstance(TimeZone.getDefault());
         newCal.set(year, month, day);
@@ -131,11 +136,6 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
     @Override
     public void onSelectedOption(int dialogId) {
         System.out.println(dialogId);
-    }
-
-    public interface eventInputListener{
-        void onCancelPressed();
-        void onAddPressed(WeekViewEvent event);
     }
 
     public CalendarEventInputFragment() {

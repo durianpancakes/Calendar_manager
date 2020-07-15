@@ -1,5 +1,6 @@
 package com.example.calendarmanagerbeta;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -47,6 +49,28 @@ public class EmailFragment extends Fragment {
     private String mKeyword;
     private IMessageCollectionRequestBuilder nextPage = null;
     private EmailListAdapter listAdapter = null;
+    private EmailFragmentCallback mCallback;
+
+    public interface EmailFragmentCallback{
+        void onEmailPressed(Message message);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if(context instanceof EmailFragment.EmailFragmentCallback){
+            mCallback = (EmailFragment.EmailFragmentCallback)context;
+        }
+        else{
+            throw new RuntimeException(context.toString() + " must implement listener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
+    }
 
     private void showProgressBar() {
         getActivity().runOnUiThread(new Runnable() {
@@ -81,16 +105,15 @@ public class EmailFragment extends Fragment {
                     //System.out.println(message.body.content);
 
                     if(i == 1) {
-                        EmailParser mEmailParser = new EmailParser();
-                        mEmailParser.AllParse("test at 6:00am - 9:00pm on 16 July 2020");
-                        mEmailParser.setmParserCallback(new EmailParser.parserCallback() {
+                        final EmailParser mEmailParser = EmailParser.getInstance(getContext());
+                        mEmailParser.setmCallback(new ParserCallback() {
                             @Override
                             public void onEventAdded(WeekViewEvent event) {
-                                System.out.println("test memailparser success");
-
+                                System.out.println("HELLO");
                             }
-
                         });
+                        mEmailParser.AllParse("We have scheduled a systems maintenance on\n" +
+                                "26 Jul 2020 (Sun), from 14:00 to 18:00.\n");
                         i = 0;
                     }
 
@@ -167,6 +190,12 @@ public class EmailFragment extends Fragment {
                 if(listAdapter == null){
                     listAdapter = new EmailListAdapter(getActivity(), R.layout.email_list_item, mEmailList);
                     emailListView.setAdapter(listAdapter);
+                    listAdapter.setEmailListAdapterCallback(new EmailListAdapter.EmailListAdapterCallback() {
+                        @Override
+                        public void onEmailPressed(Message message) {
+                            mCallback.onEmailPressed(message);
+                        }
+                    });
                 } else {
                     listAdapter.notifyDataSetChanged();
                 }

@@ -26,11 +26,20 @@ public class EmailListAdapter extends ArrayAdapter<Message> {
     private Context mContext;
     private int mResource;
     private ZoneId mLocalTimeZoneId;
+    private EmailListAdapterCallback mCallback;
 
     static class ViewHolder {
         TextView subject;
         TextView sender;
         TextView bodyPreview;
+    }
+
+    public interface EmailListAdapterCallback{
+        void onEmailPressed(Message message);
+    }
+
+    public void setEmailListAdapterCallback(EmailListAdapterCallback mCallback){
+        this.mCallback = mCallback;
     }
 
     public EmailListAdapter(Context context, int resource, ArrayList<Message> messages) {
@@ -43,7 +52,7 @@ public class EmailListAdapter extends ArrayAdapter<Message> {
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Message message = getItem(position);
+        final Message message = getItem(position);
 
         EmailListAdapter.ViewHolder holder;
 
@@ -71,7 +80,7 @@ public class EmailListAdapter extends ArrayAdapter<Message> {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                mCallback.onEmailPressed(message);
             }
         });
 

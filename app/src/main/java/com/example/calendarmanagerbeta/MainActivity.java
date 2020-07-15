@@ -69,7 +69,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MainActivity extends AppCompatActivity implements EmailParser.parserCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener, CalendarEventInputFragment.eventInputListener, CalendarDayFragment.addEventListener, CalendarWeekFragment.addEventListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener, CalendarEventInputFragment.eventInputListener, CalendarDayFragment.addEventListener, CalendarWeekFragment.addEventListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -493,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
         mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Add event");
         toolbar.setSubtitle("");
-        getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left).addToBackStack(null).replace(R.id.fragment_container, new CalendarEventInputFragment()).commit();
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, new CalendarEventInputFragment()).commit();
     }
 
     private void openNusmodsFragment() {
@@ -502,6 +502,15 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
         toolbar.setTitle("Modules");
         toolbar.setSubtitle("");
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new NusmodsFragment()).commit();
+    }
+
+    private void openViewEmailFragment(Message message){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarSpinner.setVisibility(View.GONE);
+        toolbar.setTitle("Email");
+        toolbar.setSubtitle("");
+        DisplayEmailFragment displayEmailFragment = DisplayEmailFragment.newInstance(message);
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEmailFragment).commit();
     }
 
     private void signIn() {
@@ -658,17 +667,6 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
                 for(Message message : iMessageCollectionPage.getCurrentPage()){
                     System.out.println(message.subject);
                     deltaEmails++;
-
-                    EmailParser mEmailParser = new EmailParser();
-                    mEmailParser.AllParse(message.body.content);
-                    mEmailParser.setmParserCallback(new EmailParser.parserCallback(){
-                        @Override
-                        public void onEventAdded(WeekViewEvent event) {
-                            System.out.println("delta memailparser success");
-
-                        }
-
-                    });
                 }
 
 
@@ -701,9 +699,6 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
             mModulesDatabaseReference.child("modules").child(moduleCode).child("Module Name").setValue(moduleCode);
             mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).setValue(classNo);
             //may be made to be more efficient i think?
-
-            EmailParser mEmailParser = new EmailParser();
-            mEmailParser.TimeParse("test(not used)");
         }
     }
 
@@ -790,13 +785,8 @@ public class MainActivity extends AppCompatActivity implements EmailParser.parse
         CalendarEventInputFragment.updateTimeButton(hours, min);
     }
 
-
-
-
-    // Function from EmailParser
     @Override
-    public void onEventAdded(WeekViewEvent event) {
-
+    public void onEmailPressed(Message message) {
+        openViewEmailFragment(message);
     }
-
 }
