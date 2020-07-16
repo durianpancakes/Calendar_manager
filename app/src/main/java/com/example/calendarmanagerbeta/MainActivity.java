@@ -700,6 +700,8 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
             mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).setValue(classNo);
             //may be made to be more efficient i think?
         }
+
+
     }
 
     @Override
