@@ -112,7 +112,7 @@ public class EmailFragment extends Fragment {
                                 System.out.println("HELLO");
                             }
                         });
-                        mEmailParser.AllParse("There has been a change in the programme at 3.55 - 4:15pm.");
+                        mEmailParser.AllParse("the event will be held on 8th december, 2020");
                         i = 0;
                     }
 
