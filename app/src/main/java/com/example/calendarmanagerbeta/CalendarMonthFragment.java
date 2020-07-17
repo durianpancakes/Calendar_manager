@@ -3,6 +3,7 @@ package com.example.calendarmanagerbeta;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -44,6 +45,9 @@ public class CalendarMonthFragment extends Fragment {
         gridview = (GridView)myFragmentView.findViewById(R.id.month_gridview);
         monthAdapter = new MonthCalendarAdapter(getActivity(), monthNum, yearNum, month);
         gridview.setAdapter(monthAdapter);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Calendar");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("Month View");
 
         final TextView dateTitle = (TextView)myFragmentView.findViewById(R.id.month_title);
         dateTitle.setText(android.text.format.DateFormat.format("MMMM yyyy", month));

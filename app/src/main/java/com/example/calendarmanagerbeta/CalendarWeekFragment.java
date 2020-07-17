@@ -5,6 +5,7 @@ import android.graphics.RectF;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.util.TypedValue;
@@ -58,6 +59,9 @@ public class CalendarWeekFragment extends Fragment {
         weekNumber = (TextView)myFragmentView.findViewById(R.id.week_view_weekNumber);
         monthYearString = (TextView)myFragmentView.findViewById(R.id.week_view_monthYear);
         addEventButton = (FloatingActionButton)myFragmentView.findViewById(R.id.week_view_add);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Calendar");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("Week View");
 
         setupWeekView();
 

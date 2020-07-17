@@ -5,26 +5,19 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
 import com.alamkanak.weekview.WeekViewEvent;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.microsoft.graph.concurrency.ICallback;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.extensions.Message;
@@ -35,7 +28,6 @@ import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalException;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,6 +42,8 @@ public class EmailFragment extends Fragment {
     private IMessageCollectionRequestBuilder nextPage = null;
     private EmailListAdapter listAdapter = null;
     private EmailFragmentCallback mCallback;
+    private boolean spinnerVisible = false;
+    private ArrayList<String> mUserKeywords;
 
     public interface EmailFragmentCallback{
         void onEmailPressed(Message message);
@@ -81,8 +75,10 @@ public class EmailFragment extends Fragment {
         });
     }
 
-    public EmailFragment(String keyword) {
+    public EmailFragment(String keyword, boolean spinner, ArrayList<String> userKeywords) {
         mKeyword = keyword;
+        spinnerVisible = spinner;
+        mUserKeywords = userKeywords;
     }
 
     private void hideProgressBar() {
@@ -138,6 +134,14 @@ public class EmailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         myFragmentView = inflater.inflate(R.layout.fragment_email, container, false);
+
+        if (!spinnerVisible){
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Inbox");
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+        } else {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("");
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+        }
 
         return myFragmentView;
     }

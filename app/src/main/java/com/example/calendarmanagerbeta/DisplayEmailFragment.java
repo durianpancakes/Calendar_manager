@@ -3,12 +3,14 @@ package com.example.calendarmanagerbeta;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.microsoft.graph.models.extensions.Message;
 
@@ -39,9 +41,17 @@ public class DisplayEmailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
 
-        }
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("View Email");
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                getFragmentManager().popBackStackImmediate();
+                System.out.println("BACK PRESSED");
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     @Override
