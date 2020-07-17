@@ -296,28 +296,30 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
                             public void onGetKeyword(final ArrayList<String> userKeywords) {
                                 Log.d("Firebase Helper", "onGetKeyword success");
                                 mUserKeywords = userKeywords;
-                                AuthenticationHelper.getInstance()
-                                        .acquireTokenSilently(new AuthenticationCallback() {
-                                            @Override
-                                            public void onSuccess(IAuthenticationResult authenticationResult) {
-                                                final GraphHelper graphHelper = GraphHelper.getInstance();
-                                                String lastDateTimeString = getLastDateTimeString();
-                                                for(int i = 0; i < mUserKeywords.size(); i++){
-                                                    graphHelper.getDeltaSpecificEmails(authenticationResult.getAccessToken(), lastDateTimeString, mUserKeywords.get(i), getDeltaEmailCallback());
+                                if(mUserKeywords.size() != 0) {
+                                    AuthenticationHelper.getInstance()
+                                            .acquireTokenSilently(new AuthenticationCallback() {
+                                                @Override
+                                                public void onSuccess(IAuthenticationResult authenticationResult) {
+                                                    final GraphHelper graphHelper = GraphHelper.getInstance();
+                                                    String lastDateTimeString = getLastDateTimeString();
+                                                    for (int i = 0; i < mUserKeywords.size(); i++) {
+                                                        graphHelper.getDeltaSpecificEmails(authenticationResult.getAccessToken(), lastDateTimeString, mUserKeywords.get(i), getDeltaEmailCallback());
+                                                    }
                                                 }
-                                            }
 
-                                            @Override
-                                            public void onError(MsalException exception) {
-                                                Log.e("AUTH", "Could not get token silently", exception);
-                                                hideProgressBar();
-                                            }
+                                                @Override
+                                                public void onError(MsalException exception) {
+                                                    Log.e("AUTH", "Could not get token silently", exception);
+                                                    hideProgressBar();
+                                                }
 
-                                            @Override
-                                            public void onCancel() {
-                                                hideProgressBar();
-                                            }
-                                        });
+                                                @Override
+                                                public void onCancel() {
+                                                    hideProgressBar();
+                                                }
+                                            });
+                                }
                             }
                         });
                     }
