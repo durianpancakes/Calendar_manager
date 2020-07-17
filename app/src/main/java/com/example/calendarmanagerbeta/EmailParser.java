@@ -333,11 +333,13 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         ArrayList<Integer> Time = new ArrayList<>();
         // use java.util.calendar for Calendar mstarttime mendtime ?
         // uppercase the emailbody
-        String UpperBody = emailBody.toUpperCase();
+        //String UpperBody = emailBody.toUpperCase();
         //String text = "12:00 noon 14 May 2020, 5pm and 7pm, 5pm alone, at 4, 4 o'clock, 4o'clock, 04:00 PM, 5-7pm, 5-5:30pm, 11pm to 1am, there are 2 exams - chapter 1-9, 11.30am to 1.45pm";
-        //String text = "There will be a quiz at 12pm tomorrow";
+        //String text = "There will be a quiz at 3.55 - 4.15pm tomorrow";
         String text1 = emailBody.toUpperCase();
-        Pattern pattern = Pattern.compile("((AT|BY)[\\h])?\\b(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?\\b[\\h]?(TO|AND|-|O'CLOCK)?([\\h]?(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?)?");
+        Pattern pattern = Pattern.compile("((AT|BY)[\\h])?\\b\\b(1[0-9]|0?[1-9]|2[0-3])([:.][0-5][0-9])?[\\h]?([AP][M])?\\b[\\h]?(TO|AND|-|O'CLOCK)?([\\h]?(1[0-9]|0?[1-9]|2[0-3])([:.][0-5][0-9])?[\\h]?([AP][M])?)?\\b");
+        // old without 24h Pattern pattern = Pattern.compile("((AT|BY)[\\h])?\\b\\b(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?\\b[\\h]?(TO|AND|-|O'CLOCK)?([\\h]?(1[0-2]|0?[1-9])([:.][0-5][0-9])?[\\h]?([AP][M])?)?\\b");
+        // added outer \\b because it couldnt detect "3.55 - 4.15pm."
         //\b(2359|23:59)\b
         Matcher matcher = pattern.matcher(text1);
 
@@ -356,8 +358,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             endHour = 99;
             endMinute = 99;
             foundInloop = 0;
-
-
+            
 
             if(secondParse.contains("AM") || secondParse.contains("PM")) {
                 viableDateCount++;
@@ -685,6 +686,10 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             else {
                 System.out.println(secondParse + " is a false parse.");
             }
+
+
+
+
 
 
         }

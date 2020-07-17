@@ -108,8 +108,7 @@ public class EmailFragment extends Fragment {
                                 System.out.println("HELLO");
                             }
                         });
-                        mEmailParser.AllParse("We have scheduled a systems maintenance on\n" +
-                                "26 Jul 2020 (Sun), from 14:00 to 18:00.\n");
+                        mEmailParser.AllParse("There has been a change in the programme at 3.55 - 4:15pm.");
                         i = 0;
                     }
 
