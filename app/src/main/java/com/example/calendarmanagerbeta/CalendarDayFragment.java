@@ -6,12 +6,14 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
@@ -55,6 +57,9 @@ public class CalendarDayFragment extends Fragment {
         dayNumber = (TextView)myFragmentView.findViewById(R.id.day_view_dayNumber);
         monthYearString = (TextView)myFragmentView.findViewById(R.id.day_view_monthYear);
         addEventButton = (FloatingActionButton)myFragmentView.findViewById(R.id.day_view_add);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Calendar");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("Day View");
 
         setupDayView();
 

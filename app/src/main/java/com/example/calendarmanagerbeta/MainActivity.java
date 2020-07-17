@@ -26,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentManager;
 
 import android.util.Log;
 
@@ -34,17 +33,10 @@ import android.util.Log;
 import com.alamkanak.weekview.WeekViewEvent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.microsoft.graph.models.extensions.Message;
-import com.microsoft.graph.models.extensions.Shared;
 import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
-import com.microsoft.graph.requests.extensions.IMessageCollectionRequestBuilder;
-import com.microsoft.graph.requests.extensions.IMessageDeltaCollectionPage;
-import com.microsoft.graph.requests.extensions.IMessageDeltaCollectionRequestBuilder;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -64,10 +56,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener, CalendarEventInputFragment.eventInputListener, CalendarDayFragment.addEventListener, CalendarWeekFragment.addEventListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
@@ -284,10 +273,56 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
 
         if (isSignedIn) {
             // Check if user is signed into Firebase
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if(user == null){
-                startActivity(new Intent(getApplication(), MyAppIntro.class));
-            }
+            final FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    if(user == null && mIsSignedIn){
+                        // user is signed into Microsoft, but not Firebase
+                        Log.e("Firebase Auth", "User is not signed in");
+                        startActivity(new Intent(getApplication(), MyAppIntro.class));
+                    } else {
+                        // user is signed in
+                        Log.d("Firebase Auth", "User is signed in");
+                        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
+                        firebaseHelper.getAllKeywords();
+                        firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
+                            @Override
+                            public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
+                                return;
+                            }
+
+                            @Override
+                            public void onGetKeyword(final ArrayList<String> userKeywords) {
+                                Log.d("Firebase Helper", "onGetKeyword success");
+                                mUserKeywords = userKeywords;
+                                AuthenticationHelper.getInstance()
+                                        .acquireTokenSilently(new AuthenticationCallback() {
+                                            @Override
+                                            public void onSuccess(IAuthenticationResult authenticationResult) {
+                                                final GraphHelper graphHelper = GraphHelper.getInstance();
+                                                String lastDateTimeString = getLastDateTimeString();
+                                                for(int i = 0; i < mUserKeywords.size(); i++){
+                                                    graphHelper.getDeltaSpecificEmails(authenticationResult.getAccessToken(), lastDateTimeString, mUserKeywords.get(i), getDeltaEmailCallback());
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onError(MsalException exception) {
+                                                Log.e("AUTH", "Could not get token silently", exception);
+                                                hideProgressBar();
+                                            }
+
+                                            @Override
+                                            public void onCancel() {
+                                                hideProgressBar();
+                                            }
+                                        });
+                            }
+                        });
+                    }
+                }
+            };
 
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
@@ -301,29 +336,6 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
                 mProfilePicture = createProfilePicture(mUserName);
                 userProfilePicture.setImageDrawable(mProfilePicture);
             }
-
-            AuthenticationHelper.getInstance()
-                    .acquireTokenSilently(new AuthenticationCallback() {
-                        @Override
-                        public void onSuccess(IAuthenticationResult authenticationResult) {
-                            final GraphHelper graphHelper = GraphHelper.getInstance();
-                            String lastDateTimeString = getLastDateTimeString();
-                            graphHelper.getDeltaSpecificEmails(authenticationResult.getAccessToken(), lastDateTimeString, "CS0000", getDeltaEmailCallback());
-
-                        }
-
-
-                        @Override
-                        public void onError(MsalException exception) {
-                            Log.e("AUTH", "Could not get token silently", exception);
-                            hideProgressBar();
-                        }
-
-                        @Override
-                        public void onCancel() {
-                            hideProgressBar();
-                        }
-                    });
         } else {
             mUserName = null;
             mUserEmail = null;
@@ -426,17 +438,15 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
             public void onGetKeyword(final ArrayList<String> userKeywords) {
                 if(userKeywords.size() == 0){
                     // Nothing in database, revert to no options (show inbox only)
-                    toolbar.setTitle("Inbox");
-                    toolbar.setSubtitle("");
                     mToolbarSpinner.setVisibility(View.GONE);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new EmailFragment("Inbox")).commit();
+                    getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new EmailFragment("Inbox", false, userKeywords)).commit();
                 } else {
-                    toolbar.setTitle("");
-                    toolbar.setSubtitle("");
-                    ArrayAdapter<String> mToolbarSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.email_checked_title, mUserKeywords);
+                    ArrayList<String> mToolbarSpinnnerArray = new ArrayList<>();
+                    ArrayAdapter<String> mToolbarSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.email_checked_title, mToolbarSpinnnerArray);
                     mToolbarSpinnerAdapter.setDropDownViewResource(R.layout.email_spinner_dropdown_item);
                     mToolbarSpinnerAdapter.clear();
                     mToolbarSpinnerAdapter.add("Inbox");
+                    mToolbarSpinner.setVisibility(View.VISIBLE);
                     mToolbarSpinner.setVisibility(View.VISIBLE);
                     for(int i = 0; i < userKeywords.size(); i++){
                         mToolbarSpinnerAdapter.add(userKeywords.get(i));
@@ -446,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                             String keywordSelected = parent.getItemAtPosition(pos).toString();
-                            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new EmailFragment(keywordSelected)).commit();
+                            getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new EmailFragment(keywordSelected, true, userKeywords)).commit();
                         }
 
                         @Override
@@ -466,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Calendar");
         toolbar.setSubtitle("Day View");
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarDayFragment()).commit();
+        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarDayFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_day_view);
     }
 
@@ -475,7 +485,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Calendar");
         toolbar.setSubtitle("Month View");
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarMonthFragment()).commit();
+        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarMonthFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_month_view);
     }
 
@@ -484,7 +494,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Calendar");
         toolbar.setSubtitle("Week View");
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new CalendarWeekFragment()).commit();
+        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarWeekFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_week_view);
     }
 
@@ -501,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         mToolbarSpinner.setVisibility(View.GONE);
         toolbar.setTitle("Modules");
         toolbar.setSubtitle("");
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new NusmodsFragment()).commit();
+        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new NusmodsFragment()).commit();
     }
 
     private void openViewEmailFragment(Message message){
@@ -666,6 +676,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
 
                 for(Message message : iMessageCollectionPage.getCurrentPage()){
                     System.out.println(message.subject);
+                    // Parse all emails here
                     deltaEmails++;
                 }
 
@@ -771,8 +782,6 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         getSupportFragmentManager().popBackStackImmediate();
 
         mModulesDatabaseReference.push().setValue(mWeekViewEventLite);
-
-
     }
 
     @Override
