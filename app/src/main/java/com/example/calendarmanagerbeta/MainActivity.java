@@ -714,6 +714,9 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
             //may be made to be more efficient i think?
         }
 
+        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
+        firebaseHelper.pullEvents();
+
 
     }
 
@@ -758,8 +761,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
-        DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
-        //mModulesDatabaseReference.push().setValue(event);
+        DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
         WeekViewEventLite mWeekViewEventLite = new WeekViewEventLite();
 
         mWeekViewEventLite.startDayOfMonth = event.getStartTime().get(Calendar.DAY_OF_MONTH);
@@ -777,6 +779,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         mWeekViewEventLite.Description = event.getDescription();
         mWeekViewEventLite.Location = event.getLocation();
         mWeekViewEventLite.Name = event.getName();
+        mWeekViewEventLite.AllDay = event.isAllDay();
 
         System.out.println("EVENT RECEIVED");
         System.out.println(event.getName());
@@ -785,7 +788,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
         getSupportFragmentManager().popBackStackImmediate();
 
-        mModulesDatabaseReference.push().setValue(mWeekViewEventLite);
+        mEventsDatabaseReference.push().setValue(mWeekViewEventLite);
     }
 
     @Override
