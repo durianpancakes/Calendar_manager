@@ -137,10 +137,7 @@ public class FirebaseHelper {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                         String modCode = userSnapshot.child("Module Name").getValue(String.class);
                         allKeywords.add(modCode);
-
                     }
-
-
                 }
                 else {
                     System.out.println("getallkeywords no children");
