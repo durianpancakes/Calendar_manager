@@ -84,6 +84,9 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.3'
 
+    // Material library
+    implementation 'com.google.android.material:material:1.1.0'
+
     apply plugin: 'com.android.application'
     apply plugin: 'com.google.gms.google-services' //reads configuration info for the googleservices.json we added, adds firebase sdk dependecies
 }

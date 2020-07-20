@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.alamkanak.weekview.WeekViewEvent;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -232,6 +234,11 @@ public class NusmodsFragment extends Fragment{
 
             @Override
             public void onGetKeyword(ArrayList<String> userKeywords) {
+                return;
+            }
+
+            @Override
+            public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
                 return;
             }
         });

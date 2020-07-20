@@ -1,16 +1,7 @@
 package com.example.calendarmanagerbeta;
 
 import android.annotation.SuppressLint;
-import android.app.DatePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -19,14 +10,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
 import com.alamkanak.weekview.WeekViewEvent;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -34,18 +27,17 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class CalendarEventInputFragment extends Fragment implements SelectorDialog.OnDialogSelectorListener{
+public class CalendarEventInputDialog extends DialogFragment implements View.OnClickListener{
+    private EventInputListener eventInputListener;
     private static int DATE_BUTTON_ID = 0;
     private static int TIME_BUTTON_ID = 0;
     private static boolean mAllDay;
     private static boolean nameError = true;
-    private View myFragmentView;
-    private eventInputListener mEventListener;
+    private EventInputListener mListener;
     private static EditText eventName;
     @SuppressLint("StaticFieldLeak")
     private static Button fromDate;
@@ -65,8 +57,6 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
     private EditText descriptionText;
     private Button reminderButton;
     private Button repeatButton;
-    private Button saveButton;
-    private Button cancelButton;
     private int reminderSelectedIndex = 4;
     private int repeatSelectedIndex = 0;
 
@@ -77,111 +67,49 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
     private String[] mRemindersArrayOptions;
     private String[] mRepeatArrayOptions;
 
-    public interface eventInputListener{
-        void onCancelPressed();
+    public interface EventInputListener{
         void onAddPressed(WeekViewEvent event);
     }
 
-    public static void updateDateButton(int year, int month, int day) {
-        Calendar newCal = Calendar.getInstance(TimeZone.getDefault());
-        newCal.set(year, month, day);
-        String newDayOfWeek = newCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT_FORMAT, Locale.ENGLISH);
-        String newMonth = newCal.getDisplayName(Calendar.MONTH, Calendar.SHORT_FORMAT, Locale.ENGLISH);
-        switch(DATE_BUTTON_ID){
-            case 1:
-                fromDate.setText(newDayOfWeek + ", " + newMonth + " " + day + ", " + year);
-                startTime.set(year, month, day);
-                validateInputs();
-                break;
-            case 2:
-                toDate.setText(newDayOfWeek + ", " + newMonth + " " + day + ", " + year);
-                endTime.set(year, month, day);
-                validateInputs();
-                break;
-        }
+    public void setEventInputCallback(EventInputListener eventInputListener){
+        this.mListener = eventInputListener;
     }
 
-    public static void updateTimeButton(int hour, int min){
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
-        Calendar newCal = Calendar.getInstance(TimeZone.getDefault());
-        newCal.set(Calendar.HOUR_OF_DAY, hour);
-        newCal.set(Calendar.MINUTE, min);
-        String newTimeString = sdf.format(newCal.getTime());
-        switch(TIME_BUTTON_ID){
-            case 1:
-                fromTime.setText(newTimeString);
-                startTime.set(Calendar.HOUR_OF_DAY, hour);
-                startTime.set(Calendar.MINUTE, min);
-                validateInputs();
-                break;
-            case 2:
-                toTime.setText(newTimeString);
-                endTime.set(Calendar.HOUR_OF_DAY, hour);
-                endTime.set(Calendar.MINUTE, min);
-                validateInputs();
-                break;
-        }
-    }
-
-    public static Boolean validateInputs(){
-        if(endTime.before(startTime) && !mAllDay){
-            errorMsg.setVisibility(View.VISIBLE);
-            return false;
-        } else {
-            errorMsg.setVisibility(View.GONE);
-            return true;
-        }
+    static CalendarEventInputDialog newInstance(){
+        return new CalendarEventInputDialog();
     }
 
     @Override
-    public void onSelectedOption(int dialogId) {
-        System.out.println(dialogId);
-    }
-
-    public CalendarEventInputFragment() {
-        // Required empty public constructor
-    }
-
-    public String getCurrentDateTimeString(){
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        df.setTimeZone(tz);
-        String nowAsISO = df.format(new Date());
-
-        return nowAsISO;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.FullscreenDialogTheme);
         mRemindersArrayOptions = getResources().getStringArray(R.array.reminders_array);
         mRepeatArrayOptions = getResources().getStringArray(R.array.repeat_array);
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        myFragmentView = inflater.inflate(R.layout.fragment_calendar_event_input, container, false);
-        eventName = (EditText)myFragmentView.findViewById(R.id.input_event_name);
-        fromDate = (Button)myFragmentView.findViewById(R.id.input_from_date);
-        fromTime = (Button)myFragmentView.findViewById(R.id.input_from_time);
-        toDate = (Button)myFragmentView.findViewById(R.id.input_to_date);
-        toTime = (Button)myFragmentView.findViewById(R.id.input_to_time);
-        allDay = (CheckBox)myFragmentView.findViewById(R.id.input_all_day_checkbox);
-        checkCal = (Button)myFragmentView.findViewById(R.id.input_check_cal);
-        errorMsg = (TextView)myFragmentView.findViewById(R.id.input_time_error_msg);
-        nameErrorMsg = (TextView)myFragmentView.findViewById(R.id.event_name_error);
-        locationText = (EditText)myFragmentView.findViewById(R.id.input_location);
-        descriptionText = (EditText)myFragmentView.findViewById(R.id.input_description);
-        reminderButton = (Button)myFragmentView.findViewById(R.id.input_reminder);
-        repeatButton = (Button)myFragmentView.findViewById(R.id.input_repeat);
-        saveButton = (Button)myFragmentView.findViewById(R.id.event_input_save);
-        cancelButton = (Button)myFragmentView.findViewById(R.id.event_input_cancel);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.create_calendar_event_dialog, container, false);
+        ImageButton close = view.findViewById(R.id.event_input_cancel);
+        TextView save = view.findViewById(R.id.event_input_save);
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Calendar");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("New event");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("New event");
+        close.setOnClickListener(this);
+        save.setOnClickListener(this);
+
+        eventName = view.findViewById(R.id.input_event_name);
+        fromDate = view.findViewById(R.id.input_from_date);
+        fromTime = view.findViewById(R.id.input_from_time);
+        toDate = view.findViewById(R.id.input_to_date);
+        toTime = view.findViewById(R.id.input_to_time);
+        allDay = view.findViewById(R.id.input_all_day_checkbox);
+        checkCal = view.findViewById(R.id.input_check_cal);
+        errorMsg = view.findViewById(R.id.input_time_error_msg);
+        nameErrorMsg = view.findViewById(R.id.event_name_error);
+        locationText = view.findViewById(R.id.input_location);
+        descriptionText = view.findViewById(R.id.input_description);
+        reminderButton = view.findViewById(R.id.input_reminder);
+        repeatButton = view.findViewById(R.id.input_repeat);
 
         // Initializing current day parameters
         startTime = Calendar.getInstance();
@@ -328,11 +256,67 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
 
         validateInputs();
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        return view;
+    }
+
+    public static void updateDateButton(int year, int month, int day) {
+        Calendar newCal = Calendar.getInstance(TimeZone.getDefault());
+        newCal.set(year, month, day);
+        String newDayOfWeek = newCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT_FORMAT, Locale.ENGLISH);
+        String newMonth = newCal.getDisplayName(Calendar.MONTH, Calendar.SHORT_FORMAT, Locale.ENGLISH);
+        switch(DATE_BUTTON_ID){
+            case 1:
+                fromDate.setText(newDayOfWeek + ", " + newMonth + " " + day + ", " + year);
+                startTime.set(year, month, day);
+                validateInputs();
+                break;
+            case 2:
+                toDate.setText(newDayOfWeek + ", " + newMonth + " " + day + ", " + year);
+                endTime.set(year, month, day);
+                validateInputs();
+                break;
+        }
+    }
+
+    public static void updateTimeButton(int hour, int min){
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
+        Calendar newCal = Calendar.getInstance(TimeZone.getDefault());
+        newCal.set(Calendar.HOUR_OF_DAY, hour);
+        newCal.set(Calendar.MINUTE, min);
+        String newTimeString = sdf.format(newCal.getTime());
+        switch(TIME_BUTTON_ID){
+            case 1:
+                fromTime.setText(newTimeString);
+                startTime.set(Calendar.HOUR_OF_DAY, hour);
+                startTime.set(Calendar.MINUTE, min);
+                validateInputs();
+                break;
+            case 2:
+                toTime.setText(newTimeString);
+                endTime.set(Calendar.HOUR_OF_DAY, hour);
+                endTime.set(Calendar.MINUTE, min);
+                validateInputs();
+                break;
+        }
+    }
+
+    public static Boolean validateInputs(){
+        if(endTime.before(startTime) && !mAllDay){
+            errorMsg.setVisibility(View.VISIBLE);
+            return false;
+        } else {
+            errorMsg.setVisibility(View.GONE);
+            return true;
+        }
+    }
+
+    @Override
+    public void onClick(View v){
+        int id = v.getId();
+
+        switch(id){
+            case R.id.event_input_save:
                 if(validateInputs() && !nameError){
-                    // Inputs are valid, allow item to be saved.
                     WeekViewEvent event = new WeekViewEvent();
                     event.setName(eventName.getText().toString());
                     event.setStartTime(startTime);
@@ -340,37 +324,16 @@ public class CalendarEventInputFragment extends Fragment implements SelectorDial
                     event.setDescription(descriptionText.getText().toString());
                     event.setLocation(locationText.getText().toString());
                     event.setAllDay(mAllDay);
-                    mEventListener.onAddPressed(event);
+                    mListener.onAddPressed(event);
+                    dismiss();
                 } else {
-                    Toast.makeText(getActivity(), "Please check if all fields are valid", Toast.LENGTH_LONG);
+                    break;
                 }
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mEventListener.onCancelPressed();
-            }
-        });
-
-        return myFragmentView;
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if(context instanceof CalendarEventInputFragment.eventInputListener){
-            mEventListener = (CalendarEventInputFragment.eventInputListener)context;
+                break;
+            case R.id.event_input_cancel:
+                dismiss();
+                break;
         }
-        else{
-            throw new RuntimeException(context.toString() + " must implement listener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mEventListener = null;
     }
 }
+

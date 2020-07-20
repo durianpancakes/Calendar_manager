@@ -15,6 +15,7 @@ import android.widget.Toolbar;
 import com.microsoft.graph.models.extensions.Message;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,13 +43,13 @@ public class DisplayEmailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("View Email");
+        Objects.requireNonNull(((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).setTitle("View Email");
 
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                assert getFragmentManager() != null;
                 getFragmentManager().popBackStackImmediate();
-                System.out.println("BACK PRESSED");
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
