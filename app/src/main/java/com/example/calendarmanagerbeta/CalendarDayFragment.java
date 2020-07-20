@@ -1,12 +1,14 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.RectF;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -18,11 +20,13 @@ import android.widget.Toolbar;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -37,15 +41,27 @@ public class CalendarDayFragment extends Fragment {
     private int currentMonth;
     private int currentYear;
     private FloatingActionButton addEventButton;
-    private CalendarDayFragment.addEventListener mAddEventListener;
+    private List<WeekViewEvent> mEvents = new ArrayList<>();
+    private EventAddedListener mEventAddedListener;
     private String[] monthStrings = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
     public CalendarDayFragment() {
         // Required empty public constructor
     }
 
-    public interface addEventListener{
-        void onAddEventButtonPressed();
+    public void showEventLongPressDialog(){
+        String[] options = {"Edit event", "Delete event"};
+
+        new MaterialAlertDialogBuilder(getContext()).setTitle("Event").setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch(i){
+                    case 0: System.out.println("Edit pressed");
+                    case 1: System.out.println("Delete pressed");
+                    default: System.out.println("No case");
+                }
+            }
+        }).show();
     }
 
     @Override
@@ -53,17 +69,49 @@ public class CalendarDayFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         myFragmentView = inflater.inflate(R.layout.fragment_calendar_day, container, false);
-        mDayView = (WeekView)myFragmentView.findViewById(R.id.calendar_day_view);
-        dayNumber = (TextView)myFragmentView.findViewById(R.id.day_view_dayNumber);
-        monthYearString = (TextView)myFragmentView.findViewById(R.id.day_view_monthYear);
-        addEventButton = (FloatingActionButton)myFragmentView.findViewById(R.id.day_view_add);
+        mDayView = myFragmentView.findViewById(R.id.calendar_day_view);
+        dayNumber = myFragmentView.findViewById(R.id.day_view_dayNumber);
+        monthYearString = myFragmentView.findViewById(R.id.day_view_monthYear);
+        addEventButton = myFragmentView.findViewById(R.id.day_view_add);
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Calendar");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("Day View");
 
+        refreshDatabase();
         setupDayView();
 
         return myFragmentView;
+    }
+
+    public void refreshDatabase(){
+        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getContext());
+        firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
+            @Override
+            public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
+
+            }
+
+            @Override
+            public void onGetKeyword(ArrayList<String> userKeywords) {
+
+            }
+
+            @Override
+            public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
+                mEvents = userEvents;
+//                WeekViewEvent event = mEvents.get(0);
+//                System.out.println(event.getName());
+//                System.out.println(event.getLocation());
+//                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
+//                Date startDate = event.getStartTime().getTime();
+//                Date endDate = event.getEndTime().getTime();
+//                System.out.println("START TIME = " + sdf.format(startDate));
+//                System.out.println("END TIME = " + sdf.format(endDate));
+                mDayView.getMonthChangeListener().onMonthChange(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH));
+                mDayView.notifyDatasetChanged();
+            }
+        });
+        firebaseHelper.pullEvents();
     }
 
     private void setupDayView(){
@@ -71,8 +119,7 @@ public class CalendarDayFragment extends Fragment {
             mDayView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
                 @Override
                 public List<? extends WeekViewEvent> onMonthChange(int i, int i1) {
-                return new ArrayList<WeekViewEvent>();
-                //TODO: Handle month change (return new list of events)
+                return mEvents;
                 }
             });
 
@@ -104,7 +151,14 @@ public class CalendarDayFragment extends Fragment {
             addEventButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mAddEventListener.onAddEventButtonPressed();
+                    DialogFragment addEventDialog = CalendarEventInputDialog.newInstance();
+                    ((CalendarEventInputDialog) addEventDialog).setEventInputCallback(new CalendarEventInputDialog.EventInputListener() {
+                        @Override
+                        public void onAddPressed(WeekViewEvent event) {
+                            mEventAddedListener.eventAdded(event);
+                        }
+                    });
+                    addEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "eventInput");
                 }
             });
         }
@@ -129,11 +183,15 @@ public class CalendarDayFragment extends Fragment {
         super.onPause();
     }
 
+    public interface EventAddedListener{
+        void eventAdded(WeekViewEvent event);
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if(context instanceof CalendarDayFragment.addEventListener){
-            mAddEventListener = (CalendarDayFragment.addEventListener)context;
+        if(context instanceof CalendarDayFragment.EventAddedListener){
+            mEventAddedListener = (CalendarDayFragment.EventAddedListener)context;
         }
         else{
             throw new RuntimeException(context.toString() + " must implement listener");
@@ -143,6 +201,6 @@ public class CalendarDayFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mAddEventListener = null;
+        mEventAddedListener = null;
     }
 }

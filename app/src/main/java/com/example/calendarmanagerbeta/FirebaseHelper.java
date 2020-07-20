@@ -73,15 +73,15 @@ public class FirebaseHelper {
 
                         }
                         if (userSnapshot.child("startMinute").exists()) {
-                            startCal.set(Calendar.YEAR, userSnapshot.child("startYear").getValue(int.class));
+                            startCal.set(Calendar.MINUTE, userSnapshot.child("startMinute").getValue(int.class));
 
                         }
                         if (userSnapshot.child("endDayOfMonth").exists()) {
-                            endCal.set(Calendar.MINUTE, userSnapshot.child("endDayOfMonth").getValue(int.class));
+                            endCal.set(Calendar.DAY_OF_MONTH, userSnapshot.child("endDayOfMonth").getValue(int.class));
 
                         }
                         if (userSnapshot.child("endMonth").exists()) {
-                            endCal.set(Calendar.YEAR, userSnapshot.child("endMonth").getValue(int.class));
+                            endCal.set(Calendar.MONTH, userSnapshot.child("endMonth").getValue(int.class));
 
                         }
                         if (userSnapshot.child("endYear").exists()) {
@@ -93,7 +93,7 @@ public class FirebaseHelper {
 
                         }
                         if (userSnapshot.child("endMinute").exists()) {
-                            endCal.set(Calendar.YEAR, userSnapshot.child("endMinute").getValue(int.class));
+                            endCal.set(Calendar.MINUTE, userSnapshot.child("endMinute").getValue(int.class));
 
                         }
                         if (userSnapshot.child("Description").exists()) {
@@ -125,17 +125,9 @@ public class FirebaseHelper {
                 for (WeekViewEvent weekViewEvent : eventArrayList) {
                     System.out.println("Name of event : " + weekViewEvent.getName());
                     System.out.println("Location : " + weekViewEvent.getLocation());
-                    //System.out.println("StartHour : " + weekViewEvent.getStartTime().get(Calendar.HOUR_OF_DAY));
-                    //System.out.println("StartMinute : " + weekViewEvent.getStartTime().get(Calendar.MINUTE));
-                    // lazy to check for others + might not have some fields so this may crash
-
                 }
 
-                // dont know where to pass this to..
-                // seen from function below
-                /*if(callbackHelper != null){
-                    callbackHelper.onGetModuleSuccess(allModules);
-                }*/
+                callbackHelper.onGetEvents(eventArrayList);
             }
 
             @Override

@@ -1,11 +1,13 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.RectF;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.util.TypedValue;
@@ -17,11 +19,15 @@ import android.widget.TextView;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -39,6 +45,8 @@ public class CalendarWeekFragment extends Fragment {
     private int lastVisibleDayYear;
     private int firstVisibleDayMonth;
     private int lastVisibleDayMonth;
+    private List<WeekViewEvent> mEvents = new ArrayList<>();
+    private CalendarWeekFragment.EventAddedListener mEventAddedListener;
     private String[] monthStrings = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
     public CalendarWeekFragment() {
@@ -55,17 +63,56 @@ public class CalendarWeekFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         myFragmentView = inflater.inflate(R.layout.fragment_calendar_week, container, false);
-        mWeekView = (WeekView)myFragmentView.findViewById(R.id.calendar_week_view);
-        weekNumber = (TextView)myFragmentView.findViewById(R.id.week_view_weekNumber);
-        monthYearString = (TextView)myFragmentView.findViewById(R.id.week_view_monthYear);
-        addEventButton = (FloatingActionButton)myFragmentView.findViewById(R.id.week_view_add);
+        mWeekView = myFragmentView.findViewById(R.id.calendar_week_view);
+        weekNumber = myFragmentView.findViewById(R.id.week_view_weekNumber);
+        monthYearString = myFragmentView.findViewById(R.id.week_view_monthYear);
+        addEventButton = myFragmentView.findViewById(R.id.week_view_add);
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Calendar");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("Week View");
 
+        refreshDatabase();
         setupWeekView();
 
         return myFragmentView;
+    }
+
+    public void showEventLongPressDialog(){
+        String[] options = {"Edit event", "Delete event"};
+
+        new MaterialAlertDialogBuilder(getContext()).setTitle("Event").setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch(i){
+                    case 0: System.out.println("Edit pressed");
+                    case 1: System.out.println("Delete pressed");
+                    default: System.out.println("No case");
+                }
+            }
+        }).show();
+    }
+
+    public void refreshDatabase(){
+        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getContext());
+        firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
+            @Override
+            public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
+
+            }
+
+            @Override
+            public void onGetKeyword(ArrayList<String> userKeywords) {
+
+            }
+
+            @Override
+            public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
+                mEvents = userEvents;
+                mWeekView.getMonthChangeListener().onMonthChange(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH));
+                mWeekView.notifyDatasetChanged();
+            }
+        });
+        firebaseHelper.pullEvents();
     }
 
     private void setupWeekView(){
@@ -73,29 +120,7 @@ public class CalendarWeekFragment extends Fragment {
             mWeekView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
                 @Override
                 public List<? extends WeekViewEvent> onMonthChange(int year, int month) {
-                    ArrayList<WeekViewEvent> events = new ArrayList<WeekViewEvent>();
-                    // To add events, simply add the events into the ArrayList
-                    // Required fields:
-                    // 1. Event name
-                    // 2. Event start time
-                    // 3. Event end time
-                    // 4. Event boolean allDay
-                    // Optional fields:
-                    // 1. Event description
-                    // 2. Event location
-                    WeekViewEvent event = new WeekViewEvent();
-                    event.setName("CS1231 Lecture");
-                    Calendar startCal = Calendar.getInstance();
-                    startCal.set(2020, 6, 13, 7, 00);
-                    event.setStartTime(startCal);
-                    Calendar endCal = Calendar.getInstance();
-                    endCal.set(2020, 6, 13, 8, 00);
-                    event.setEndTime(endCal);
-                    event.setAllDay(false);
-                    event.setLocation("LT26");
-                    events.add(event);
-
-                    return events;
+                    return mEvents;
                 }
             });
 
@@ -105,7 +130,6 @@ public class CalendarWeekFragment extends Fragment {
                 public void onEventClick(WeekViewEvent event, RectF eventRect) {
                     //TODO: Handle event click
                     mAddEventListener.onEventClicked(event);
-                    System.out.println("OnEventClick");
                 }
             });
 
@@ -114,6 +138,7 @@ public class CalendarWeekFragment extends Fragment {
                 @Override
                 public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
                     //TODO: Handle event long press
+                    showEventLongPressDialog();
                     System.out.println("Long press");
                 }
             });
@@ -130,14 +155,22 @@ public class CalendarWeekFragment extends Fragment {
             addEventButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mAddEventListener.onAddEventButtonPressed();
+                    DialogFragment addEventDialog = CalendarEventInputDialog.newInstance();
+                    ((CalendarEventInputDialog) addEventDialog).setEventInputCallback(new CalendarEventInputDialog.EventInputListener() {
+                        @Override
+                        public void onAddPressed(WeekViewEvent event) {
+                            mEventAddedListener.eventAdded(event);
+                        }
+                    });
+                    addEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "eventInput");
                 }
             });
         }
 
         // setup necessary characteristics of the week view
         mWeekView.setShowFirstDayOfWeekFirst(true);
-        mWeekView.goToToday();
+        Calendar currentCal = Calendar.getInstance();
+        mWeekView.goToHour(currentCal.get(Calendar.HOUR_OF_DAY));
     }
 
     public void refreshHeaderTexts(){
@@ -173,11 +206,15 @@ public class CalendarWeekFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    public interface EventAddedListener{
+        void eventAdded(WeekViewEvent event);
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if(context instanceof CalendarWeekFragment.addEventListener){
-            mAddEventListener = (CalendarWeekFragment.addEventListener)context;
+        if(context instanceof CalendarWeekFragment.EventAddedListener){
+            mEventAddedListener = (CalendarWeekFragment.EventAddedListener)context;
         }
         else{
             throw new RuntimeException(context.toString() + " must implement listener");
@@ -187,6 +224,6 @@ public class CalendarWeekFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mAddEventListener = null;
+        mEventAddedListener = null;
     }
 }

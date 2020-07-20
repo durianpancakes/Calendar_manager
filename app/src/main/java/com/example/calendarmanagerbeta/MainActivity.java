@@ -59,7 +59,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity implements EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener, CalendarEventInputFragment.eventInputListener, CalendarDayFragment.addEventListener, CalendarWeekFragment.addEventListener, NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -329,6 +329,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         }
     }
 
+
 //    public String getLastDateTimeString(){
 //        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 //        String lastSyncDateTime = sharedPreferences.getString("lastSyncDateTime", getCurrentDateTimeString());
@@ -449,6 +450,11 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
                     });
                 }
             }
+
+            @Override
+            public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
+                return;
+            }
         });
 
         mNavigationView.setCheckedItem(R.id.nav_email);
@@ -490,20 +496,20 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
     }
 
     private void openNusmodsFragment() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
-        toolbar.setTitle("Modules");
-        toolbar.setSubtitle("");
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new NusmodsFragment()).commit();
     }
 
     private void openViewEmailFragment(Message message){
-        Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
-        toolbar.setTitle("Email");
-        toolbar.setSubtitle("");
         DisplayEmailFragment displayEmailFragment = DisplayEmailFragment.newInstance(message);
         getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEmailFragment).commit();
+    }
+
+    private void openViewEventFragment(WeekViewEvent event){
+        mToolbarSpinner.setVisibility(View.GONE);
+        DisplayEventFragment displayEventFragment = DisplayEventFragment.newInstance(event);
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEventFragment).commit();
     }
 
     private void signIn() {
@@ -711,8 +717,6 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
 
         FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
         firebaseHelper.pullEvents();
-
-
     }
 
     @Override
@@ -731,28 +735,25 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
             DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("modules");
             mModulesDatabaseReference.child(moduleCode.toString()).removeValue();
         }
-
-
-
     }
 
     @Override
-    public void onAddEventButtonPressed() {
-        openCalendarInput();
+    public void onDateReceive(int year, int month, int day) {
+        CalendarEventInputFragment.updateDateButton(year, month, day);
     }
 
     @Override
-    public void onEventClicked(WeekViewEvent event) {
-
+    public void onTimeReceive(int hours, int min) {
+        CalendarEventInputFragment.updateTimeButton(hours, min);
     }
 
     @Override
-    public void onCancelPressed() {
-        getSupportFragmentManager().popBackStackImmediate();
+    public void onEmailPressed(Message message) {
+        openViewEmailFragment(message);
     }
 
     @Override
-    public void onAddPressed(WeekViewEvent event) {
+    public void eventAdded(WeekViewEvent event) {
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
@@ -775,29 +776,14 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         mWeekViewEventLite.Location = event.getLocation();
         mWeekViewEventLite.Name = event.getName();
         mWeekViewEventLite.AllDay = event.isAllDay();
+        System.out.println(mWeekViewEventLite.AllDay);
 
         System.out.println("EVENT RECEIVED");
         System.out.println(event.getName());
         System.out.println(event.getLocation());
         System.out.println("START: " + event.getStartTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getStartTime().get(Calendar.MONTH) + 1) + "/" + event.getStartTime().get(Calendar.YEAR));
         System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
-        getSupportFragmentManager().popBackStackImmediate();
 
         mEventsDatabaseReference.push().setValue(mWeekViewEventLite);
-    }
-
-    @Override
-    public void onDateReceive(int year, int month, int day) {
-        CalendarEventInputFragment.updateDateButton(year, month, day);
-    }
-
-    @Override
-    public void onTimeReceive(int hours, int min) {
-        CalendarEventInputFragment.updateTimeButton(hours, min);
-    }
-
-    @Override
-    public void onEmailPressed(Message message) {
-        openViewEmailFragment(message);
     }
 }

@@ -218,6 +218,11 @@ public class HomeFragment extends Fragment {
                                             });
                                 }
                             }
+
+                            @Override
+                            public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
+                                return;
+                            }
                         });
                     }
                 }

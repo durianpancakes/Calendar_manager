@@ -42,7 +42,8 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="8dp"
         android:paddingVertical="4dp"
-        android:text="Repeat" />
+        android:text="Repeat"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/event_repeat_content"
@@ -52,7 +53,8 @@
         android:paddingVertical="8dp"
         android:text="Repeat"
         android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/event_reminder"
@@ -60,7 +62,8 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="8dp"
         android:paddingVertical="4dp"
-        android:text="Reminders (Notification)" />
+        android:text="Reminders (Notification)"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/event_reminder_content"
@@ -70,7 +73,8 @@
         android:paddingVertical="8dp"
         android:text="30 minutes"
         android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/event_description"
