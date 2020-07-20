@@ -274,7 +274,208 @@ public class FirebaseHelper {
 
     }
 
-    public void removeEvent(WeekViewEvent event) {
+    public void removeEvent(final WeekViewEvent event) {
+        final ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        final DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
+
+
+        mEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (snapshot.getChildren() != null) {
+                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+
+                        int fieldCount = 0;
+
+                        // need to check if event contains the field!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111
+
+                        if (userSnapshot.child("Name").exists()) {
+                            if(event.getName() == userSnapshot.child("Name").getValue(String.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+                        if (userSnapshot.child("Description").exists()) {
+                            if(event.getDescription() == userSnapshot.child("Description").getValue(String.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+                        if (userSnapshot.child("Location").exists()) {
+                            if(event.getLocation() == userSnapshot.child("Location").getValue(String.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+                        if (userSnapshot.child("Weblink").exists()) {
+
+                            if(event.getmWeblink() == userSnapshot.child("Weblink").getValue(String.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+
+                        }
+                        if (userSnapshot.child("AllDay").exists()) {
+
+                            if(event.isAllDay() == userSnapshot.child("AllDay").getValue(Boolean.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+
+
+
+                        if (userSnapshot.child("startDayOfMonth").exists()) {
+                            if(event.getStartTime().get(Calendar.DAY_OF_MONTH) == userSnapshot.child("startDayOfMonth").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+
+                        if (userSnapshot.child("startMonth").exists()) {
+                            if(event.getStartTime().get(Calendar.MONTH) == userSnapshot.child("startMonth").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+
+                        if (userSnapshot.child("startYear").exists()) {
+                            if(event.getStartTime().get(Calendar.YEAR) == userSnapshot.child("startYear").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+
+                        if (userSnapshot.child("startHour").exists()) {
+                            if(event.getStartTime().get(Calendar.HOUR_OF_DAY) == userSnapshot.child("startHour").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+
+                        if (userSnapshot.child("startMinute").exists()) {
+                            if(event.getStartTime().get(Calendar.MINUTE) == userSnapshot.child("startMinute").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+
+                        }
+                        if (userSnapshot.child("endDayOfMonth").exists()) {
+                            if(event.getEndTime().get(Calendar.DAY_OF_MONTH) == userSnapshot.child("endDayOfMonth").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+
+                        }
+                        if (userSnapshot.child("endMonth").exists()) {
+                            if(event.getEndTime().get(Calendar.MONTH) == userSnapshot.child("endMonth").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+
+                        }
+
+                        if (userSnapshot.child("endYear").exists()) {
+                            if(event.getEndTime().get(Calendar.YEAR) == userSnapshot.child("endYear").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+
+                        }
+                        if (userSnapshot.child("endHour").exists()) {
+                            if(event.getEndTime().get(Calendar.HOUR_OF_DAY) == userSnapshot.child("endHour").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+
+                        }
+                        if (userSnapshot.child("endMinute").exists()) {
+                            if(event.getEndTime().get(Calendar.MINUTE) == userSnapshot.child("endMinute").getValue(int.class)) {
+                                fieldCount++;
+                            }
+                            else {
+                                continue;
+                            }
+
+                        }
+
+
+                        // if weblink exists, 15 fields, if not then 14 fields
+                        // can we check if event contains weblink?
+
+                        if(userSnapshot.child("Weblink").exists()) {
+                            // && if event has weblink
+                            if (fieldCount == 15) {
+                                //remove event from fb
+                                System.out.println("node removed :" + userSnapshot.getKey());
+                                mEventsDatabaseReference.child(userSnapshot.getKey()).removeValue();
+                            }
+
+                        }
+                        else {
+                            if(fieldCount == 14) {
+                                //remove event from fb
+                                System.out.println("node removed :" + userSnapshot.getKey());
+                                mEventsDatabaseReference.child(userSnapshot.getKey()).removeValue();
+                            }
+
+                        }
+
+
+
+                    }
+                } else {
+                    System.out.println("There are no events");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("The read failed: @removeEvent" + error.getCode());
+            }
+
+        });
 
     }
 }

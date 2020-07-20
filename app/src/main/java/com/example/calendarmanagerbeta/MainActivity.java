@@ -775,6 +775,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         mWeekViewEventLite.Location = event.getLocation();
         mWeekViewEventLite.Name = event.getName();
         mWeekViewEventLite.AllDay = event.isAllDay();
+        //mWeekViewEventLite.Weblink = event.getmWeblink();
 
         System.out.println("EVENT RECEIVED");
         System.out.println(event.getName());
