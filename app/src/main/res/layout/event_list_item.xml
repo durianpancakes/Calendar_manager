@@ -10,19 +10,11 @@
         android:layout_height="wrap_content"
         android:text="Subject"
         android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/eventorganizer"
+    <LinearLayout
+        android:id="@+id/eventdatetime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/eventsubject"
-        android:text="Adele Vance"
-        android:textSize="15sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/eventorganizer"
         android:orientation="horizontal">
 
         <TextView
@@ -56,4 +48,28 @@
             android:text="1:30 PM 2/19/2019"
             android:textSize="15sp" />
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/eventdatetime">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location:"
+            android:textStyle="bold"
+            android:textSize="15sp" />
+        <TextView
+            android:id="@+id/eventlocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="5sp"
+            android:paddingEnd="2sp"
+            android:text="Dhoby Ghaut, Singapore"
+            android:textSize="15sp"
+            android:layout_below="@id/eventdatetime"/>
+    </LinearLayout>
+
+
 </RelativeLayout>

@@ -1,29 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="2dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/home_sectioned_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/home_signin_prompt">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/home_welcome"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:gravity="center"
             android:text="Welcome!"
-            android:textSize="30sp" />
+            android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/home_page_username"
-            android:layout_width="wrap_content"
+            android:id="@+id/home_welcome2"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingTop="8dp"
+            android:gravity="center"
             android:text="Please sign in"
-            android:textSize="20sp" />
+            android:textSize="14sp"/>
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

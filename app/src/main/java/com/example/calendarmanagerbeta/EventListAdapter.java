@@ -7,17 +7,25 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.alamkanak.weekview.WeekViewEvent;
 import com.microsoft.graph.models.extensions.DateTimeTimeZone;
 import com.microsoft.graph.models.extensions.Event;
+
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-public class EventListAdapter extends ArrayAdapter<Event> {
+public class EventListAdapter extends ArrayAdapter<WeekViewEvent> {
     private Context mContext;
     private int mResource;
     private ZoneId mLocalTimeZoneId;
@@ -26,12 +34,12 @@ public class EventListAdapter extends ArrayAdapter<Event> {
     // https://developer.android.com/training/improving-layouts/smooth-scrolling
     static class ViewHolder {
         TextView subject;
-        TextView organizer;
         TextView start;
         TextView end;
+        TextView location;
     }
 
-    public EventListAdapter(Context context, int resource, List<Event> events) {
+    public EventListAdapter(Context context, int resource, List<WeekViewEvent> events) {
         super(context, resource, events);
         mContext = context;
         mResource = resource;
@@ -41,7 +49,7 @@ public class EventListAdapter extends ArrayAdapter<Event> {
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Event event = getItem(position);
+        WeekViewEvent event = getItem(position);
 
         ViewHolder holder;
 
@@ -51,19 +59,28 @@ public class EventListAdapter extends ArrayAdapter<Event> {
 
             holder = new ViewHolder();
             holder.subject = convertView.findViewById(R.id.eventsubject);
-            holder.organizer = convertView.findViewById(R.id.eventorganizer);
             holder.start = convertView.findViewById(R.id.eventstart);
             holder.end = convertView.findViewById(R.id.eventend);
+            holder.location = convertView.findViewById(R.id.eventlocation);
 
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.subject.setText(event.subject);
-        holder.organizer.setText(event.organizer.emailAddress.name);
-        holder.start.setText(getLocalDateTimeString(event.start));
-        holder.end.setText(getLocalDateTimeString(event.end));
+        holder.subject.setText(event.getName());
+
+        Calendar startCalendar = event.getStartTime();
+        Calendar endCalendar = event.getEndTime();
+        Date startDate = startCalendar.getTime();
+        Date endDate = endCalendar.getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
+        String startDateString = sdf.format(startDate);
+        String endDateString = sdf.format(endDate);
+
+        holder.start.setText(startDateString);
+        holder.end.setText(endDateString);
+        holder.location.setText(event.getLocation());
 
         return convertView;
     }

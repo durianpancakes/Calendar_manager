@@ -51,6 +51,7 @@ import com.microsoft.graph.models.extensions.User;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.InputStream;
+import java.security.Key;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,6 +77,25 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
     private FirebaseAuth mFirebaseAuth;
     private Spinner mToolbarSpinner;
     private ArrayList<String> mUserKeywords = new ArrayList<>();
+    public static ArrayList<KeywordInfo> mUserKeywordDelta = new ArrayList<>();
+//    private DeltaEmailCallback mDeltaEmailCallback;
+//    private HomeFragmentReadyListener mHomeFragmentReadyListener;
+//
+//    public interface DeltaEmailCallback{
+//        void onFinish(ArrayList<WeekViewEvent> events, ArrayList<Message> messages);
+//    }
+//
+//    public interface HomeFragmentReadyListener{
+//        void onFinish();
+//    }
+//
+//    public void setmHomeFragmentReadyListener(HomeFragmentReadyListener homeFragmentReadyListener){
+//        this.mHomeFragmentReadyListener = homeFragmentReadyListener;
+//    }
+//
+//    public void setmDeltaEmailCallback(DeltaEmailCallback deltaEmailCallback){
+//        this.mDeltaEmailCallback = deltaEmailCallback;
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -277,54 +297,14 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    if(user == null && mIsSignedIn){
+                    if (user == null && mIsSignedIn) {
                         // user is signed into Microsoft, but not Firebase
                         Log.e("Firebase Auth", "User is not signed in");
                         startActivity(new Intent(getApplication(), MyAppIntro.class));
-                    } else {
-                        // user is signed in
-                        Log.d("Firebase Auth", "User is signed in");
-                        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
-                        firebaseHelper.getAllKeywords();
-                        firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
-                            @Override
-                            public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
-                                return;
-                            }
-
-                            @Override
-                            public void onGetKeyword(final ArrayList<String> userKeywords) {
-                                Log.d("Firebase Helper", "onGetKeyword success");
-                                mUserKeywords = userKeywords;
-                                if(mUserKeywords.size() != 0) {
-                                    AuthenticationHelper.getInstance()
-                                            .acquireTokenSilently(new AuthenticationCallback() {
-                                                @Override
-                                                public void onSuccess(IAuthenticationResult authenticationResult) {
-                                                    final GraphHelper graphHelper = GraphHelper.getInstance();
-                                                    String lastDateTimeString = getLastDateTimeString();
-                                                    for (int i = 0; i < mUserKeywords.size(); i++) {
-                                                        graphHelper.getDeltaSpecificEmails(authenticationResult.getAccessToken(), lastDateTimeString, mUserKeywords.get(i), getDeltaEmailCallback());
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onError(MsalException exception) {
-                                                    Log.e("AUTH", "Could not get token silently", exception);
-                                                    hideProgressBar();
-                                                }
-
-                                                @Override
-                                                public void onCancel() {
-                                                    hideProgressBar();
-                                                }
-                                            });
-                                }
-                            }
-                        });
                     }
                 }
             };
+
 
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
@@ -349,30 +329,30 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         }
     }
 
-    public String getLastDateTimeString(){
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        String lastSyncDateTime = sharedPreferences.getString("lastSyncDateTime", getCurrentDateTimeString());
-        System.out.println("Previous synchronized at: " + lastSyncDateTime);
-
-        return lastSyncDateTime;
-    }
-
-    public void setLastDateTimeString(){
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        System.out.println("New synchronized at: "+ getCurrentDateTimeString());
-        editor.putString("lastSyncDateTime", getCurrentDateTimeString());
-        editor.commit();
-    }
-
-    public String getCurrentDateTimeString(){
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        df.setTimeZone(tz);
-        String nowAsISO = df.format(new Date());
-
-        return nowAsISO;
-    }
+//    public String getLastDateTimeString(){
+//        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+//        String lastSyncDateTime = sharedPreferences.getString("lastSyncDateTime", getCurrentDateTimeString());
+//        System.out.println("Previous synchronized at: " + lastSyncDateTime);
+//
+//        return lastSyncDateTime;
+//    }
+//
+//    public void setLastDateTimeString(){
+//        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        System.out.println("New synchronized at: "+ getCurrentDateTimeString());
+//        editor.putString("lastSyncDateTime", getCurrentDateTimeString());
+//        editor.commit();
+//    }
+//
+//    public String getCurrentDateTimeString(){
+//        TimeZone tz = TimeZone.getTimeZone("UTC");
+//        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+//        df.setTimeZone(tz);
+//        String nowAsISO = df.format(new Date());
+//
+//        return nowAsISO;
+//    }
 
     // Create a new profile picture based on user initials
     public Drawable createProfilePicture(String userName){
@@ -421,6 +401,7 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();
+
         mNavigationView.setCheckedItem(R.id.nav_home);
     }
 
@@ -665,35 +646,49 @@ public class MainActivity extends AppCompatActivity implements EmailFragment.Ema
         };
     }
 
-    private ICallback<IMessageCollectionPage> getDeltaEmailCallback() {
-        return new ICallback<IMessageCollectionPage>() {
-            @Override
-            public void success(IMessageCollectionPage iMessageCollectionPage) {
-                Log.d("DELTA EMAIL", "Pull successful");
-                int deltaEmails = 0;
-
-                setLastDateTimeString();
-                deltaEmails = iMessageCollectionPage.getCurrentPage().size();
-                System.out.println("New emails: " + deltaEmails);
-
-                for(Message message : iMessageCollectionPage.getCurrentPage()){
-                    System.out.println(message.subject);
-                    // Parse all emails here
-                    deltaEmails++;
-                }
-
-
-                hideProgressBar();
-            }
-
-            @Override
-            public void failure(ClientException ex) {
-                Log.d("DELTA EMAIL", "Pull failed");
-
-                hideProgressBar();
-            }
-        };
-    }
+//    private ICallback<IMessageCollectionPage> getDeltaEmailCallback() {
+//        return new ICallback<IMessageCollectionPage>() {
+//            @Override
+//            public void success(IMessageCollectionPage iMessageCollectionPage) {
+//                Log.d("DELTA EMAIL", "Pull successful");
+//                int deltaEmails = 0;
+//                final ArrayList<WeekViewEvent> events = new ArrayList<>();
+//                ArrayList<Message> messages = new ArrayList<>();
+//
+//                setLastDateTimeString();
+//                deltaEmails = iMessageCollectionPage.getCurrentPage().size();
+//                System.out.println("New emails: " + deltaEmails);
+//
+//                for(Message message : iMessageCollectionPage.getCurrentPage()){
+//                    // Parse all emails here
+//                    messages.add(message);
+//                    EmailParser emailParser = EmailParser.getInstance(getApplicationContext());
+//                    emailParser.setmCallback(new ParserCallback() {
+//                        @Override
+//                        public void onEventAdded(WeekViewEvent event) {
+//                            Log.w("EMAIL PARSER", "Event added from email");
+//                            events.add(event);
+//                        }
+//                    });
+//                    emailParser.AllParse(message.body.content);
+//                    deltaEmails++;
+//                }
+//
+//                if(mDeltaEmailCallback != null){
+//                    mDeltaEmailCallback.onFinish(events, messages);
+//                }
+//
+//                hideProgressBar();
+//            }
+//
+//            @Override
+//            public void failure(ClientException ex) {
+//                Log.d("DELTA EMAIL", "Pull failed");
+//
+//                hideProgressBar();
+//            }
+//        };
+//    }
 
     @Override
     public void onParamsChanged(String moduleCode, String lessonType, String classNo) {

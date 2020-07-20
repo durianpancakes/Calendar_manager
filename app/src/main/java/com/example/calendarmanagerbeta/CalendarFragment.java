@@ -107,10 +107,10 @@ public class CalendarFragment extends Fragment {
             public void run() {
                 ListView eventListView = getView().findViewById(R.id.eventlist);
 
-                EventListAdapter listAdapter = new EventListAdapter(getActivity(),
-                        R.layout.event_list_item, mEventList);
-
-                eventListView.setAdapter(listAdapter);
+//                EventListAdapter listAdapter = new EventListAdapter(getActivity(),
+//                        R.layout.event_list_item, mEventList);
+//
+//                eventListView.setAdapter(listAdapter);
             }
         });
     }
