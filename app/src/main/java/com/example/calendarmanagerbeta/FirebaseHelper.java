@@ -37,7 +37,7 @@ public class FirebaseHelper {
         }
         return INSTANCE;
     }
-    //@Override
+
     public ArrayList<WeekViewEvent> pullEvents() {
         final ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -274,6 +274,10 @@ public class FirebaseHelper {
 
             }
         });
+
+    }
+
+    public void removeEvent(WeekViewEvent event) {
 
     }
 }
