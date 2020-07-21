@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 
 import android.util.Log;
 
@@ -57,6 +58,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity implements CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
@@ -500,16 +502,28 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new NusmodsFragment()).commit();
     }
 
-    private void openViewEmailFragment(Message message){
+//    private void openViewEmailFragment(Message message){
+//        mToolbarSpinner.setVisibility(View.GONE);
+//        DisplayEmailFragment displayEmailFragment = DisplayEmailFragment.newInstance(message);
+//        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEmailFragment).commit();
+//    }
+//
+//    private void openViewEventFragment(WeekViewEvent event){
+//        mToolbarSpinner.setVisibility(View.GONE);
+//        DisplayEventFragment displayEventFragment = DisplayEventFragment.newInstance(event);
+//        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEventFragment).commit();
+//    }
+
+    private void openViewEmailDialog(Message message){
         mToolbarSpinner.setVisibility(View.GONE);
-        DisplayEmailFragment displayEmailFragment = DisplayEmailFragment.newInstance(message);
-        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEmailFragment).commit();
+        DialogFragment displayEmailDialog = DisplayEmailDialog.newInstance(message);
+        displayEmailDialog.show(getSupportFragmentManager(), "viewEmail");
     }
 
-    private void openViewEventFragment(WeekViewEvent event){
+    private void openViewEventDialog(WeekViewEvent event){
         mToolbarSpinner.setVisibility(View.GONE);
-        DisplayEventFragment displayEventFragment = DisplayEventFragment.newInstance(event);
-        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEventFragment).commit();
+        DialogFragment displayEventDialog = DisplayEventDialog.newInstance(event);
+        displayEventDialog.show(getSupportFragmentManager(), "viewEvent");
     }
 
     private void signIn() {
@@ -739,17 +753,17 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 
     @Override
     public void onDateReceive(int year, int month, int day) {
-        CalendarEventInputFragment.updateDateButton(year, month, day);
+        CalendarEventInputDialog.updateDateButton(year, month, day);
     }
 
     @Override
     public void onTimeReceive(int hours, int min) {
-        CalendarEventInputFragment.updateTimeButton(hours, min);
+        CalendarEventInputDialog.updateTimeButton(hours, min);
     }
 
     @Override
     public void onEmailPressed(Message message) {
-        openViewEmailFragment(message);
+        openViewEmailDialog(message);
     }
 
     @Override

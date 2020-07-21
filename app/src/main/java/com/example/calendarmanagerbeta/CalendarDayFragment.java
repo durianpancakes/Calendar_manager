@@ -99,14 +99,6 @@ public class CalendarDayFragment extends Fragment {
             @Override
             public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
                 mEvents = userEvents;
-//                WeekViewEvent event = mEvents.get(0);
-//                System.out.println(event.getName());
-//                System.out.println(event.getLocation());
-//                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
-//                Date startDate = event.getStartTime().getTime();
-//                Date endDate = event.getEndTime().getTime();
-//                System.out.println("START TIME = " + sdf.format(startDate));
-//                System.out.println("END TIME = " + sdf.format(endDate));
                 mDayView.getMonthChangeListener().onMonthChange(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH));
                 mDayView.notifyDatasetChanged();
             }
@@ -163,6 +155,8 @@ public class CalendarDayFragment extends Fragment {
             });
         }
         mDayView.goToToday();
+        Calendar currentCal = Calendar.getInstance();
+        mDayView.goToHour(currentCal.get(Calendar.HOUR_OF_DAY));
         // setup necessary characteristics of the week view
     }
 

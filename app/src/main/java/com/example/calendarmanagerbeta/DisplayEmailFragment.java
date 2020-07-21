@@ -61,7 +61,7 @@ public class DisplayEmailFragment extends Fragment {
         // Inflate the layout for this fragment
         myFragmentView = inflater.inflate(R.layout.fragment_display_email, container, false);
         TextView mEmailSubject = myFragmentView.findViewById(R.id.email_subject);
-        TextView mEmailFrom = myFragmentView.findViewById(R.id.email_from);
+        TextView mEmailFrom = myFragmentView.findViewById(R.id.email_sender);
         TextView mEmailRecDateTime = myFragmentView.findViewById(R.id.email_received_datetime);
         TextView mEmailWeblink = myFragmentView.findViewById(R.id.email_weblink);
         TextView mEmailBody = myFragmentView.findViewById(R.id.email_body);

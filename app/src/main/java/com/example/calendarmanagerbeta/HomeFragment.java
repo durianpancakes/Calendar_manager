@@ -287,6 +287,11 @@ public class HomeFragment extends Fragment {
                             Log.w("EMAIL PARSER", "Event added from email");
                             events.add(event);
                         }
+
+                        @Override
+                        public void onEmpty() {
+                            Log.e("EMAIL PARSER", "No viable dates today");
+                        }
                     });
                     emailParser.AllParse(message.body.content);
                     deltaEmails++;

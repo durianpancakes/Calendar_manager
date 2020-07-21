@@ -129,7 +129,8 @@ public class CalendarWeekFragment extends Fragment {
                 @Override
                 public void onEventClick(WeekViewEvent event, RectF eventRect) {
                     //TODO: Handle event click
-                    mAddEventListener.onEventClicked(event);
+                    DialogFragment viewEventDialog = DisplayEventDialog.newInstance(event);
+                    viewEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "viewEvent");
                 }
             });
 
@@ -160,6 +161,7 @@ public class CalendarWeekFragment extends Fragment {
                         @Override
                         public void onAddPressed(WeekViewEvent event) {
                             mEventAddedListener.eventAdded(event);
+                            refreshDatabase();
                         }
                     });
                     addEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "eventInput");

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/email_view_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:src="@drawable/ic_baseline_close_24"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/email_view_cancel"
+                android:text="View email"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"/>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/email_subject"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="sans-serif-light"
+                android:padding="16dp"
+                android:text="Subject"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sender: "
+                    android:paddingVertical="4dp"
+                    android:paddingHorizontal="16dp"
+                    android:fontFamily="sans-serif-light"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/email_sender"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Jane Lim (jlimls@comp.nus.edu.sg)"
+                    android:paddingVertical="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                 <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Received:"
+                    android:paddingVertical="4dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="8dp"
+                    android:fontFamily="sans-serif-light"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/email_received_datetime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="21/7/2020 4.55 PM"
+                    android:autoLink="web"
+                    android:paddingVertical="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Weblink: "
+                    android:paddingVertical="4dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="11dp"
+                    android:fontFamily="sans-serif-light"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/email_weblink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="(some random URL string)"
+                    android:autoLink="web"
+                    android:singleLine="true"
+                    android:paddingVertical="4dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/email_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="16dp"
+                android:text="Dear students\n\n\nThis is a test email">
+            </TextView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
