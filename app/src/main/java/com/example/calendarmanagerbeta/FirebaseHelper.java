@@ -113,6 +113,9 @@ public class FirebaseHelper {
                             mWeekViewEvent.setAllDay(userSnapshot.child("AllDay").getValue(Boolean.class));
                         }
 
+                        mWeekViewEvent.setIdentifier(userSnapshot.child("identifier").getValue(String.class));
+                        System.out.println("event identifier is " + mWeekViewEvent.getIdentifier());
+
                         mWeekViewEvent.setStartTime(startCal);
                         mWeekViewEvent.setEndTime(endCal);
                         eventArrayList.add(mWeekViewEvent);
@@ -124,7 +127,7 @@ public class FirebaseHelper {
                 //test eventArrayList here (DEBUG)
                 for (WeekViewEvent weekViewEvent : eventArrayList) {
                     System.out.println("Name of event : " + weekViewEvent.getName());
-                    System.out.println("Location : " + weekViewEvent.getLocation());
+                    //System.out.println("Location : " + weekViewEvent.getLocation());
                 }
 
                 callbackHelper.onGetEvents(eventArrayList);
@@ -281,7 +284,12 @@ public class FirebaseHelper {
                 if (snapshot.getChildren() != null) {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {
 
-                        int fieldCount = 0;
+                        if(userSnapshot.child("identifier").getValue() == event.getIdentifier()) {
+                            mEventsDatabaseReference.child(userSnapshot.getKey()).removeValue();
+                            System.out.println("event with key is removed :" + userSnapshot.getKey());
+                        }
+
+                       /* int fieldCount = 0;
 
                         // need to check if event contains the field!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111
 
@@ -451,9 +459,7 @@ public class FirebaseHelper {
                                 mEventsDatabaseReference.child(userSnapshot.getKey()).removeValue();
                             }
 
-                        }
-
-
+                        }*/
 
                     }
                 } else {
