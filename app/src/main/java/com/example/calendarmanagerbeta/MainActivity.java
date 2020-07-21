@@ -790,7 +790,15 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
         mWeekViewEventLite.Location = event.getLocation();
         mWeekViewEventLite.Name = event.getName();
         mWeekViewEventLite.AllDay = event.isAllDay();
+        //mWeekViewEventLite.Weblink = event.getmWeblink();
         System.out.println(mWeekViewEventLite.AllDay);
+        String key = mEventsDatabaseReference.push().getKey();
+        mEventsDatabaseReference.child(key).setValue(mWeekViewEventLite);
+        event.setIdentifier(key);
+        // dont know if this updates local event
+
+        System.out.println(key + " new key added");
+        mEventsDatabaseReference.child(key).child("identifier").setValue(key);
 
         System.out.println("EVENT RECEIVED");
         System.out.println(event.getName());
@@ -798,6 +806,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
         System.out.println("START: " + event.getStartTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getStartTime().get(Calendar.MONTH) + 1) + "/" + event.getStartTime().get(Calendar.YEAR));
         System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
 
-        mEventsDatabaseReference.push().setValue(mWeekViewEventLite);
+
     }
 }
