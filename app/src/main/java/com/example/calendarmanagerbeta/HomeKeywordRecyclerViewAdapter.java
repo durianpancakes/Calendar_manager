@@ -73,7 +73,6 @@ public class HomeKeywordRecyclerViewAdapter extends RecyclerView.Adapter<HomeKey
             holder.mExpandedEmailsRecycler.setHasFixedSize(true);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
             holder.mExpandedEventsRecycler.setLayoutManager(linearLayoutManager);
-
         } else {
             holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
             holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new emails");

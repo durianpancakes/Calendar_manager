@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import com.alamkanak.weekview.WeekViewEvent;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +35,7 @@ import java.util.ListIterator;
 
 public class NusmodsFragment extends Fragment{
     View myFragmentView;
-    private String currentAcadYear = "2019/2020";
+    private String currentAcadYear = "2020/2021";
     private int currentSemester = 1;
     private ProgressBar mProgress = null;
     private List<NUSModuleLite> nusModuleLiteList;
@@ -95,8 +97,8 @@ public class NusmodsFragment extends Fragment{
         // Refreshing full module database
         nusmodsHelper.setOnRefreshFullListener(new onRefreshFullListener() {
             @Override
-            public void onRefresh() {
-                nusModuleLiteList = nusmodsHelper.getNusModulesLite();
+            public void onRefresh(List<NUSModuleLite> nusModulesLite) {
+                nusModuleLiteList = nusModulesLite;
                 moduleDatabase = new ArrayList<String>();
                 int i = 0;
                 for(NUSModuleLite nusModule : nusModuleLiteList){
@@ -158,10 +160,13 @@ public class NusmodsFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         myFragmentView = inflater.inflate(R.layout.fragment_nusmods, container, false);
-        semesterData = (TextView)myFragmentView.findViewById(R.id.current_semester);
-        moduleEditText = (AutoCompleteTextView)myFragmentView.findViewById(R.id.module_input);
-        addModuleButton = (Button)myFragmentView.findViewById(R.id.add_module);
-        moduleList = (ListView)myFragmentView.findViewById(R.id.full_module_list);
+        semesterData = myFragmentView.findViewById(R.id.current_semester);
+        moduleEditText = myFragmentView.findViewById(R.id.module_input);
+        addModuleButton = myFragmentView.findViewById(R.id.add_module);
+        moduleList = myFragmentView.findViewById(R.id.full_module_list);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Modules");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
 
         semesterData.setText(getSemesterString());
 
@@ -198,6 +203,11 @@ public class NusmodsFragment extends Fragment{
 
                     @Override
                     public void recitationChanged(String moduleCode, String lessonType, String classNo) {
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                    }
+
+                    @Override
+                    public void laboratoryChanged(String moduleCode, String lessonType, String classNo) {
                         changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
                     }
 
@@ -260,6 +270,7 @@ public class NusmodsFragment extends Fragment{
                 databaseUserModules.remove(i);
                 adapter.notifyDataSetChanged();
                 moduleList.setAdapter(adapter);
+                // Need to remove event instances from Firebase as well
                 return;
             }
         }
@@ -271,18 +282,17 @@ public class NusmodsFragment extends Fragment{
         nusmodsHelper.refreshSpecificModule(moduleCode);
         nusmodsHelper.setOnRefreshSpecificListener(new onRefreshSpecificListener() {
             @Override
-            public void onRefresh() {
-                NUSModuleMain nusModule;
+            public void onRefresh(NUSModuleMain nusModule) {
                 NUSModuleLite nusModuleConverted = new NUSModuleLite();
 
                 nusModule = nusmodsHelper.getNusModuleFull();
-                System.out.println("HERE" + nusModule.getModuleCode());
                 if(!isFoundInDatabase(nusModule.getModuleCode())){
                     userModulesAdded.add(nusModule);
                     nusModuleConverted.setModuleCode(nusModule.getModuleCode());
                     databaseUserModules.add(nusModuleConverted);
                     adapter.notifyDataSetChanged();
-                } else { // Initialization falls under here.
+                } else {
+                    // Initialization falls under here.
                     userModulesAdded.add(nusModule);
                     adapter.notifyDataSetChanged();
                 }

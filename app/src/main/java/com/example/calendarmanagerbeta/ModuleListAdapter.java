@@ -32,6 +32,7 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
     String tutorialChosenDB;
     String stChosenDB;
     String recitationChosenDB;
+    String laboratoryChosenDB;
 
     public ModuleListAdapter(Context context, int resource, List<NUSModuleMain> userModules, List<NUSModuleLite> databaseUserModules, int semester) {
         super(context, resource, userModules);
@@ -52,27 +53,30 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
         Boolean isInCurrentSemester = false;
         int semesterIdx = 0;
 
-        ArrayList<String> mModuleLecture = new ArrayList<String>();
-        ArrayList<String> mModuleTutorial = new ArrayList<String>();
-        ArrayList<String> mModuleSectionalTeaching = new ArrayList<String>();
-        ArrayList<String> mModuleRecitation = new ArrayList<String>();
+        ArrayList<String> mModuleLecture = new ArrayList<>();
+        ArrayList<String> mModuleTutorial = new ArrayList<>();
+        ArrayList<String> mModuleSectionalTeaching = new ArrayList<>();
+        ArrayList<String> mModuleRecitation = new ArrayList<>();
+        ArrayList<String> mModuleLaboratory = new ArrayList<>();
 
         if(convertView == null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.nusmods_list_item, null);
 
-            ImageButton removeModuleButton = (ImageButton) convertView.findViewById(R.id.delete_module);
-            TextView moduleCodeAndTitle = (TextView) convertView.findViewById(R.id.module_code_and_title);
-            TextView examDate = (TextView) convertView.findViewById(R.id.exam_date);
-            TextView moduleCredits = (TextView) convertView.findViewById(R.id.module_credits);
-            TextView textLecture = (TextView) convertView.findViewById(R.id.module_lecture);
-            TextView textTutorial = (TextView) convertView.findViewById(R.id.module_tutorial);
-            TextView textSectionalTeaching = (TextView) convertView.findViewById(R.id.module_sectional_teaching);
-            TextView textRecitation = (TextView) convertView.findViewById(R.id.module_recitation);
-            Spinner spinnerLecture = (Spinner) convertView.findViewById(R.id.select_lecture);
-            final Spinner spinnerTutorial = (Spinner) convertView.findViewById(R.id.select_tutorial);
-            Spinner spinnerSectionalTeaching = (Spinner) convertView.findViewById(R.id.select_sectional_teaching);
-            Spinner spinnerRecitation = (Spinner) convertView.findViewById(R.id.select_recitation);
+            ImageButton removeModuleButton = convertView.findViewById(R.id.delete_module);
+            TextView moduleCodeAndTitle = convertView.findViewById(R.id.module_code_and_title);
+            TextView examDate = convertView.findViewById(R.id.exam_date);
+            TextView moduleCredits = convertView.findViewById(R.id.module_credits);
+            TextView textLecture = convertView.findViewById(R.id.module_lecture);
+            TextView textTutorial = convertView.findViewById(R.id.module_tutorial);
+            TextView textSectionalTeaching = convertView.findViewById(R.id.module_sectional_teaching);
+            TextView textRecitation = convertView.findViewById(R.id.module_recitation);
+            TextView textLaboratory = convertView.findViewById(R.id.module_laboratory);
+            Spinner spinnerLecture = convertView.findViewById(R.id.select_lecture);
+            Spinner spinnerTutorial = convertView.findViewById(R.id.select_tutorial);
+            Spinner spinnerSectionalTeaching = convertView.findViewById(R.id.select_sectional_teaching);
+            Spinner spinnerRecitation = convertView.findViewById(R.id.select_recitation);
+            Spinner spinnerLaboratory = convertView.findViewById(R.id.select_laboratory);
 
             moduleCodeAndTitle.setText(nusModuleMain.getModuleCode() + " " + nusModuleMain.getTitle());
 
@@ -106,6 +110,8 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                     case "Sectional Teaching":
                         mModuleSectionalTeaching.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
                         break;
+                    case "Laboratory":
+                        mModuleLaboratory.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
                 }
             }
 
@@ -125,6 +131,9 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                                 break;
                             case "Recitation":
                                 recitationChosenDB = mUserDatabase.get(i).getClassesSelected().get(n).getClassNo();
+                                break;
+                            case "Laboratory":
+                                laboratoryChosenDB = mUserDatabase.get(i).getClassesSelected().get(n).getClassNo();
                                 break;
                         }
                     }
@@ -219,7 +228,7 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                 textRecitation.setVisibility(View.GONE);
                 spinnerRecitation.setVisibility(View.GONE);
             } else {
-                for(int i = 0; i < spinnerLecture.getCount(); i++){
+                for(int i = 0; i < spinnerRecitation.getCount(); i++){
                     if(spinnerRecitation.getItemAtPosition(i).equals(recitationChosenDB)){
                         spinnerRecitation.setSelection(i);
                     }
@@ -230,6 +239,33 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                         String lessonType = "Recitation";
                         String params = parent.getItemAtPosition(pos).toString();
                         mParamsChangedListener.recitationChanged(nusModuleMain.getModuleCode(), lessonType, params);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent){
+
+                    }
+                });
+            }
+
+            ArrayAdapter<String> spinnerLaboratoryAdapter = new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item, mModuleLaboratory);
+            spinnerLaboratoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerLaboratory.setAdapter(spinnerLaboratoryAdapter);
+            if(mModuleLaboratory.size() == 0){
+                textLaboratory.setVisibility(View.GONE);
+                spinnerLaboratory.setVisibility(View.GONE);
+            } else {
+                for(int i = 0; i < spinnerLaboratory.getCount(); i++){
+                    if(spinnerLaboratory.getItemAtPosition(i).equals(laboratoryChosenDB)){
+                        spinnerLaboratory.setSelection(i);
+                    }
+                }
+                spinnerLaboratory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
+                        String lessonType = "Laboratory";
+                        String params = parent.getItemAtPosition(pos).toString();
+                        mParamsChangedListener.laboratoryChanged(nusModuleMain.getModuleCode(), lessonType, params);
                     }
 
                     @Override

@@ -295,19 +295,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 
         if (isSignedIn) {
             // Check if user is signed into Firebase
-            final FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    if (user == null && mIsSignedIn) {
-                        // user is signed into Microsoft, but not Firebase
-                        Log.e("Firebase Auth", "User is not signed in");
-                        startActivity(new Intent(getApplication(), MyAppIntro.class));
-                    }
-                }
-            };
-
-
             userName.setText(mUserName);
             userEmail.setText(mUserEmail);
             if(mProfilePicture != null) {

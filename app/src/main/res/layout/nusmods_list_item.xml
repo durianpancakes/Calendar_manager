@@ -123,4 +123,19 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/select_sectional_teaching"
         android:layout_toRightOf="@id/module_recitation" />
+
+    <TextView
+        android:id="@+id/module_laboratory"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_below="@id/select_recitation"
+        android:gravity="center|center_horizontal"
+        android:text="Laboratory:" />
+
+    <Spinner
+        android:id="@+id/select_laboratory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/select_recitation"
+        android:layout_toRightOf="@id/module_laboratory" />
 </RelativeLayout>

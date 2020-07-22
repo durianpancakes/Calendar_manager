@@ -62,7 +62,7 @@ public class NUSmodsHelper{
     private NUSmodsHelper(Context context){
         mContext = context;
         mRequestQueue = Volley.newRequestQueue(mContext);
-        mBaseUrl = "https://api.nusmods.com/v2/2019-2020/";
+        mBaseUrl = "https://api.nusmods.com/v2/2020-2021/";
     }
 
     public static synchronized NUSmodsHelper getInstance(Context context){
@@ -78,6 +78,9 @@ public class NUSmodsHelper{
         try{
             nusModules = Arrays.asList(mapper.readValue(jsonString, NUSModuleLite[].class));
             nusModulesLite = nusModules;
+            if(mOnRefreshFullListener != null){
+                mOnRefreshFullListener.onRefresh(nusModulesLite);
+            }
         } catch(IOException e){
             e.printStackTrace();
         }
@@ -94,6 +97,10 @@ public class NUSmodsHelper{
         try{
             nusModule = mapper.readValue(jsonString, NUSModuleMain.class);
             nusModuleFull = nusModule;
+
+            if(mOnRefreshSpecificListener != null){
+                mOnRefreshSpecificListener.onRefresh(nusModuleFull);
+            }
         } catch(IOException e){
             e.printStackTrace();
         }
@@ -106,9 +113,6 @@ public class NUSmodsHelper{
                 Log.d("NUSmodsHelper refreshModulesDatabase success", response.toString());
                 jsonString = response.toString();
                 mapModuleDatabase(jsonString);
-                if(mOnRefreshFullListener != null){
-                    mOnRefreshFullListener.onRefresh();
-                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -129,9 +133,6 @@ public class NUSmodsHelper{
                 jsonString = response.toString();
 
                 mapFullModule(jsonString);
-                if(mOnRefreshSpecificListener != null){
-                    mOnRefreshSpecificListener.onRefresh();
-                }
             }
 
         }, new Response.ErrorListener(){

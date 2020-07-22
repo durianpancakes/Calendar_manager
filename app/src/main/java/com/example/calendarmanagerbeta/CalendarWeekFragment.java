@@ -179,7 +179,6 @@ public class CalendarWeekFragment extends Fragment {
             mWeekView.setScrollListener(new WeekView.ScrollListener(){
                 @Override
                 public void onFirstVisibleDayChanged(Calendar newFirstVisibleDay, Calendar oldFirstVisibleDay){
-                    //TODO: Handle scroll
                     refreshHeaderTexts();
                 }
             });

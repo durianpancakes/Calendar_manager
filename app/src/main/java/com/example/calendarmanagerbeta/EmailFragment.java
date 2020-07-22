@@ -112,10 +112,6 @@ public class EmailFragment extends Fragment {
                             public void onEmpty() {
                                 System.out.println("No suitable events found");
                             }
-                            @Override
-                            public void onEmpty() {
-
-                            }
                         });
                         mEmailParser.AllParse("the event will be held on dec 2020 at 5.30pm.");
                         i = 0;

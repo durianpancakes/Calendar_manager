@@ -6,4 +6,5 @@ public interface onParamsChangedListener {
     void stChanged(String moduleCode, String lessonType, String classNo);
     void recitationChanged(String moduleCode, String lessonType, String classNo);
     void moduleRemoved(String moduleCode);
+    void laboratoryChanged(String moduleCode, String lessonType, String classNo);
 }

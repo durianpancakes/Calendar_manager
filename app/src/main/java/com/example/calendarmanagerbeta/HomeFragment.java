@@ -1,6 +1,7 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -132,11 +133,6 @@ public class HomeFragment extends Fragment {
             // populate recycler view
             ArrayList<HomeSectionModel> sectionModelArrayList = new ArrayList<>();
             ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
-            WeekViewEvent event = new WeekViewEvent();
-            event.setName("CS1231 Lecture");
-            event.setStartTime(Calendar.getInstance());
-            event.setEndTime(Calendar.getInstance());
-            eventArrayList.add(event);
             sectionModelArrayList.add(new HomeSectionModel("KEYWORDS MONITORED ·", "last updated at " + currentDateTimeString, null, keywordInfoArrayList));
             sectionModelArrayList.add(new HomeSectionModel("TODAY ·", currentDateString, eventArrayList, null));
             final HomeSectionRecyclerViewAdapter adapter = new HomeSectionRecyclerViewAdapter(getContext(), sectionModelArrayList);
@@ -160,6 +156,7 @@ public class HomeFragment extends Fragment {
                     if (user == null) {
                         // user is signed into Microsoft, but not Firebase
                         Log.e("Firebase Auth", "User is not signed in");
+                        startActivity(new Intent(getContext(), MyAppIntro.class));
                     } else {
                         // user is signed in
                         Log.d("Firebase Auth", "User is signed in");
@@ -216,6 +213,8 @@ public class HomeFragment extends Fragment {
                                                     hideProgressBar();
                                                 }
                                             });
+                                } else {
+                                    hideProgressBar();
                                 }
                             }
 
@@ -235,6 +234,7 @@ public class HomeFragment extends Fragment {
             FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
         } else {
             signInPrompt.setVisibility(View.VISIBLE);
+            hideProgressBar();
         }
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Home");
