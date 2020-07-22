@@ -271,21 +271,23 @@ public class FirebaseHelper {
 
     public void removeEvent(final WeekViewEvent event) {
         final ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
         final DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
-
+        System.out.println("entered removeEvent");
 
         mEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
+                System.out.println("onDataChanged");
                 if (snapshot.getChildren() != null) {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-
-                        if(userSnapshot.child("identifier").getValue() == event.getIdentifier()) {
+                        System.out.println("2: " + event.getIdentifier());
+                        System.out.println("1: " + userSnapshot.child("identifier").getValue());
+                        if(userSnapshot.child("identifier").getValue().equals(event.getIdentifier())) {
                             mEventsDatabaseReference.child(userSnapshot.getKey()).removeValue();
+                            callbackHelper.onEventDeleted();
                             System.out.println("event with key is removed :" + userSnapshot.getKey());
                         }
 

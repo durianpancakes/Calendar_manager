@@ -105,7 +105,12 @@ public class EmailFragment extends Fragment {
                         mEmailParser.setmCallback(new ParserCallback() {
                             @Override
                             public void onEventAdded(WeekViewEvent event) {
-                                System.out.println("HELLO");
+                                System.out.println("An event is found");
+                            }
+
+                            @Override
+                            public void onEmpty() {
+                                System.out.println("No suitable events found");
                             }
                         });
                         mEmailParser.AllParse("the event will be held on 8th december, 2020");

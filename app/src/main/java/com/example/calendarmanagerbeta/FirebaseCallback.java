@@ -8,4 +8,5 @@ public interface FirebaseCallback {
     void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules);
     void onGetKeyword(ArrayList<String> userKeywords);
     void onGetEvents(ArrayList<WeekViewEvent> userEvents);
+    void onEventDeleted();
 }

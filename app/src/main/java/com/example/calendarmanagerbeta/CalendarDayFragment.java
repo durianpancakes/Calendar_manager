@@ -43,10 +43,15 @@ public class CalendarDayFragment extends Fragment {
     private FloatingActionButton addEventButton;
     private List<WeekViewEvent> mEvents = new ArrayList<>();
     private EventAddedListener mEventAddedListener;
+    private LongPressListener mLongPressListener;
     private String[] monthStrings = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
     public CalendarDayFragment() {
         // Required empty public constructor
+    }
+
+    public interface LongPressListener{
+        void onDeletePressed();
     }
 
     public void showEventLongPressDialog(){
@@ -56,9 +61,11 @@ public class CalendarDayFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 switch(i){
-                    case 0: System.out.println("Edit pressed");
-                    case 1: System.out.println("Delete pressed");
-                    default: System.out.println("No case");
+                    case 0:
+                        // Edit pressed
+                    case 1:
+                        // Delete pressed
+                        mLongPressListener.onDeletePressed();
                 }
             }
         }).show();
@@ -102,6 +109,11 @@ public class CalendarDayFragment extends Fragment {
                 mDayView.getMonthChangeListener().onMonthChange(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH));
                 mDayView.notifyDatasetChanged();
             }
+
+            @Override
+            public void onEventDeleted() {
+
+            }
         });
         firebaseHelper.pullEvents();
     }
@@ -119,15 +131,44 @@ public class CalendarDayFragment extends Fragment {
             mDayView.setOnEventClickListener(new WeekView.EventClickListener() {
                 @Override
                 public void onEventClick(WeekViewEvent event, RectF eventRect) {
-                //TODO: Handle event click
+                    DialogFragment viewEventDialog = DisplayEventDialog.newInstance(event);
+                    viewEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "viewEvent");
                 }
             });
 
             //set event long press listener
             mDayView.setEventLongPressListener(new WeekView.EventLongPressListener() {
                 @Override
-                public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
-                //TODO: Handle event long press
+                public void onEventLongPress(final WeekViewEvent event, RectF eventRect) {
+                    mLongPressListener = new CalendarDayFragment.LongPressListener() {
+                        @Override
+                        public void onDeletePressed() {
+                            FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getContext());
+                            firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
+                                @Override
+                                public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
+
+                                }
+
+                                @Override
+                                public void onGetKeyword(ArrayList<String> userKeywords) {
+
+                                }
+
+                                @Override
+                                public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
+
+                                }
+
+                                @Override
+                                public void onEventDeleted() {
+                                    refreshDatabase();
+                                }
+                            });
+                            firebaseHelper.removeEvent(event);
+                        }
+                    };
+                    showEventLongPressDialog();
                 }
             });
 
@@ -135,7 +176,6 @@ public class CalendarDayFragment extends Fragment {
             mDayView.setScrollListener(new WeekView.ScrollListener(){
                 @Override
                 public void onFirstVisibleDayChanged(Calendar newFirstVisibleDay, Calendar oldFirstVisibleDay){
-                //TODO: Handle scroll
                 refreshHeaderTexts();
                 }
             });
@@ -148,6 +188,7 @@ public class CalendarDayFragment extends Fragment {
                         @Override
                         public void onAddPressed(WeekViewEvent event) {
                             mEventAddedListener.eventAdded(event);
+                            refreshDatabase();
                         }
                     });
                     addEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "eventInput");
