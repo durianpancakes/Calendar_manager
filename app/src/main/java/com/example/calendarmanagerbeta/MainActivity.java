@@ -457,6 +457,11 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
             public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
                 return;
             }
+
+            @Override
+            public void onEventDeleted() {
+
+            }
         });
 
         mNavigationView.setCheckedItem(R.id.nav_email);

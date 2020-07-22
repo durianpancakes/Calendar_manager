@@ -223,6 +223,11 @@ public class HomeFragment extends Fragment {
                             public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
                                 return;
                             }
+
+                            @Override
+                            public void onEventDeleted() {
+
+                            }
                         });
                     }
                 }
