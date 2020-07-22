@@ -107,8 +107,12 @@ public class EmailFragment extends Fragment {
                             public void onEventAdded(WeekViewEvent event) {
                                 System.out.println("HELLO");
                             }
+                            @Override
+                            public void onEmpty() {
+
+                            }
                         });
-                        mEmailParser.AllParse("the event will be held on 8th december, 2020");
+                        mEmailParser.AllParse("the event will be held on dec 2020 at 5.30pm.");
                         i = 0;
                     }
 
