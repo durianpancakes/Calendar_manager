@@ -201,7 +201,9 @@ public class CalendarWeekFragment extends Fragment {
 
         // setup necessary characteristics of the week view
         mWeekView.setShowFirstDayOfWeekFirst(true);
+        mWeekView.setFirstDayOfWeek(Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
         Calendar currentCal = Calendar.getInstance();
+        mWeekView.goToToday();
         mWeekView.goToHour(currentCal.get(Calendar.HOUR_OF_DAY));
     }
 

@@ -96,7 +96,7 @@ public class WeekView extends View {
     private int mEffectiveMinHourHeight = mMinHourHeight; //compensates for the fact that you can't keep zooming out.
     private int mMaxHourHeight = 250;
     private int mColumnGap = 10;
-    private int mFirstDayOfWeek = Calendar.MONDAY;
+    private int mFirstDayOfWeek = Calendar.SUNDAY;
     private int mTextSize = 12;
     private int mHeaderColumnPadding = 10;
     private int mHeaderColumnTextColor = Color.BLACK;
@@ -2577,6 +2577,7 @@ public class WeekView extends View {
                 // snap to nearest day
                 leftDays = 7 * Math.round(leftDays / 7);
             }
+            System.out.println("[7]LEFT DAYS: " + leftDays);
         }
         else {
             if (mCurrentFlingDirection != Direction.NONE) {
@@ -2592,15 +2593,20 @@ public class WeekView extends View {
                 // snap to nearest day
                 leftDays = Math.round(leftDays);
             }
+            System.out.println("[NULL]LEFT DAYS: " + leftDays);
         }
-
+        System.out.println("Current origin: " + mCurrentOrigin.x);
         int nearestOrigin = (int) (mCurrentOrigin.x - leftDays * (mWidthPerDay + mColumnGap));
+        System.out.println("Nearest origin: " + nearestOrigin);
 
-        // Added such that it will always latch to Sunday
-        if(mNumberOfVisibleDays == 7) {
-            int difference = (mHomeDate.get(Calendar.DAY_OF_WEEK) - mFirstDayOfWeek);
-            nearestOrigin -= difference * (mWidthPerDay + mColumnGap);
-        }
+//        // Added such that it will always latch to Sunday
+//        if(mNumberOfVisibleDays == 7) {
+//            int difference = mFirstDayOfWeek - mHomeDate.get(Calendar.DAY_OF_WEEK);
+//            System.out.println("mFirstDayofWeek: " + mFirstDayOfWeek);
+//            System.out.println("Difference: " + difference);
+//            nearestOrigin += difference * (mWidthPerDay + mColumnGap);
+//            System.out.println("Nearest origin: " + (difference * (mWidthPerDay + mColumnGap)));
+//        }
 
         boolean mayScrollHorizontal = mCurrentOrigin.x - nearestOrigin < getXMaxLimit()
                 && mCurrentOrigin.x - nearestOrigin > getXMinLimit();

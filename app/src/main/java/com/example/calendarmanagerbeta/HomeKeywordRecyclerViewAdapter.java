@@ -1,6 +1,8 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,18 +69,34 @@ public class HomeKeywordRecyclerViewAdapter extends RecyclerView.Adapter<HomeKey
         if(numOfDeltaEmails == 0){
             holder.mEmailArrowBtn.setVisibility(View.GONE);
             holder.mNumDeltaEmails.setText("You have no new emails");
-        } else if (numOfDeltaEmails == 1){
-            holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
-            holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new email");
-            holder.mExpandedEmailsRecycler.setHasFixedSize(true);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-            holder.mExpandedEventsRecycler.setLayoutManager(linearLayoutManager);
         } else {
-            holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
-            holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new emails");
-            holder.mExpandedEventsRecycler.setHasFixedSize(true);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-            holder.mExpandedEventsRecycler.setLayoutManager(linearLayoutManager);
+            if(numOfDeltaEmails == 1){
+                holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
+                holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new email");
+            } else {
+                holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
+                holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new emails");
+            }
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+            holder.mExpandedEmailsRecycler.setLayoutManager(linearLayoutManager);
+            HomeEmailListAdapter adapter = new HomeEmailListAdapter(context, keyword.getmDeltaMessages());
+            holder.mExpandedEmailsRecycler.setAdapter(adapter);
+            holder.mEmailArrowBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(holder.mExpandedEmailView.getVisibility() == View.GONE){
+                        System.out.println("VISIBLE");
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mExpandedEmailView.setVisibility(View.VISIBLE);
+                        holder.mEmailArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_up_24);
+                    } else {
+                        System.out.println("INVISIBLE");
+                        holder.mExpandedEmailView.setVisibility(View.GONE);
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mEmailArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
+                    }
+                }
+            });
         }
         if(numOfDeltaEvents == 0){
             holder.mEventArrowBtn.setVisibility(View.GONE);
