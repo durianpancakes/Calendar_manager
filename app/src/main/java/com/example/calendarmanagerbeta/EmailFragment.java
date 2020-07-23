@@ -113,7 +113,6 @@ public class EmailFragment extends Fragment {
                                 System.out.println("No suitable events found");
                             }
                         });
-                        mEmailParser.AllParse("the event will be held on dec 2020 at 5.30pm.");
                         i = 0;
                     }
 

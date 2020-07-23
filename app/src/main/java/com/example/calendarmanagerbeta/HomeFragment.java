@@ -322,7 +322,7 @@ public class HomeFragment extends Fragment {
                             mWeekViewEventLite.Location = event.getLocation();
                             mWeekViewEventLite.Name = event.getName();
                             mWeekViewEventLite.AllDay = event.isAllDay();
-                            //mWeekViewEventLite.Weblink = event.getmWeblink();
+                            mWeekViewEventLite.Weblink = event.getmWeblink();
                             System.out.println(mWeekViewEventLite.AllDay);
                             String key = mEventsDatabaseReference.push().getKey();
                             mEventsDatabaseReference.child(key).setValue(mWeekViewEventLite);
@@ -346,7 +346,7 @@ public class HomeFragment extends Fragment {
                             Log.e("EMAIL PARSER", "No viable dates today");
                         }
                     });
-                    emailParser.AllParse(message.body.content);
+                    emailParser.AllParse(message.body.content, message.subject, message.webLink);
                     deltaEmails++;
                 }
 
