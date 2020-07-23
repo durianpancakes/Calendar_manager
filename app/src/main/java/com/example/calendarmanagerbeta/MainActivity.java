@@ -720,7 +720,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
             mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).setValue(classNo);
             //may be made to be more efficient i think?
         }
-
         FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
         firebaseHelper.pullEvents();
     }
