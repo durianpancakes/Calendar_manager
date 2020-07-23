@@ -34,8 +34,11 @@ import android.util.Log;
 import com.alamkanak.weekview.WeekViewEvent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.microsoft.graph.models.extensions.Message;
 import com.microsoft.graph.requests.extensions.IMessageCollectionPage;
 import com.microsoft.identity.client.AuthenticationCallback;
@@ -703,7 +706,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 //    }
 
     @Override
-    public void onParamsChanged(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> classes) {
+    public void onParamsChanged(String moduleCode, String lessonType, String classNo,  ArrayList<WeekViewEvent> classes) {
         //if they already exist, change their values. if not then add it in.
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -712,14 +715,76 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
             System.out.println("User is not signed in, cannot add modules");
         }
         else {
+            final boolean[] lessonsExist = new boolean[1];
             String uid = user.getUid();
             System.out.println(user.getDisplayName() + " is adding the module " + moduleCode + " " + lessonType + " " + classNo);
             DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
             mModulesDatabaseReference.child("Name").setValue(user.getDisplayName());
             mModulesDatabaseReference.child("modules").child(moduleCode).child("Module Name").setValue(moduleCode);
-            mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).setValue(classNo);
-            //may be made to be more efficient i think?
+            mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).child("classNo").setValue(classNo);
+            DatabaseReference mModuleEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("modules").child(moduleCode).child(lessonType).child("lessons");
+
+            mModuleEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    if (snapshot.getChildren() != null) {
+
+                        for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            if(userSnapshot.child("Name").getValue().equals(classes.get(0).getName())) {
+                                System.out.println("Detected class name is the same, no need to re add classes");
+                                lessonsExist[0] = true;
+                                break;
+                            }
+
+                        }
+                    } else {
+                        System.out.println("There are no events");
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    System.out.println("The read failed: @onparamschanged" + error.getCode());
+                }
+
+            });
+            if(lessonsExist[0] == false ) {
+                System.out.println(moduleCode + " " + lessonType + " " + classNo + " Lessons added to firebase");
+
+                for (WeekViewEvent event : classes) {
+                    WeekViewEventLite mWeekViewEventLite = new WeekViewEventLite();
+                    mWeekViewEventLite.startDayOfMonth = event.getStartTime().get(Calendar.DAY_OF_MONTH);
+                    mWeekViewEventLite.startMonth = event.getStartTime().get(Calendar.MONTH);
+                    mWeekViewEventLite.startYear = event.getStartTime().get(Calendar.YEAR);
+                    mWeekViewEventLite.startHour = event.getStartTime().get(Calendar.HOUR_OF_DAY);
+                    mWeekViewEventLite.startMinute = event.getStartTime().get(Calendar.MINUTE);
+
+                    mWeekViewEventLite.endDayOfMonth = event.getEndTime().get(Calendar.DAY_OF_MONTH);
+                    mWeekViewEventLite.endMonth = event.getEndTime().get(Calendar.MONTH);
+                    mWeekViewEventLite.endYear = event.getEndTime().get(Calendar.YEAR);
+                    mWeekViewEventLite.endHour = event.getEndTime().get(Calendar.HOUR_OF_DAY);
+                    mWeekViewEventLite.endMinute = event.getEndTime().get(Calendar.MINUTE);
+
+                    mWeekViewEventLite.Description = event.getDescription();
+                    mWeekViewEventLite.Location = event.getLocation();
+                    mWeekViewEventLite.Name = event.getName();
+                    mWeekViewEventLite.AllDay = event.isAllDay();
+                    //mWeekViewEventLite.Weblink = event.getmWeblink();
+                    System.out.println(mWeekViewEventLite.AllDay);
+                    String key = mModuleEventsDatabaseReference.push().getKey();
+                    mModuleEventsDatabaseReference.child(key).setValue(mWeekViewEventLite);
+                    event.setIdentifier(key);
+
+                    mModuleEventsDatabaseReference.child(key).child("identifier").setValue(key);
+
+                }
+            }
+
+
         }
+
     }
 
     @Override
