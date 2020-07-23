@@ -291,6 +291,13 @@ public class FirebaseHelper {
 
                         ArrayList<ModuleInfo> moduleInfoList = new ArrayList<>();
 
+                        if (userSnapshot.child("Laboratory").exists()) {
+                            ModuleInfo moduleInfo = new ModuleInfo("Laboratory",
+                                    userSnapshot.child("Laboratory").getValue(String.class));
+                            moduleInfoList.add(moduleInfo);
+
+                        }
+
                         if (userSnapshot.child("Sectional Teaching").exists()) {
                             ModuleInfo moduleInfo = new ModuleInfo("Sectional Teaching",
                                     userSnapshot.child("Sectional Teaching").getValue(String.class));
