@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alamkanak.weekview.WeekViewEvent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.microsoft.graph.concurrency.ICallback;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.extensions.Message;
@@ -298,6 +300,44 @@ public class HomeFragment extends Fragment {
                         @Override
                         public void onEventAdded(WeekViewEvent event) {
                             Log.w("EMAIL PARSER", "Event added from email");
+                            FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            String uid = user.getUid();
+                            DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
+                            WeekViewEventLite mWeekViewEventLite = new WeekViewEventLite();
+
+                            mWeekViewEventLite.startDayOfMonth = event.getStartTime().get(Calendar.DAY_OF_MONTH);
+                            mWeekViewEventLite.startMonth = event.getStartTime().get(Calendar.MONTH);
+                            mWeekViewEventLite.startYear = event.getStartTime().get(Calendar.YEAR);
+                            mWeekViewEventLite.startHour = event.getStartTime().get(Calendar.HOUR_OF_DAY);
+                            mWeekViewEventLite.startMinute = event.getStartTime().get(Calendar.MINUTE);
+
+                            mWeekViewEventLite.endDayOfMonth = event.getEndTime().get(Calendar.DAY_OF_MONTH);
+                            mWeekViewEventLite.endMonth = event.getEndTime().get(Calendar.MONTH);
+                            mWeekViewEventLite.endYear = event.getEndTime().get(Calendar.YEAR);
+                            mWeekViewEventLite.endHour = event.getEndTime().get(Calendar.HOUR_OF_DAY);
+                            mWeekViewEventLite.endMinute = event.getEndTime().get(Calendar.MINUTE);
+
+                            mWeekViewEventLite.Description = event.getDescription();
+                            mWeekViewEventLite.Location = event.getLocation();
+                            mWeekViewEventLite.Name = event.getName();
+                            mWeekViewEventLite.AllDay = event.isAllDay();
+                            //mWeekViewEventLite.Weblink = event.getmWeblink();
+                            System.out.println(mWeekViewEventLite.AllDay);
+                            String key = mEventsDatabaseReference.push().getKey();
+                            mEventsDatabaseReference.child(key).setValue(mWeekViewEventLite);
+                            event.setIdentifier(key);
+                            // dont know if this updates local event
+
+                            System.out.println(key + " new key added");
+                            mEventsDatabaseReference.child(key).child("identifier").setValue(key);
+
+                            System.out.println("EVENT RECEIVED");
+                            System.out.println(event.getName());
+                            System.out.println(event.getLocation());
+                            System.out.println("START: " + event.getStartTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getStartTime().get(Calendar.MONTH) + 1) + "/" + event.getStartTime().get(Calendar.YEAR));
+                            System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
+
                             events.add(event);
                         }
 
