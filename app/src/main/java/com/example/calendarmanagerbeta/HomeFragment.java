@@ -44,6 +44,7 @@ public class HomeFragment extends Fragment {
     private LinearLayout signInPrompt;
     private ArrayList<String> mUserKeywords = new ArrayList<>();
     private ArrayList<KeywordInfo> keywordInfoArrayList = new ArrayList<>();
+    private ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
     private DeltaEmailCallback mDeltaEmailCallback;
     private HomeFragmentReadyListener mHomeFragmentReadyListener;
     private ProgressBar mProgress = null;
@@ -132,7 +133,6 @@ public class HomeFragment extends Fragment {
 
             // populate recycler view
             ArrayList<HomeSectionModel> sectionModelArrayList = new ArrayList<>();
-            ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
             sectionModelArrayList.add(new HomeSectionModel("KEYWORDS MONITORED ·", "last updated at " + currentDateTimeString, null, keywordInfoArrayList));
             sectionModelArrayList.add(new HomeSectionModel("TODAY ·", currentDateString, eventArrayList, null));
             final HomeSectionRecyclerViewAdapter adapter = new HomeSectionRecyclerViewAdapter(getContext(), sectionModelArrayList);
@@ -152,7 +152,7 @@ public class HomeFragment extends Fragment {
             final FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     if (user == null) {
                         // user is signed into Microsoft, but not Firebase
                         Log.e("Firebase Auth", "User is not signed in");
@@ -162,6 +162,7 @@ public class HomeFragment extends Fragment {
                         Log.d("Firebase Auth", "User is signed in");
                         FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getContext());
                         firebaseHelper.getAllKeywords();
+                        firebaseHelper.pullEventsByDay(Calendar.getInstance());
                         firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
                             @Override
                             public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
@@ -220,7 +221,14 @@ public class HomeFragment extends Fragment {
 
                             @Override
                             public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
-                                return;
+                                eventArrayList.clear();
+                                System.out.println("Array size: " + eventArrayList.size());
+                                for(int i = 0; i < userEvents.size(); i++){
+                                    eventArrayList.add(userEvents.get(i));
+                                }
+                                if (mHomeFragmentReadyListener != null) {
+                                    mHomeFragmentReadyListener.onFinish();
+                                }
                             }
 
                             @Override

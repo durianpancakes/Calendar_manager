@@ -51,8 +51,6 @@ public class FirebaseHelper {
                 //String moduleString = new String();
                 if (snapshot.getChildren() != null) {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-
-
                         if(currentDate.get(Calendar.MONTH) == userSnapshot.child("startMonth").getValue(int.class)
                         && currentDate.get(Calendar.DAY_OF_MONTH) == userSnapshot.child("startDayOfMonth").getValue(int.class)
                                 && currentDate.get(Calendar.YEAR) == userSnapshot.child("startYear").getValue(int.class)) {
@@ -123,11 +121,8 @@ public class FirebaseHelper {
                             mWeekViewEvent.setStartTime(startCal);
                             mWeekViewEvent.setEndTime(endCal);
                             eventArrayList.add(mWeekViewEvent);
-
                         }
-
-
-
+                        callbackHelper.onGetEvents(eventArrayList);
                     }
                 } else {
                     System.out.println("There are no events");
