@@ -28,6 +28,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -61,7 +62,7 @@ public class NusmodsFragment extends Fragment{
     }
 
     public interface moduleParamsChangedListener{
-        void onParamsChanged(String moduleCode, String lessonType, String classNo);
+        void onParamsChanged(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> classes);
     }
 
     private void showProgressBar() {
@@ -188,27 +189,32 @@ public class NusmodsFragment extends Fragment{
                 adapter.setOnParamsChangedListener(new onParamsChangedListener() {
                     @Override
                     public void lectureChanged(String moduleCode, String lessonType, String classNo) {
-                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                        ArrayList<WeekViewEvent> classes = getModuleClasses(moduleCode, lessonType, classNo);
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
                     }
 
                     @Override
                     public void tutorialChanged(String moduleCode, String lessonType, String classNo) {
-                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                        ArrayList<WeekViewEvent> classes = getModuleClasses(moduleCode, lessonType, classNo);
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
                     }
 
                     @Override
                     public void stChanged(String moduleCode, String lessonType, String classNo) {
-                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                        ArrayList<WeekViewEvent> classes = getModuleClasses(moduleCode, lessonType, classNo);
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
                     }
 
                     @Override
                     public void recitationChanged(String moduleCode, String lessonType, String classNo) {
-                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                        ArrayList<WeekViewEvent> classes = getModuleClasses(moduleCode, lessonType, classNo);
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
                     }
 
                     @Override
                     public void laboratoryChanged(String moduleCode, String lessonType, String classNo) {
-                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo);
+                        ArrayList<WeekViewEvent> classes = getModuleClasses(moduleCode, lessonType, classNo);
+                        changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
                     }
 
                     @Override
@@ -298,6 +304,80 @@ public class NusmodsFragment extends Fragment{
                 }
             }
         });
+    }
+
+    private ArrayList<WeekViewEvent> getModuleClasses(final String moduleCode, final String lessonType, final String classNo){
+        final NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getContext());
+        final ArrayList<WeekViewEvent> events = new ArrayList<>();
+
+        nusmodsHelper.refreshSpecificModule(moduleCode);
+        nusmodsHelper.setOnRefreshSpecificListener(new onRefreshSpecificListener() {
+            @Override
+            public void onRefresh(NUSModuleMain nusModuleFull) {
+                List<ModuleTimetable> moduleTimetableList = nusModuleFull.getSemesterData().get(currentSemester).getTimetable();
+                for(int i = 0; i < moduleTimetableList.size(); i++){
+                    ModuleTimetable moduleTimetable = moduleTimetableList.get(i);
+                    if(lessonType.equals(moduleTimetable.getLessonType()) && classNo.equals(moduleTimetable.getClassNo())){
+                        // The class is a match
+                        int weeks[] = moduleTimetable.getWeeks();
+                        for(int n = 0; n < weeks.length; n++){
+                            WeekViewEvent event = new WeekViewEvent();
+                            int actualWeek = getActualWeek(weeks[n]);
+                            int startTime = moduleTimetable.getStartTime();
+                            int endTime = moduleTimetable.getEndTime();
+                            Calendar startCal = Calendar.getInstance();
+                            startCal.setWeekDate(2020, actualWeek, getActualDayOfWeek(moduleTimetable.getDay()));
+                            startCal.set(Calendar.HOUR_OF_DAY, startTime / 100);
+                            startCal.set(Calendar.MINUTE, startTime % 100);
+                            event.setStartTime(startCal);
+                            Calendar endCal = Calendar.getInstance();
+                            endCal.setWeekDate(2020, actualWeek, getActualDayOfWeek(moduleTimetable.getDay()));
+                            endCal.set(Calendar.HOUR_OF_DAY, endTime / 100);
+                            endCal.set(Calendar.MINUTE, endTime % 100);
+                            event.setEndTime(endCal);
+                            event.setName(moduleCode + " " + lessonType + " " + classNo);
+                            event.setLocation(moduleTimetable.getVenue());
+                            event.setDescription(moduleTimetable.getLessonType() + " @ " + moduleTimetable.getVenue());
+                            events.add(event);
+                        }
+                    }
+                }
+            }
+        });
+
+        return events;
+    }
+
+    private int getActualDayOfWeek(String day){
+        switch(day){
+            case "Monday": return Calendar.MONDAY;
+            case "Tuesday": return Calendar.TUESDAY;
+            case "Wednesday": return Calendar.WEDNESDAY;
+            case "Thursday": return Calendar.THURSDAY;
+            case "Friday": return Calendar.FRIDAY;
+            case "Saturday": return Calendar.SATURDAY;
+            case "Sunday": return Calendar.SUNDAY;
+        }
+        return 0;
+    }
+
+    private int getActualWeek(int acadWeek){
+        switch(acadWeek){
+            case 1: return 33;
+            case 2: return 34;
+            case 3: return 35;
+            case 4: return 36;
+            case 5: return 37;
+            case 6: return 38;
+            case 7: return 40;
+            case 8: return 41;
+            case 9: return 42;
+            case 10: return 43;
+            case 11: return 44;
+            case 12: return 45;
+            case 13: return 46;
+        }
+        return 0;
     }
 
     @Override

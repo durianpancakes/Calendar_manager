@@ -1,6 +1,8 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,28 +69,62 @@ public class HomeKeywordRecyclerViewAdapter extends RecyclerView.Adapter<HomeKey
         if(numOfDeltaEmails == 0){
             holder.mEmailArrowBtn.setVisibility(View.GONE);
             holder.mNumDeltaEmails.setText("You have no new emails");
-        } else if (numOfDeltaEmails == 1){
-            holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
-            holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new email");
-            holder.mExpandedEmailsRecycler.setHasFixedSize(true);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-            holder.mExpandedEventsRecycler.setLayoutManager(linearLayoutManager);
         } else {
-            holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
-            holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new emails");
-            holder.mExpandedEventsRecycler.setHasFixedSize(true);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-            holder.mExpandedEventsRecycler.setLayoutManager(linearLayoutManager);
+            if(numOfDeltaEmails == 1){
+                holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
+                holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new email");
+            } else {
+                holder.mEmailArrowBtn.setVisibility(View.VISIBLE);
+                holder.mNumDeltaEmails.setText("You have " + numOfDeltaEmails + " new emails");
+            }
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+            holder.mExpandedEmailsRecycler.setLayoutManager(linearLayoutManager);
+            HomeEmailListAdapter adapter = new HomeEmailListAdapter(context, keyword.getmDeltaMessages());
+            holder.mExpandedEmailsRecycler.setAdapter(adapter);
+            holder.mEmailArrowBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(holder.mExpandedEmailView.getVisibility() == View.GONE){
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mExpandedEmailView.setVisibility(View.VISIBLE);
+                        holder.mEmailArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_up_24);
+                    } else {
+                        holder.mExpandedEmailView.setVisibility(View.GONE);
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mEmailArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
+                    }
+                }
+            });
         }
         if(numOfDeltaEvents == 0){
             holder.mEventArrowBtn.setVisibility(View.GONE);
             holder.mNumDeltaEvents.setText("You have no new events");
-        } else if (numOfDeltaEmails == 1){
-            holder.mEventArrowBtn.setVisibility(View.VISIBLE);
-            holder.mNumDeltaEvents.setText("You have " + numOfDeltaEvents + " new event");
         } else {
-            holder.mEventArrowBtn.setVisibility(View.VISIBLE);
-            holder.mNumDeltaEvents.setText("You have " + numOfDeltaEvents + " new events");
+            if(numOfDeltaEmails == 1){
+                holder.mEventArrowBtn.setVisibility(View.VISIBLE);
+                holder.mNumDeltaEvents.setText("You have " + numOfDeltaEvents + " new event");
+            } else {
+                holder.mEventArrowBtn.setVisibility(View.VISIBLE);
+                holder.mNumDeltaEvents.setText("You have " + numOfDeltaEvents + " new events");
+            }
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+            holder.mExpandedEventsRecycler.setLayoutManager(linearLayoutManager);
+            HomeEventListAdapter adapter = new HomeEventListAdapter(context, keyword.getmDeltaEventsAdded());
+            holder.mExpandedEventsRecycler.setAdapter(adapter);
+            holder.mEventArrowBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(holder.mExpandedEventView.getVisibility() == View.GONE){
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mExpandedEventView.setVisibility(View.VISIBLE);
+                        holder.mEventArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_up_24);
+                    } else {
+                        holder.mExpandedEventView.setVisibility(View.GONE);
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mEventArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
+                    }
+                }
+            });
         }
     }
 
