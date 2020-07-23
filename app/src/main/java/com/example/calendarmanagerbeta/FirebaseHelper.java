@@ -288,33 +288,33 @@ public class FirebaseHelper {
 
                         if (userSnapshot.child("Laboratory").exists()) {
                             ModuleInfo moduleInfo = new ModuleInfo("Laboratory",
-                                    userSnapshot.child("Laboratory").getValue(String.class));
+                                    userSnapshot.child("Laboratory").child("classNo").getValue(String.class));
                             moduleInfoList.add(moduleInfo);
 
                         }
 
                         if (userSnapshot.child("Sectional Teaching").exists()) {
                             ModuleInfo moduleInfo = new ModuleInfo("Sectional Teaching",
-                                    userSnapshot.child("Sectional Teaching").getValue(String.class));
+                                    userSnapshot.child("Sectional Teaching").child("classNo").getValue(String.class));
                             moduleInfoList.add(moduleInfo);
 
                         }
 
                         if (userSnapshot.child("Tutorial").exists()) {
                             ModuleInfo moduleInfo = new ModuleInfo("Tutorial",
-                                    userSnapshot.child("Tutorial").getValue(String.class));
+                                    userSnapshot.child("Tutorial").child("classNo").getValue(String.class));
                             moduleInfoList.add(moduleInfo);
                         }
 
                         if (userSnapshot.child("Recitation").exists()) {
                             ModuleInfo moduleInfo = new ModuleInfo("Recitation",
-                                    userSnapshot.child("Recitation").getValue(String.class));
+                                    userSnapshot.child("Recitation").child("classNo").getValue(String.class));
                             moduleInfoList.add(moduleInfo);
                         }
 
                         if (userSnapshot.child("Lecture").exists()) {
                             ModuleInfo moduleInfo = new ModuleInfo("Lecture",
-                                    userSnapshot.child("Lecture").getValue(String.class));
+                                    userSnapshot.child("Lecture").child("classNo").getValue(String.class));
                             moduleInfoList.add(moduleInfo);
                         }
 
