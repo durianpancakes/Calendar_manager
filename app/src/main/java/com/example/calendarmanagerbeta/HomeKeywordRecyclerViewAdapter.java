@@ -85,12 +85,10 @@ public class HomeKeywordRecyclerViewAdapter extends RecyclerView.Adapter<HomeKey
                 @Override
                 public void onClick(View view) {
                     if(holder.mExpandedEmailView.getVisibility() == View.GONE){
-                        System.out.println("VISIBLE");
                         TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
                         holder.mExpandedEmailView.setVisibility(View.VISIBLE);
                         holder.mEmailArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_up_24);
                     } else {
-                        System.out.println("INVISIBLE");
                         holder.mExpandedEmailView.setVisibility(View.GONE);
                         TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
                         holder.mEmailArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
@@ -101,12 +99,32 @@ public class HomeKeywordRecyclerViewAdapter extends RecyclerView.Adapter<HomeKey
         if(numOfDeltaEvents == 0){
             holder.mEventArrowBtn.setVisibility(View.GONE);
             holder.mNumDeltaEvents.setText("You have no new events");
-        } else if (numOfDeltaEmails == 1){
-            holder.mEventArrowBtn.setVisibility(View.VISIBLE);
-            holder.mNumDeltaEvents.setText("You have " + numOfDeltaEvents + " new event");
         } else {
-            holder.mEventArrowBtn.setVisibility(View.VISIBLE);
-            holder.mNumDeltaEvents.setText("You have " + numOfDeltaEvents + " new events");
+            if(numOfDeltaEmails == 1){
+                holder.mEventArrowBtn.setVisibility(View.VISIBLE);
+                holder.mNumDeltaEvents.setText("You have " + numOfDeltaEvents + " new event");
+            } else {
+                holder.mEventArrowBtn.setVisibility(View.VISIBLE);
+                holder.mNumDeltaEvents.setText("You have " + numOfDeltaEvents + " new events");
+            }
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+            holder.mExpandedEventsRecycler.setLayoutManager(linearLayoutManager);
+            HomeEventListAdapter adapter = new HomeEventListAdapter(context, keyword.getmDeltaEventsAdded());
+            holder.mExpandedEventsRecycler.setAdapter(adapter);
+            holder.mEventArrowBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(holder.mExpandedEventView.getVisibility() == View.GONE){
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mExpandedEventView.setVisibility(View.VISIBLE);
+                        holder.mEventArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_up_24);
+                    } else {
+                        holder.mExpandedEventView.setVisibility(View.GONE);
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mEventArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
+                    }
+                }
+            });
         }
     }
 
