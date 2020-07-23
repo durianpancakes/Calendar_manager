@@ -120,10 +120,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             } else {
                 System.out.println("null mCallback");
             }
-
-
         }
-
     }
 
 
@@ -184,48 +181,46 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             while (matcher2.find()) {
                 switch (matcher2.group(0)) {
                     case "JAN":
-                        month = 1;
+                        month = Calendar.JANUARY;
                         break;
                     case "FEB":
-                        month = 2;
+                        month = Calendar.FEBRUARY;
                         break;
                     case "MAR":
-                        month = 3;
+                        month = Calendar.MARCH;
                         break;
                     case "APR":
-                        month = 4;
+                        month = Calendar.APRIL;
                         break;
                     case "MAY":
-                        month = 5;
+                        month = Calendar.MAY;
                         break;
                     case "JUN":
-                        month = 6;
+                        month = Calendar.JUNE;
                         break;
                     case "JUL":
-                        month = 7;
+                        month = Calendar.JULY;
                         break;
                     case "AUG":
-                        month = 8;
+                        month = Calendar.AUGUST;
                         break;
                     case "SEP":
-                        month = 9;
+                        month = Calendar.SEPTEMBER;
                         break;
                     case "OCT":
-                        month = 10;
+                        month = Calendar.OCTOBER;
                         break;
                     case "NOV":
-                        month = 11;
+                        month = Calendar.NOVEMBER;
                         break;
                     case "DEC":
-                        month = 12;
+                        month = Calendar.DECEMBER;
                         break;
                     default:
                         break;
                 }
                 System.out.println("Month Number is " + month + ", " + matcher2.group(0));
                 //works
-
-
             }
             while (matcher3.find()) {
                 year = Integer.parseInt(matcher3.group(0));
@@ -278,40 +273,40 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                     //System.out.println("month");
                     switch (matcher2.group(0)) {
                         case "JAN":
-                            month = 1;
+                            month = Calendar.JANUARY;
                             break;
                         case "FEB":
-                            month = 2;
+                            month = Calendar.FEBRUARY;
                             break;
                         case "MAR":
-                            month = 3;
+                            month = Calendar.MARCH;
                             break;
                         case "APR":
-                            month = 4;
+                            month = Calendar.APRIL;
                             break;
                         case "MAY":
-                            month = 5;
+                            month = Calendar.MAY;
                             break;
                         case "JUN":
-                            month = 6;
+                            month = Calendar.JUNE;
                             break;
                         case "JUL":
-                            month = 7;
+                            month = Calendar.JULY;
                             break;
                         case "AUG":
-                            month = 8;
+                            month = Calendar.AUGUST;
                             break;
                         case "SEP":
-                            month = 9;
+                            month = Calendar.SEPTEMBER;
                             break;
                         case "OCT":
-                            month = 10;
+                            month = Calendar.OCTOBER;
                             break;
                         case "NOV":
-                            month = 11;
+                            month = Calendar.NOVEMBER;
                             break;
                         case "DEC":
-                            month = 12;
+                            month = Calendar.DECEMBER;
                             break;
                         default:
                             break;
