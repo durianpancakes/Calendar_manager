@@ -67,7 +67,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             startTime.set(Calendar.HOUR, Time.get(0));
             if (Time.get(1) < 60 ) {
                 startTime.set(Calendar.MINUTE, Time.get(1));
-
             }
         }
 
@@ -732,11 +731,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                 }
 
             }
-
-
-
-
-
         }
 
 
@@ -761,11 +755,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             System.out.println("Successfully saved to Time, with only 1 viable time");
 
         }
-
-
         return Time;
-
-
     }
 
 
@@ -779,7 +769,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         while (matcher.find()) {
             eventType = matcher.group(0);
         }
-
 
         return eventType;
     }
