@@ -785,9 +785,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 
         }
 
-        //FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
-        //firebaseHelper.pullEvents();
-
     }
 
     @Override
