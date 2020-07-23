@@ -703,7 +703,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 //    }
 
     @Override
-    public void onParamsChanged(String moduleCode, String lessonType, String classNo) {
+    public void onParamsChanged(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> classes) {
         //if they already exist, change their values. if not then add it in.
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
