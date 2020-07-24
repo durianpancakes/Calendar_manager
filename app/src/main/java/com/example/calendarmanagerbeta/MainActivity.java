@@ -1,6 +1,8 @@
 package com.example.calendarmanagerbeta;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -233,6 +235,10 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
                 openNusmodsFragment();
                 uncheckAllNavItems();
                 return true;
+            case R.id.toolbar_opt_keywords:
+                openKeywordManagerFragment();
+                uncheckAllNavItems();
+                return true;
         }
         return false;
     }
@@ -399,8 +405,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
     }
 
     public void openEmailFragment(){
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-
         // Get the user's keywords from Firebase
         FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
         firebaseHelper.getAllKeywords();
@@ -412,35 +416,8 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 
             @Override
             public void onGetKeyword(final ArrayList<String> userKeywords) {
-                if(userKeywords.size() == 0){
-                    // Nothing in database, revert to no options (show inbox only)
-                    mToolbarSpinner.setVisibility(View.GONE);
-                    getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new EmailFragment("Inbox", false, userKeywords)).commit();
-                } else {
-                    ArrayList<String> mToolbarSpinnnerArray = new ArrayList<>();
-                    ArrayAdapter<String> mToolbarSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.email_checked_title, mToolbarSpinnnerArray);
-                    mToolbarSpinnerAdapter.setDropDownViewResource(R.layout.email_spinner_dropdown_item);
-                    mToolbarSpinnerAdapter.clear();
-                    mToolbarSpinnerAdapter.add("Inbox");
-                    mToolbarSpinner.setVisibility(View.VISIBLE);
-                    mToolbarSpinner.setVisibility(View.VISIBLE);
-                    for(int i = 0; i < userKeywords.size(); i++){
-                        mToolbarSpinnerAdapter.add(userKeywords.get(i));
-                    }
-                    mToolbarSpinner.setAdapter(mToolbarSpinnerAdapter);
-                    mToolbarSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                            String keywordSelected = parent.getItemAtPosition(pos).toString();
-                            getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new EmailFragment(keywordSelected, true, userKeywords)).commit();
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> adapterView) {
-
-                        }
-                    });
-                }
+                mUserKeywords = userKeywords;
+                getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new EmailFragment("Inbox", userKeywords)).commit();
             }
 
             @Override
@@ -484,14 +461,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
         mNavigationView.setCheckedItem(R.id.calendar_week_view);
     }
 
-    private void openCalendarInput(){
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        mToolbarSpinner.setVisibility(View.GONE);
-        toolbar.setTitle("Add event");
-        toolbar.setSubtitle("");
-        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, new CalendarEventInputFragment()).commit();
-    }
-
     private void openNusmodsFragment() {
         mToolbarSpinner.setVisibility(View.GONE);
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new NusmodsFragment()).commit();
@@ -519,6 +488,11 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
         mToolbarSpinner.setVisibility(View.GONE);
         DialogFragment displayEventDialog = DisplayEventDialog.newInstance(event);
         displayEventDialog.show(getSupportFragmentManager(), "viewEvent");
+    }
+
+    public void openKeywordManagerFragment(){
+        mToolbarSpinner.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new KeywordManagerFragment(getApplicationContext())).commit();
     }
 
     private void signIn() {
@@ -706,7 +680,9 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 //    }
 
     @Override
-    public void onParamsChanged(String moduleCode, String lessonType, String classNo,  final ArrayList<WeekViewEvent> classes) {
+
+    public void onParamsChanged(String moduleCode, String lessonType, String classNo, final ArrayList<WeekViewEvent> classes) {
+
         //if they already exist, change their values. if not then add it in.
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -729,7 +705,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                     if (snapshot.getChildren() != null) {
-
                         for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                             System.out.println( "snapshot 's name : " + userSnapshot.child("Name").getValue());
                             System.out.println( "class 's name : " + classes.get(0).getName());
@@ -738,7 +713,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
                                 lessonsExist[0] = true;
                                 break;
                             }
-
                         }
                     } else {
                         System.out.println("There are no events");
@@ -773,7 +747,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
                     mWeekViewEventLite.Location = event.getLocation();
                     mWeekViewEventLite.Name = event.getName();
                     mWeekViewEventLite.AllDay = event.isAllDay();
-                    //mWeekViewEventLite.Weblink = event.getmWeblink();
+                    mWeekViewEventLite.Weblink = event.getmWeblink();
                     System.out.println(mWeekViewEventLite.AllDay);
                     String key = mModuleEventsDatabaseReference.push().getKey();
                     mModuleEventsDatabaseReference.child(key).setValue(mWeekViewEventLite);
@@ -783,10 +757,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 
                 }
             }
-
-
         }
-
     }
 
     @Override
@@ -820,6 +791,12 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
     @Override
     public void onEmailPressed(Message message) {
         openViewEmailDialog(message);
+    }
+
+    @Override
+    public void onEmailSpinnerItemPressed(String keyword) {
+        System.out.println("MAIN ACTIVITY: " + keyword);
+        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new EmailFragment(keyword, mUserKeywords)).commit();
     }
 
     @Override
@@ -861,7 +838,5 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
         System.out.println(event.getLocation());
         System.out.println("START: " + event.getStartTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getStartTime().get(Calendar.MONTH) + 1) + "/" + event.getStartTime().get(Calendar.YEAR));
         System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
-
-
     }
 }

@@ -326,6 +326,10 @@ public class FirebaseHelper {
 
                         allModules.add(nusModuleLite);
                     }
+
+                    if(callbackHelper != null){
+                        callbackHelper.onGetModuleSuccess(allModules);
+                    }
                 } else {
                     System.out.println("There are no children");
                 }
@@ -339,10 +343,6 @@ public class FirebaseHelper {
                         System.out.println(moduleInfo.lessonType + " " +
                                 moduleInfo.classNo);
                     }
-                }
-
-                if(callbackHelper != null){
-                    callbackHelper.onGetModuleSuccess(allModules);
                 }
             }
 

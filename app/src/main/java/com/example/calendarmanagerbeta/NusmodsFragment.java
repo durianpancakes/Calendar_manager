@@ -59,7 +59,7 @@ public class NusmodsFragment extends Fragment{
     }
 
     public interface GetModuleClassesListener{
-        void onClassesObtained(ArrayList<WeekViewEvent> classes);
+        void onClassesObtained(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> events);
     }
 
     public interface removeModuleListener{
@@ -194,10 +194,11 @@ public class NusmodsFragment extends Fragment{
                 adapter.setOnParamsChangedListener(new onParamsChangedListener() {
                     @Override
                     public void lectureChanged(final String moduleCode, final String lessonType, final String classNo) {
+                        System.out.println("LECTURE CHANGED");
                         getModuleClassesListener = new GetModuleClassesListener() {
                             @Override
-                            public void onClassesObtained(ArrayList<WeekViewEvent> classes) {
-                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
+                            public void onClassesObtained(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> events) {
+                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, events);
                             }
                         };
                         getModuleClasses(moduleCode, lessonType, classNo);
@@ -205,10 +206,11 @@ public class NusmodsFragment extends Fragment{
 
                     @Override
                     public void tutorialChanged(final String moduleCode, final String lessonType, final String classNo) {
+                        System.out.println("TUTORIAL CHANGED");
                         getModuleClassesListener = new GetModuleClassesListener() {
                             @Override
-                            public void onClassesObtained(ArrayList<WeekViewEvent> classes) {
-                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
+                            public void onClassesObtained(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> events) {
+                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, events);
                             }
                         };
                         getModuleClasses(moduleCode, lessonType, classNo);
@@ -216,10 +218,11 @@ public class NusmodsFragment extends Fragment{
 
                     @Override
                     public void stChanged(final String moduleCode, final String lessonType, final String classNo) {
+                        System.out.println("ST CHANGED");
                         getModuleClassesListener = new GetModuleClassesListener() {
                             @Override
-                            public void onClassesObtained(ArrayList<WeekViewEvent> classes) {
-                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
+                            public void onClassesObtained(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> events) {
+                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, events);
                             }
                         };
                         getModuleClasses(moduleCode, lessonType, classNo);
@@ -227,10 +230,11 @@ public class NusmodsFragment extends Fragment{
 
                     @Override
                     public void recitationChanged(final String moduleCode, final String lessonType, final String classNo) {
+                        System.out.println("RECITATION CHANGED");
                         getModuleClassesListener = new GetModuleClassesListener() {
                             @Override
-                            public void onClassesObtained(ArrayList<WeekViewEvent> classes) {
-                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
+                            public void onClassesObtained(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> events) {
+                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, events);
                             }
                         };
                         getModuleClasses(moduleCode, lessonType, classNo);
@@ -238,10 +242,11 @@ public class NusmodsFragment extends Fragment{
 
                     @Override
                     public void laboratoryChanged(final String moduleCode, final String lessonType, final String classNo) {
+                        System.out.println("LAB CHANGED");
                         getModuleClassesListener = new GetModuleClassesListener() {
                             @Override
-                            public void onClassesObtained(ArrayList<WeekViewEvent> classes) {
-                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, classes);
+                            public void onClassesObtained(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> events) {
+                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, events);
                             }
                         };
                         getModuleClasses(moduleCode, lessonType, classNo);
@@ -333,26 +338,33 @@ public class NusmodsFragment extends Fragment{
                     adapter.notifyDataSetChanged();
                 }
             }
+
+            @Override
+            public void onRefreshSpecial(NUSModuleMain nusModuleFull, String lessonType, String classNo) {
+
+            }
         });
     }
 
     private void getModuleClasses(final String moduleCode, final String lessonType, final String classNo){
         final NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getContext());
+        System.out.println("Get Module Classes: " + moduleCode + " " + lessonType + " " + classNo);
 
         nusmodsHelper.setOnRefreshSpecificListener(new onRefreshSpecificListener() {
             @Override
             public void onRefresh(NUSModuleMain nusModuleFull) {
+
+            }
+
+            @Override
+            public void onRefreshSpecial(NUSModuleMain nusModuleFull, String lessonType, String classNo) {
                 final ArrayList<WeekViewEvent> events = new ArrayList<>();
-                List<ModuleTimetable> moduleTimetableList = nusModuleFull.getSemesterData().get(currentSemester).getTimetable();
-                System.out.println("TOTAL NUMBER OF CLASSES: " + moduleTimetableList.size());
+                List<ModuleTimetable> moduleTimetableList = nusModuleFull.getSemesterData().get(currentSemester - 1).getTimetable();
                 for(int i = 0; i < moduleTimetableList.size(); i++){
                     ModuleTimetable moduleTimetable = moduleTimetableList.get(i);
-                    System.out.println("USER LESSONTYPE: " + lessonType);
-                    System.out.println("USER CLASSNO: " + classNo);
-                    System.out.println("CURRENT LESSONTYPE: " + moduleTimetable.getLessonType());
-                    System.out.println("CURRENT CLASSNO: " + moduleTimetable.getClassNo());
                     if(lessonType.equals(moduleTimetable.getLessonType()) && classNo.equals(moduleTimetable.getClassNo())){
                         // The class is a match
+                        System.out.println(lessonType + " " + classNo);
                         System.out.println("MATCHED");
                         int weeks[] = moduleTimetable.getWeeks();
                         System.out.println("CLASSES WEEKS: " + weeks.length);
@@ -380,11 +392,11 @@ public class NusmodsFragment extends Fragment{
                     }
                 }
                 if(getModuleClassesListener != null){
-                    getModuleClassesListener.onClassesObtained(events);
+                    getModuleClassesListener.onClassesObtained(moduleCode, lessonType, classNo, events);
                 }
             }
         });
-        nusmodsHelper.refreshSpecificModule(moduleCode);
+        nusmodsHelper.refreshSpecificModuleSpecial(moduleCode, lessonType, classNo);
     }
 
     private int getActualDayOfWeek(String day){

@@ -39,7 +39,6 @@
                 android:layout_below="@id/toolbar"
                 android:layout_alignLeft="@id/nav_view"
                 android:layout_alignStart="@id/nav_view" />
-
         </androidx.appcompat.widget.Toolbar>
 
         <FrameLayout

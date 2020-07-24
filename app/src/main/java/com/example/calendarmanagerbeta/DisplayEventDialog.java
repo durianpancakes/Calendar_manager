@@ -74,7 +74,7 @@ public class DisplayEventDialog extends DialogFragment implements View.OnClickLi
 
         // mEventReminder and mEventRepeat not implemented yet
 
-        if(mEvent.getDescription().equals("")) {
+        if(mEvent.getDescription() == null) {
             mEventDescriptionHeader.setVisibility(View.GONE);
             mEventDescription.setVisibility(View.GONE);
         } else {

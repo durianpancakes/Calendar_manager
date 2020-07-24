@@ -27,6 +27,7 @@ public class WeekViewEvent {
     int mColor;
     private boolean mAllDay;
     private Shader mShader;
+    private String mReminder;
 
     public WeekViewEvent() {
 
@@ -205,6 +206,14 @@ public class WeekViewEvent {
     @Deprecated
     public WeekViewEvent(long id, String name, Calendar startTime, Calendar endTime) {
         this(id, name, null, startTime, endTime);
+    }
+
+    public String getmReminder() {
+        return mReminder;
+    }
+
+    public void setmReminder(String mReminder) {
+        this.mReminder = mReminder;
     }
 
     public Calendar getStartTime() {

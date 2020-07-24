@@ -224,7 +224,6 @@ public class HomeFragment extends Fragment {
                             @Override
                             public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
                                 eventArrayList.clear();
-                                System.out.println("Array size: " + eventArrayList.size());
                                 for(int i = 0; i < userEvents.size(); i++){
                                     eventArrayList.add(userEvents.get(i));
                                 }
@@ -322,7 +321,7 @@ public class HomeFragment extends Fragment {
                             mWeekViewEventLite.Location = event.getLocation();
                             mWeekViewEventLite.Name = event.getName();
                             mWeekViewEventLite.AllDay = event.isAllDay();
-                            //mWeekViewEventLite.Weblink = event.getmWeblink();
+                            mWeekViewEventLite.Weblink = event.getmWeblink();
                             System.out.println(mWeekViewEventLite.AllDay);
                             String key = mEventsDatabaseReference.push().getKey();
                             mEventsDatabaseReference.child(key).setValue(mWeekViewEventLite);
@@ -346,7 +345,7 @@ public class HomeFragment extends Fragment {
                             Log.e("EMAIL PARSER", "No viable dates today");
                         }
                     });
-                    emailParser.AllParse(message.body.content);
+                    emailParser.AllParse(message.body.content, message.subject, message.webLink);
                     deltaEmails++;
                 }
 

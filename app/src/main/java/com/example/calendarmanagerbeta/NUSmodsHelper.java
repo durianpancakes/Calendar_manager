@@ -148,4 +148,45 @@ public class NUSmodsHelper{
     private String completeModuleUrl(String moduleCode){
         return mBaseUrl + "modules/" + moduleCode + ".json";
     }
+
+    public void refreshSpecificModuleSpecial(String moduleCode, final String lessonType, final String classNo) {
+        String url = completeModuleUrl(moduleCode);
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>(){
+            @Override
+            public void onResponse(JSONObject response){
+                Log.d("NUSmodsHelper refreshSpecificModule success", response.toString());
+                jsonString = response.toString();
+
+                mapFullModuleSpecial(jsonString, lessonType, classNo);
+            }
+
+        }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error){
+                Log.e("NUSmodsHelper refreshSpecificModule failure", error.toString());
+            }
+        });
+
+        mRequestQueue.add(objectRequest);
+    }
+
+    public void mapFullModuleSpecial(String jsonString, String lessonType, String classNo){
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        NUSModuleMain nusModule;
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        mapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
+        mapper.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try{
+            nusModule = mapper.readValue(jsonString, NUSModuleMain.class);
+            nusModuleFull = nusModule;
+
+            if(mOnRefreshSpecificListener != null){
+                mOnRefreshSpecificListener.onRefreshSpecial(nusModuleFull, lessonType, classNo);
+            }
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
 }

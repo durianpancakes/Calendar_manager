@@ -36,7 +36,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         return INSTANCE;
     }
 
-    public void AllParse(String emailBody) {
+    public void AllParse(String emailBody, String emailSubject, String emailWeblink) {
         //String emailContent = "There will be a quiz on 16 July 2020 at 6pm.";
         System.out.println("Allparse is called");
 
@@ -52,33 +52,42 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
         if (DMY.get(0) != 99) {
             startTime.set(Calendar.DAY_OF_MONTH, DMY.get(0));
+            endTime.set(Calendar.DAY_OF_MONTH, DMY.get(0));
             datecount++;
 
         }
         if (DMY.get(1) != 99) {
             startTime.set(Calendar.MONTH, DMY.get(1));
+            endTime.set(Calendar.MONTH, DMY.get(1));
             datecount++;
         }
         if (DMY.get(2) != 99) {
             startTime.set(Calendar.YEAR, DMY.get(2));
+            endTime.set(Calendar.YEAR, DMY.get(2));
             datecount++;
         }
         if (Time.get(0) < 24 ) {
             startTime.set(Calendar.HOUR, Time.get(0));
             if (Time.get(1) < 60 ) {
                 startTime.set(Calendar.MINUTE, Time.get(1));
+            } else {
+                startTime.set(Calendar.MINUTE, 0);
             }
         }
-
+        System.out.println("EXTERNAL" + Time.get(2));
+        System.out.println("EXTERNAL" + Time.get(3));
         if (Time.get(2)  < 24 ) {
+            System.out.println("ENTERED" + Time.get(2));
             endTime.set(Calendar.HOUR, Time.get(2));
             if (Time.get(3) < 60) {
+                System.out.println("ENTERED" + Time.get(3));
                 endTime.set(Calendar.MINUTE, Time.get(3));
             }
         }
 
 
-        event.setName("Test from emailparser");
+        event.setName(emailSubject);
+        event.setmWeblink(emailWeblink);
         event.setStartTime(startTime);
         event.setEndTime(endTime);
         // 4 cases
@@ -111,8 +120,10 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         else if(datecount == 2) {
             // no year
             startTime.set(Calendar.YEAR, 2020);
+            endTime.set(Calendar.YEAR, 2020);
             // hard coded for now?
             event.setStartTime(startTime);
+            event.setEndTime(endTime);
             if (mCallback != null) {
                 mCallback.onEventAdded(event);
                 System.out.println("mparsercallback called");
@@ -750,8 +761,8 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
             Time.add(startHour);
             Time.add(startMinute);
-            Time.add(endMinute);
             Time.add(endHour);
+            Time.add(endMinute);
             System.out.println("Successfully saved to Time, with only 1 viable time");
 
         }

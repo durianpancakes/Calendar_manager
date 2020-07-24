@@ -3,10 +3,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".EmailFragment">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/email_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Keyword: "
+            android:textSize="20sp"
+            android:paddingRight="4dp"/>
+
+        <Spinner
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/email_spinner"
+            app:popupTheme="@style/Theme.AppCompat.Light"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_below="@id/toolbar"
+            android:layout_alignLeft="@id/nav_view"
+            android:layout_alignStart="@id/nav_view" />
+
+    </androidx.appcompat.widget.Toolbar>
 
     <ListView
         android:id="@+id/emaillist"
+        android:layout_below="@id/email_toolbar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@color/colorPrimary"
