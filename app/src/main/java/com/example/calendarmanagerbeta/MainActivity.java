@@ -706,7 +706,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 //    }
 
     @Override
-    public void onParamsChanged(String moduleCode, String lessonType, String classNo,  ArrayList<WeekViewEvent> classes) {
+    public void onParamsChanged(String moduleCode, String lessonType, String classNo,  final ArrayList<WeekViewEvent> classes) {
         //if they already exist, change their values. if not then add it in.
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -731,6 +731,8 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
                     if (snapshot.getChildren() != null) {
 
                         for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            System.out.println( "snapshot 's name : " + userSnapshot.child("Name").getValue());
+                            System.out.println( "class 's name : " + classes.get(0).getName());
                             if(userSnapshot.child("Name").getValue().equals(classes.get(0).getName())) {
                                 System.out.println("Detected class name is the same, no need to re add classes");
                                 lessonsExist[0] = true;
