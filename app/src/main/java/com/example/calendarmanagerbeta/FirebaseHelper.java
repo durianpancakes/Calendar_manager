@@ -42,99 +42,79 @@ public class FirebaseHelper {
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
-        DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
+        DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
         // include another reference for the module events to pull (NOT DONE)
 
         mEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                //String moduleString = new String();
-                if (snapshot.getChildren() != null) {
-                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                        if(currentDate.get(Calendar.MONTH) == userSnapshot.child("startMonth").getValue(int.class)
-                        && currentDate.get(Calendar.DAY_OF_MONTH) == userSnapshot.child("startDayOfMonth").getValue(int.class)
-                                && currentDate.get(Calendar.YEAR) == userSnapshot.child("startYear").getValue(int.class)) {
 
-                            WeekViewEvent mWeekViewEvent = new WeekViewEvent();
-                            Calendar startCal = Calendar.getInstance();
-                            Calendar endCal = Calendar.getInstance();
-                            if (userSnapshot.child("startDayOfMonth").exists()) {
-                                startCal.set(Calendar.DAY_OF_MONTH , userSnapshot.child("startDayOfMonth").getValue(int.class));
+                if (snapshot.child("events").getChildren() != null) {
 
-                            }
-                            if (userSnapshot.child("startMonth").exists()) {
-                                startCal.set(Calendar.MONTH , userSnapshot.child("startMonth").getValue(int.class));
+                    ArrayList<WeekViewEvent> tempArrayList;
+                    tempArrayList = extractEventsByDay(snapshot.child("events"), currentDate);
+                    for(WeekViewEvent event : tempArrayList) {
+                        eventArrayList.add(event);
+                    }
 
-                            }
-                            if (userSnapshot.child("startYear").exists()) {
-                                startCal.set(Calendar.YEAR, userSnapshot.child("startYear").getValue(int.class));
+                } else {
+                    System.out.println("There are no events by day");
+                }
+                if (snapshot.child("modules").getChildren() != null) {
 
-                            }
-                            if (userSnapshot.child("startHour").exists()) {
-                                startCal.set(Calendar.HOUR_OF_DAY, userSnapshot.child("startHour").getValue(int.class));
+                    for (DataSnapshot userSnapshot : snapshot.child("modules").getChildren()) {
 
+                        if(userSnapshot.child("Laboratory").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEventsByDay(userSnapshot.child("Laboratory").child("lessons"), currentDate);
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
                             }
-                            if (userSnapshot.child("startMinute").exists()) {
-                                startCal.set(Calendar.MINUTE, userSnapshot.child("startMinute").getValue(int.class));
-
-                            }
-                            if (userSnapshot.child("endDayOfMonth").exists()) {
-                                endCal.set(Calendar.DAY_OF_MONTH, userSnapshot.child("endDayOfMonth").getValue(int.class));
-
-                            }
-                            if (userSnapshot.child("endMonth").exists()) {
-                                endCal.set(Calendar.MONTH, userSnapshot.child("endMonth").getValue(int.class));
-
-                            }
-                            if (userSnapshot.child("endYear").exists()) {
-                                endCal.set(Calendar.YEAR, userSnapshot.child("endYear").getValue(int.class));
-
-                            }
-                            if (userSnapshot.child("endHour").exists()) {
-                                endCal.set(Calendar.HOUR_OF_DAY, userSnapshot.child("endHour").getValue(int.class));
-
-                            }
-                            if (userSnapshot.child("endMinute").exists()) {
-                                endCal.set(Calendar.MINUTE, userSnapshot.child("endMinute").getValue(int.class));
-
-                            }
-                            if (userSnapshot.child("Description").exists()) {
-                                mWeekViewEvent.setDescription(userSnapshot.child("Description").getValue(String.class));
-                            }
-                            if (userSnapshot.child("Name").exists()) {
-                                mWeekViewEvent.setName(userSnapshot.child("Name").getValue(String.class));
-                            }
-                            if (userSnapshot.child("Location").exists()) {
-                                mWeekViewEvent.setLocation(userSnapshot.child("Location").getValue(String.class));
-                            }
-                            if (userSnapshot.child("Weblink").exists()) {
-                                mWeekViewEvent.setmWeblink(userSnapshot.child("Weblink").getValue(String.class));
-
-                            }
-                            if (userSnapshot.child("AllDay").exists()) {
-                                mWeekViewEvent.setAllDay(userSnapshot.child("AllDay").getValue(Boolean.class));
-                            }
-
-                            mWeekViewEvent.setIdentifier(userSnapshot.child("identifier").getValue(String.class));
-                            //System.out.println("event identifier is " + mWeekViewEvent.getIdentifier());
-
-                            mWeekViewEvent.setStartTime(startCal);
-                            mWeekViewEvent.setEndTime(endCal);
-                            eventArrayList.add(mWeekViewEvent);
                         }
-                        callbackHelper.onGetEvents(eventArrayList);
+                        if(userSnapshot.child("Sectional Teaching").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEventsByDay(userSnapshot.child("Sectional Teaching").child("lessons"), currentDate);
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+                        if(userSnapshot.child("Tutorial").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEventsByDay(userSnapshot.child("Tutorial").child("lessons"), currentDate);
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+                        if(userSnapshot.child("Recitation").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEventsByDay(userSnapshot.child("Recitation").child("lessons"), currentDate);
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+                        if(userSnapshot.child("Lecture").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEventsByDay(userSnapshot.child("Lecture").child("lessons"), currentDate);
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+
+
                     }
                 } else {
-                    System.out.println("There are no events");
+                    System.out.println("There are no lesson events by day");
                 }
+
+
 
                 //test eventArrayList here (DEBUG)
                 for (WeekViewEvent weekViewEvent : eventArrayList) {
-                    System.out.println("Name of event : " + weekViewEvent.getName());
+                    System.out.println("Name of event in byday : " + weekViewEvent.getName());
                     //System.out.println("Location : " + weekViewEvent.getLocation());
                 }
+                callbackHelper.onGetEvents(eventArrayList);
 
-                //callbackHelper.onGetEvents(eventArrayList);
             }
 
             @Override
@@ -149,91 +129,74 @@ public class FirebaseHelper {
 
     }
 
+
     public ArrayList<WeekViewEvent> pullEvents() {
         final ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = user.getUid();
-        DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
-        // include another reference to pull events from module area too
+        final String uid = user.getUid();
+        DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+
 
         mEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                //String moduleString = new String();
-                if (snapshot.getChildren() != null) {
-                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
 
-                        WeekViewEvent mWeekViewEvent = new WeekViewEvent();
-                        Calendar startCal = Calendar.getInstance();
-                        Calendar endCal = Calendar.getInstance();
+                if (snapshot.child("events").getChildren() != null) {
 
-                        if (userSnapshot.child("startDayOfMonth").exists()) {
-                            startCal.set(Calendar.DAY_OF_MONTH , userSnapshot.child("startDayOfMonth").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("startMonth").exists()) {
-                            startCal.set(Calendar.MONTH , userSnapshot.child("startMonth").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("startYear").exists()) {
-                            startCal.set(Calendar.YEAR, userSnapshot.child("startYear").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("startHour").exists()) {
-                            startCal.set(Calendar.HOUR_OF_DAY, userSnapshot.child("startHour").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("startMinute").exists()) {
-                            startCal.set(Calendar.MINUTE, userSnapshot.child("startMinute").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("endDayOfMonth").exists()) {
-                            endCal.set(Calendar.DAY_OF_MONTH, userSnapshot.child("endDayOfMonth").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("endMonth").exists()) {
-                            endCal.set(Calendar.MONTH, userSnapshot.child("endMonth").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("endYear").exists()) {
-                            endCal.set(Calendar.YEAR, userSnapshot.child("endYear").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("endHour").exists()) {
-                            endCal.set(Calendar.HOUR_OF_DAY, userSnapshot.child("endHour").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("endMinute").exists()) {
-                            endCal.set(Calendar.MINUTE, userSnapshot.child("endMinute").getValue(int.class));
-
-                        }
-                        if (userSnapshot.child("Description").exists()) {
-                            mWeekViewEvent.setDescription(userSnapshot.child("Description").getValue(String.class));
-                        }
-                        if (userSnapshot.child("Name").exists()) {
-                            mWeekViewEvent.setName(userSnapshot.child("Name").getValue(String.class));
-                        }
-                        if (userSnapshot.child("Location").exists()) {
-                            mWeekViewEvent.setLocation(userSnapshot.child("Location").getValue(String.class));
-                        }
-                        if (userSnapshot.child("Weblink").exists()) {
-                            mWeekViewEvent.setmWeblink(userSnapshot.child("Weblink").getValue(String.class));
-
-                        }
-                        if (userSnapshot.child("AllDay").exists()) {
-                            mWeekViewEvent.setAllDay(userSnapshot.child("AllDay").getValue(Boolean.class));
-                        }
-
-                        mWeekViewEvent.setIdentifier(userSnapshot.child("identifier").getValue(String.class));
-                        //System.out.println("event identifier is " + mWeekViewEvent.getIdentifier());
-
-                        mWeekViewEvent.setStartTime(startCal);
-                        mWeekViewEvent.setEndTime(endCal);
-                        eventArrayList.add(mWeekViewEvent);
+                    ArrayList<WeekViewEvent> tempArrayList;
+                    tempArrayList = extractEvents(snapshot.child("events"));
+                    for(WeekViewEvent event : tempArrayList) {
+                        eventArrayList.add(event);
                     }
+
                 } else {
                     System.out.println("There are no events");
+                }
+                if (snapshot.child("modules").getChildren() != null) {
+
+                    for (DataSnapshot userSnapshot : snapshot.child("modules").getChildren()) {
+
+                        if(userSnapshot.child("Laboratory").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEvents(userSnapshot.child("Laboratory").child("lessons"));
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+                        if(userSnapshot.child("Sectional Teaching").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEvents(userSnapshot.child("Sectional Teaching").child("lessons"));
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+                        if(userSnapshot.child("Tutorial").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEvents(userSnapshot.child("Tutorial").child("lessons"));
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+                        if(userSnapshot.child("Recitation").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEvents(userSnapshot.child("Recitation").child("lessons"));
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+                        if(userSnapshot.child("Lecture").exists()) {
+                            ArrayList<WeekViewEvent> tempArrayList;
+                            tempArrayList = extractEvents(userSnapshot.child("Lecture").child("lessons"));
+                            for(WeekViewEvent event : tempArrayList) {
+                                eventArrayList.add(event);
+                            }
+                        }
+
+
+                    }
+                } else {
+                    System.out.println("There are no lesson events");
                 }
 
                 //test eventArrayList here (DEBUG)
@@ -251,9 +214,6 @@ public class FirebaseHelper {
             }
 
         });
-
-
-
 
 
         return eventArrayList;
@@ -410,178 +370,6 @@ public class FirebaseHelper {
                             System.out.println("event with key is removed :" + userSnapshot.getKey());
                         }
 
-                       /* int fieldCount = 0;
-
-                        // need to check if event contains the field!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111
-
-                        if (userSnapshot.child("Name").exists()) {
-                            if(event.getName() == userSnapshot.child("Name").getValue(String.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-
-                        if (userSnapshot.child("Description").exists()) {
-                            if(event.getDescription() == userSnapshot.child("Description").getValue(String.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-
-                        if (userSnapshot.child("Location").exists()) {
-                            if(event.getLocation() == userSnapshot.child("Location").getValue(String.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-
-                        if (userSnapshot.child("Weblink").exists()) {
-
-                            if(event.getmWeblink() == userSnapshot.child("Weblink").getValue(String.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-
-                        }
-                        if (userSnapshot.child("AllDay").exists()) {
-
-                            if(event.isAllDay() == userSnapshot.child("AllDay").getValue(Boolean.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-
-
-
-
-                        if (userSnapshot.child("startDayOfMonth").exists()) {
-                            if(event.getStartTime().get(Calendar.DAY_OF_MONTH) == userSnapshot.child("startDayOfMonth").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-
-
-                        if (userSnapshot.child("startMonth").exists()) {
-                            if(event.getStartTime().get(Calendar.MONTH) == userSnapshot.child("startMonth").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-
-
-                        if (userSnapshot.child("startYear").exists()) {
-                            if(event.getStartTime().get(Calendar.YEAR) == userSnapshot.child("startYear").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-
-
-                        if (userSnapshot.child("startHour").exists()) {
-                            if(event.getStartTime().get(Calendar.HOUR_OF_DAY) == userSnapshot.child("startHour").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-
-
-                        if (userSnapshot.child("startMinute").exists()) {
-                            if(event.getStartTime().get(Calendar.MINUTE) == userSnapshot.child("startMinute").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-
-                        }
-                        if (userSnapshot.child("endDayOfMonth").exists()) {
-                            if(event.getEndTime().get(Calendar.DAY_OF_MONTH) == userSnapshot.child("endDayOfMonth").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-
-                        }
-                        if (userSnapshot.child("endMonth").exists()) {
-                            if(event.getEndTime().get(Calendar.MONTH) == userSnapshot.child("endMonth").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-
-                        }
-
-                        if (userSnapshot.child("endYear").exists()) {
-                            if(event.getEndTime().get(Calendar.YEAR) == userSnapshot.child("endYear").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-
-                        }
-                        if (userSnapshot.child("endHour").exists()) {
-                            if(event.getEndTime().get(Calendar.HOUR_OF_DAY) == userSnapshot.child("endHour").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-
-                        }
-                        if (userSnapshot.child("endMinute").exists()) {
-                            if(event.getEndTime().get(Calendar.MINUTE) == userSnapshot.child("endMinute").getValue(int.class)) {
-                                fieldCount++;
-                            }
-                            else {
-                                continue;
-                            }
-
-                        }
-
-
-                        // if weblink exists, 15 fields, if not then 14 fields
-                        // can we check if event contains weblink?
-
-                        if(userSnapshot.child("Weblink").exists()) {
-                            // && if event has weblink
-                            if (fieldCount == 15) {
-                                //remove event from fb
-                                System.out.println("node removed :" + userSnapshot.getKey());
-                                mEventsDatabaseReference.child(userSnapshot.getKey()).removeValue();
-                            }
-
-                        }
-                        else {
-                            if(fieldCount == 14) {
-                                //remove event from fb
-                                System.out.println("node removed :" + userSnapshot.getKey());
-                                mEventsDatabaseReference.child(userSnapshot.getKey()).removeValue();
-                            }
-
-                        }*/
-
                     }
                 } else {
                     System.out.println("There are no events");
@@ -596,5 +384,170 @@ public class FirebaseHelper {
 
         });
 
+    }
+    public ArrayList<WeekViewEvent> extractEvents(DataSnapshot userSnapshot) {
+
+        final ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
+
+        for(DataSnapshot mUserSnapshot : userSnapshot.getChildren()) {
+
+            WeekViewEvent mWeekViewEvent = new WeekViewEvent();
+            Calendar startCal = Calendar.getInstance();
+            Calendar endCal = Calendar.getInstance();
+
+            if (mUserSnapshot.child("startDayOfMonth").exists()) {
+                startCal.set(Calendar.DAY_OF_MONTH, mUserSnapshot.child("startDayOfMonth").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("startMonth").exists()) {
+                startCal.set(Calendar.MONTH, mUserSnapshot.child("startMonth").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("startYear").exists()) {
+                startCal.set(Calendar.YEAR, mUserSnapshot.child("startYear").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("startHour").exists()) {
+                startCal.set(Calendar.HOUR_OF_DAY, mUserSnapshot.child("startHour").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("startMinute").exists()) {
+                startCal.set(Calendar.MINUTE, mUserSnapshot.child("startMinute").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("endDayOfMonth").exists()) {
+                endCal.set(Calendar.DAY_OF_MONTH, mUserSnapshot.child("endDayOfMonth").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("endMonth").exists()) {
+                endCal.set(Calendar.MONTH, mUserSnapshot.child("endMonth").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("endYear").exists()) {
+                endCal.set(Calendar.YEAR, mUserSnapshot.child("endYear").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("endHour").exists()) {
+                endCal.set(Calendar.HOUR_OF_DAY, mUserSnapshot.child("endHour").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("endMinute").exists()) {
+                endCal.set(Calendar.MINUTE, mUserSnapshot.child("endMinute").getValue(int.class));
+
+            }
+            if (mUserSnapshot.child("Description").exists()) {
+                mWeekViewEvent.setDescription(mUserSnapshot.child("Description").getValue(String.class));
+            }
+            if (mUserSnapshot.child("Name").exists()) {
+                mWeekViewEvent.setName(mUserSnapshot.child("Name").getValue(String.class));
+            }
+            if (mUserSnapshot.child("Location").exists()) {
+                mWeekViewEvent.setLocation(mUserSnapshot.child("Location").getValue(String.class));
+            }
+            if (mUserSnapshot.child("Weblink").exists()) {
+                mWeekViewEvent.setmWeblink(mUserSnapshot.child("Weblink").getValue(String.class));
+
+            }
+            if (mUserSnapshot.child("AllDay").exists()) {
+                mWeekViewEvent.setAllDay(mUserSnapshot.child("AllDay").getValue(Boolean.class));
+            }
+
+            mWeekViewEvent.setIdentifier(mUserSnapshot.child("identifier").getValue(String.class));
+            //System.out.println("event identifier is " + mWeekViewEvent.getIdentifier());
+
+            mWeekViewEvent.setStartTime(startCal);
+            mWeekViewEvent.setEndTime(endCal);
+            eventArrayList.add(mWeekViewEvent);
+        }
+
+        return eventArrayList;
+    }
+    public ArrayList<WeekViewEvent> extractEventsByDay(DataSnapshot userSnapshot, Calendar currentDate) {
+
+        final ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();
+
+        for(DataSnapshot mUserSnapshot : userSnapshot.getChildren()) {
+            //System.out.println("in extractbyday");
+
+            if((currentDate.get(Calendar.MONTH) == mUserSnapshot.child("startMonth").getValue(int.class)
+                    && currentDate.get(Calendar.DAY_OF_MONTH) == mUserSnapshot.child("startDayOfMonth").getValue(int.class)
+                    && currentDate.get(Calendar.YEAR) == mUserSnapshot.child("startYear").getValue(int.class)) ||
+                    (currentDate.get(Calendar.MONTH) == mUserSnapshot.child("endMonth").getValue(int.class)
+                            && currentDate.get(Calendar.DAY_OF_MONTH) == mUserSnapshot.child("endDayOfMonth").getValue(int.class)
+                            && currentDate.get(Calendar.YEAR) == mUserSnapshot.child("endYear").getValue(int.class))) {
+
+                // checks if end or start of event is today.
+
+                WeekViewEvent mWeekViewEvent = new WeekViewEvent();
+                Calendar startCal = Calendar.getInstance();
+                Calendar endCal = Calendar.getInstance();
+
+                if (mUserSnapshot.child("startDayOfMonth").exists()) {
+                    startCal.set(Calendar.DAY_OF_MONTH, mUserSnapshot.child("startDayOfMonth").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("startMonth").exists()) {
+                    startCal.set(Calendar.MONTH, mUserSnapshot.child("startMonth").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("startYear").exists()) {
+                    startCal.set(Calendar.YEAR, mUserSnapshot.child("startYear").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("startHour").exists()) {
+                    startCal.set(Calendar.HOUR_OF_DAY, mUserSnapshot.child("startHour").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("startMinute").exists()) {
+                    startCal.set(Calendar.MINUTE, mUserSnapshot.child("startMinute").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("endDayOfMonth").exists()) {
+                    endCal.set(Calendar.DAY_OF_MONTH, mUserSnapshot.child("endDayOfMonth").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("endMonth").exists()) {
+                    endCal.set(Calendar.MONTH, mUserSnapshot.child("endMonth").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("endYear").exists()) {
+                    endCal.set(Calendar.YEAR, mUserSnapshot.child("endYear").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("endHour").exists()) {
+                    endCal.set(Calendar.HOUR_OF_DAY, mUserSnapshot.child("endHour").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("endMinute").exists()) {
+                    endCal.set(Calendar.MINUTE, mUserSnapshot.child("endMinute").getValue(int.class));
+
+                }
+                if (mUserSnapshot.child("Description").exists()) {
+                    mWeekViewEvent.setDescription(mUserSnapshot.child("Description").getValue(String.class));
+                }
+                if (mUserSnapshot.child("Name").exists()) {
+                    mWeekViewEvent.setName(mUserSnapshot.child("Name").getValue(String.class));
+                }
+                if (mUserSnapshot.child("Location").exists()) {
+                    mWeekViewEvent.setLocation(mUserSnapshot.child("Location").getValue(String.class));
+                }
+                if (mUserSnapshot.child("Weblink").exists()) {
+                    mWeekViewEvent.setmWeblink(mUserSnapshot.child("Weblink").getValue(String.class));
+
+                }
+                if (mUserSnapshot.child("AllDay").exists()) {
+                    mWeekViewEvent.setAllDay(mUserSnapshot.child("AllDay").getValue(Boolean.class));
+                }
+
+                mWeekViewEvent.setIdentifier(mUserSnapshot.child("identifier").getValue(String.class));
+                //System.out.println("event identifier is " + mWeekViewEvent.getIdentifier());
+
+                mWeekViewEvent.setStartTime(startCal);
+                mWeekViewEvent.setEndTime(endCal);
+                eventArrayList.add(mWeekViewEvent);
+            }
+        }
+
+        return eventArrayList;
     }
 }

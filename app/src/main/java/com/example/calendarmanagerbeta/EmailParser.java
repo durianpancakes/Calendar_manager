@@ -74,14 +74,18 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                 startTime.set(Calendar.MINUTE, 0);
             }
         }
-        System.out.println("EXTERNAL" + Time.get(2));
-        System.out.println("EXTERNAL" + Time.get(3));
+
+        //System.out.println("EXTERNAL" + Time.get(2));
+        //System.out.println("EXTERNAL" + Time.get(3));
+
         if (Time.get(2)  < 24 ) {
             System.out.println("ENTERED" + Time.get(2));
             endTime.set(Calendar.HOUR, Time.get(2));
             if (Time.get(3) < 60) {
                 System.out.println("ENTERED" + Time.get(3));
                 endTime.set(Calendar.MINUTE, Time.get(3));
+            } else {
+                startTime.set(Calendar.MINUTE, 0);
             }
         }
 
