@@ -6,16 +6,22 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import com.alamkanak.weekview.WeekViewEvent;
 import com.microsoft.graph.concurrency.ICallback;
@@ -42,11 +48,12 @@ public class EmailFragment extends Fragment {
     private IMessageCollectionRequestBuilder nextPage = null;
     private EmailListAdapter listAdapter = null;
     private EmailFragmentCallback mCallback;
-    private boolean spinnerVisible = false;
     private ArrayList<String> mUserKeywords;
+    private ListView emailListView;
 
     public interface EmailFragmentCallback{
         void onEmailPressed(Message message);
+        void onEmailSpinnerItemPressed(String keyword);
     }
 
     @Override
@@ -75,9 +82,8 @@ public class EmailFragment extends Fragment {
         });
     }
 
-    public EmailFragment(String keyword, boolean spinner, ArrayList<String> userKeywords) {
+    public EmailFragment(String keyword, ArrayList<String> userKeywords) {
         mKeyword = keyword;
-        spinnerVisible = spinner;
         mUserKeywords = userKeywords;
     }
 
@@ -138,17 +144,52 @@ public class EmailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         myFragmentView = inflater.inflate(R.layout.fragment_email, container, false);
+        emailListView = myFragmentView.findViewById(R.id.emaillist);
+        Toolbar toolbar = myFragmentView.findViewById(R.id.email_toolbar);
+        Spinner toolbarSpinner = myFragmentView.findViewById(R.id.email_spinner);
+        int spinnerOptionPos = 0;
 
-        if (!spinnerVisible){
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Inbox");
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+        if(mUserKeywords.size() == 0){
+            toolbar.setVisibility(View.GONE);
         } else {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("");
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+            ArrayList<String> mToolbarSpinnnerArray = new ArrayList<>();
+            ArrayAdapter<String> mToolbarSpinnerAdapter = new ArrayAdapter<>(getContext(), R.layout.email_checked_title, mToolbarSpinnnerArray);
+            mToolbarSpinnerAdapter.setDropDownViewResource(R.layout.email_spinner_dropdown_item);
+            mToolbarSpinnerAdapter.clear();
+            mToolbarSpinnerAdapter.add("Inbox");
+            toolbar.setVisibility(View.VISIBLE);
+            for(int i = 0; i < mUserKeywords.size(); i++){
+                mToolbarSpinnerAdapter.add(mUserKeywords.get(i));
+                if(mUserKeywords.get(i).equals(mKeyword)){
+                    spinnerOptionPos = i + 1;
+                }
+            }
+            toolbarSpinner.setAdapter(mToolbarSpinnerAdapter);
+            toolbarSpinner.setSelection(spinnerOptionPos);
+            toolbarSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                    String keywordSelected = parent.getItemAtPosition(pos).toString();
+                    System.out.println("onItemSelected: " + keywordSelected);
+                    if(!keywordSelected.equals(mKeyword)) {
+                        if (mCallback != null) {
+                            mCallback.onEmailSpinnerItemPressed(keywordSelected);
+                        }
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
         }
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Inbox");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
 
         return myFragmentView;
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -192,8 +233,6 @@ public class EmailFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final ListView emailListView = getView().findViewById(R.id.emaillist);
-
                 if(listAdapter == null){
                     listAdapter = new EmailListAdapter(getActivity(), R.layout.email_list_item, mEmailList);
                     emailListView.setAdapter(listAdapter);

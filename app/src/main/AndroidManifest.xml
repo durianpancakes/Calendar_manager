@@ -41,4 +41,5 @@ Intent filter to capture authorization code response from the default browser on
         </activity>
     </application>
 
+
 </manifest>

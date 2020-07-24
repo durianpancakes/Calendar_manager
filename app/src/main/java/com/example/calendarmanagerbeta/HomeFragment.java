@@ -224,7 +224,6 @@ public class HomeFragment extends Fragment {
                             @Override
                             public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
                                 eventArrayList.clear();
-                                System.out.println("Array size: " + eventArrayList.size());
                                 for(int i = 0; i < userEvents.size(); i++){
                                     eventArrayList.add(userEvents.get(i));
                                 }
