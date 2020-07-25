@@ -98,12 +98,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         }
 
         if(Time.get(0) == 586) {
-            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n \n " + "There were too many timings in this email , so the event is added as an ALL-DAY event \n \n"
-                    + emailBody);
+            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n" + "EVENT IS ADDED AS ALL-DAY BECAUSE THERE WERE TOO MANY TIMINGS \n"
+                    + "--------------------- \n \n \n " + emailBody);
 
         }
         else {
-            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n \n " + emailBody);
+            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n " + "--------------------- \n \n \n " + emailBody);
         }
 
 
@@ -123,6 +123,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             System.out.println("only start hour set");
             endTime.set(Calendar.MINUTE, startTime.get(Calendar.MINUTE));
             endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY) + 1);
+            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n" + "END HOUR UNDETECTED SO IT ENDS 1 HOUR AFTER START TIME \n" + "--------------------- \n \n \n " + emailBody);
             /*
             if(startTime.get(Calendar.MINUTE) >= 30) {
                 int tempEndMinute = startTime.get(Calendar.MINUTE) + 30 - 60;
@@ -143,6 +144,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             System.out.println("only end hour set");
             startTime.set(Calendar.MINUTE, endTime.get(Calendar.MINUTE));
             startTime.set(Calendar.HOUR_OF_DAY, endTime.get(Calendar.HOUR_OF_DAY) - 1);
+            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n \n \n" + "START HOUR UNDETECTED SO IT STARTS 1 HOUR BEFORE THE END TIME \n " + "--------------------- \n \n \n " + emailBody);
 
             /*if(endTime.get(Calendar.MINUTE) < 30) {
                 int tempStartMinute = endTime.get(Calendar.MINUTE) - 30 + 60;
@@ -174,7 +176,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         event.setStartTime(startTime);
         event.setEndTime(endTime);
 
-        event.setLocation("nil");
+        event.setLocation("parsed");
 
 
         System.out.println("made it to end til b4 parsercallback");
