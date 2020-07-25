@@ -1,8 +1,6 @@
 package com.example.calendarmanagerbeta;
 
 import android.annotation.SuppressLint;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,17 +10,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.alamkanak.weekview.WeekViewEvent;
+import com.microsoft.graph.requests.extensions.ICalendarCollectionPage;
 
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -36,12 +33,12 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class CalendarEventInputDialog extends DialogFragment implements View.OnClickListener {
+public class CalendarEventEditDialog extends DialogFragment implements View.OnClickListener{
     private static int DATE_BUTTON_ID = 0;
     private static int TIME_BUTTON_ID = 0;
     private static boolean mAllDay;
     private static boolean nameError = true;
-    private EventInputListener mListener;
+    private CalendarEventEditDialog.EventInputListener mListener;
     private static EditText eventName;
     @SuppressLint("StaticFieldLeak")
     private static Button fromDate;
@@ -61,10 +58,11 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
     private EditText descriptionText;
     private Button reminderButton;
     private Button repeatButton;
-    private int reminderSelectedIndex = 0;
+    private int reminderSelectedIndex = 4;
     private int repeatSelectedIndex = 0;
 
-    private WeekViewEvent calendarEvent = new WeekViewEvent();
+    private static WeekViewEvent inputCalendarEvent = new WeekViewEvent();
+    private WeekViewEvent outputCalendarEvent = new WeekViewEvent();
     private static Calendar startTime;
     private static Calendar endTime;
 
@@ -75,12 +73,13 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
         void onAddPressed(WeekViewEvent event);
     }
 
-    public void setEventInputCallback(EventInputListener eventInputListener){
+    public void setEventInputCallback(CalendarEventEditDialog.EventInputListener eventInputListener){
         this.mListener = eventInputListener;
     }
 
-    static CalendarEventInputDialog newInstance(){
-        return new CalendarEventInputDialog();
+    static CalendarEventEditDialog newInstance(WeekViewEvent event){
+        inputCalendarEvent = event;
+        return new CalendarEventEditDialog();
     }
 
     @Override
@@ -118,8 +117,8 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
         repeatButton = view.findViewById(R.id.input_repeat);
 
         // Initializing current day parameters
-        startTime = Calendar.getInstance();
-        endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY) + 1);
+        startTime = inputCalendarEvent.getStartTime();
+        endTime = inputCalendarEvent.getEndTime();
         Date currentDate = startTime.getTime();
         SimpleDateFormat sdf1 = new SimpleDateFormat("EEE, MMM dd, yyyy");
         SimpleDateFormat sdf2 = new SimpleDateFormat("h:mm a");
@@ -130,6 +129,7 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
         String toDateString = sdf1.format(endDate);
         String toTimeString = sdf2.format(endDate);
 
+        eventName.setText(inputCalendarEvent.getName());
         eventName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -201,6 +201,7 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
             }
         });
 
+        allDay.setChecked(inputCalendarEvent.isAllDay());
         allDay.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
@@ -209,13 +210,13 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
                     mAllDay = true;
                     fromTime.setVisibility(View.GONE);
                     toTime.setVisibility(View.GONE);
-                    calendarEvent.setAllDay(true);
+                    outputCalendarEvent.setAllDay(true);
                 } else {
                     System.out.println("CHECKED FALSE");
                     mAllDay = false;
                     fromTime.setVisibility(View.VISIBLE);
                     toTime.setVisibility(View.VISIBLE);
-                    calendarEvent.setAllDay(false);
+                    outputCalendarEvent.setAllDay(false);
                 }
                 validateInputs();
             }
@@ -261,6 +262,9 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
                 checkCalendarDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "checkCalendar");
             }
         });
+
+        locationText.setText(inputCalendarEvent.getLocation());
+        descriptionText.setText(inputCalendarEvent.getDescription());
 
         validateInputs();
 
@@ -327,6 +331,7 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
             case R.id.event_input_save:
                 if(validateInputs() && !nameError){
                     WeekViewEvent event = new WeekViewEvent();
+                    event.setIdentifier(inputCalendarEvent.getIdentifier());
                     event.setName(eventName.getText().toString());
                     event.setStartTime(startTime);
                     event.setEndTime(endTime);

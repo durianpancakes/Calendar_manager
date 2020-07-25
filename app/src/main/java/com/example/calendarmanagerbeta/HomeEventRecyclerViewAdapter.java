@@ -71,12 +71,18 @@ public class HomeEventRecyclerViewAdapter extends RecyclerView.Adapter<HomeEvent
         String startTimeString = sdf2.format(startDate);
         String endDateString = sdf1.format(endDate);
         String endTimeString = sdf2.format(endDate);
-        if (startDateString.equals(endDateString) && event.isAllDay()) {
-            holder.mEventDate.setText(startDateString);
-        } else {
-            if(!event.isAllDay()){
+        if (startDateString.equals(endDateString)) {
+            if(event.isAllDay()){
+                holder.mEventDate.setText(startDateString);
+                holder.mEventTime.setText("All day");
+            } else {
                 holder.mEventDate.setText(startDateString);
                 holder.mEventTime.setText(startTimeString + " - " + endTimeString);
+            }
+        } else  {
+            if(event.isAllDay()){
+                holder.mEventDate.setText(startDateString + " - " + endDateString);
+                holder.mEventTime.setText("All day");
             } else {
                 holder.mEventDate.setText(startDateString + " - " + endDateString);
                 holder.mEventTime.setText(startTimeString + " - " + endTimeString);

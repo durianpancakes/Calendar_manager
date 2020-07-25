@@ -55,6 +55,7 @@ public class CalendarWeekFragment extends Fragment {
 
     public interface LongPressListener{
         void onDeletePressed();
+        void onEditPressed();
     }
 
     @Override
@@ -85,9 +86,12 @@ public class CalendarWeekFragment extends Fragment {
                 switch(i){
                     case 0:
                         // Edit pressed
+                        mLongPressListener.onEditPressed();
+                        break;
                     case 1:
                         // Delete pressed
                         mLongPressListener.onDeletePressed();
+                        break;
                 }
             }
         }).show();
@@ -179,6 +183,19 @@ public class CalendarWeekFragment extends Fragment {
                                 }
                             });
                             firebaseHelper.removeEvent(event);
+                        }
+
+                        @Override
+                        public void onEditPressed() {
+                            DialogFragment editEventDialog = CalendarEventEditDialog.newInstance(event);
+                            ((CalendarEventEditDialog) editEventDialog).setEventInputCallback(new CalendarEventEditDialog.EventInputListener() {
+                                @Override
+                                public void onAddPressed(WeekViewEvent event) {
+                                    mEventAddedListener.eventAdded(event);
+                                    refreshDatabase();
+                                }
+                            });
+                            editEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "eventEdit");
                         }
                     };
                     showEventLongPressDialog();
