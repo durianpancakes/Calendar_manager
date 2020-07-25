@@ -190,9 +190,36 @@ public class CalendarWeekFragment extends Fragment {
                             DialogFragment editEventDialog = CalendarEventEditDialog.newInstance(event);
                             ((CalendarEventEditDialog) editEventDialog).setEventInputCallback(new CalendarEventEditDialog.EventInputListener() {
                                 @Override
-                                public void onAddPressed(WeekViewEvent event) {
-                                    mEventAddedListener.eventAdded(event);
-                                    refreshDatabase();
+                                public void onEditPressed(final WeekViewEvent oldEvent, final WeekViewEvent newEvent) {
+                                    FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getContext());
+                                    firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
+                                        @Override
+                                        public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
+
+                                        }
+
+                                        @Override
+                                        public void onGetKeyword(ArrayList<String> userKeywords) {
+
+                                        }
+
+                                        @Override
+                                        public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
+
+                                        }
+
+                                        @Override
+                                        public void onEventDeleted() {
+                                            mEventAddedListener.eventAdded(newEvent);
+                                            refreshDatabase();
+                                        }
+
+                                        @Override
+                                        public void onKeywordDeleted() {
+
+                                        }
+                                    });
+                                    firebaseHelper.removeEvent(oldEvent);
                                 }
                             });
                             editEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "eventEdit");

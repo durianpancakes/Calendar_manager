@@ -52,6 +52,7 @@ public class CalendarDayFragment extends Fragment {
 
     public interface LongPressListener{
         void onDeletePressed();
+        void onEditPressed();
     }
 
     public void showEventLongPressDialog(){
@@ -63,9 +64,12 @@ public class CalendarDayFragment extends Fragment {
                 switch(i){
                     case 0:
                         // Edit pressed
+                        mLongPressListener.onEditPressed();
+                        break;
                     case 1:
                         // Delete pressed
                         mLongPressListener.onDeletePressed();
+                        break;
                 }
             }
         }).show();
@@ -176,6 +180,46 @@ public class CalendarDayFragment extends Fragment {
                                 }
                             });
                             firebaseHelper.removeEvent(event);
+                        }
+
+                        @Override
+                        public void onEditPressed() {
+                            DialogFragment editEventDialog = CalendarEventEditDialog.newInstance(event);
+                            ((CalendarEventEditDialog) editEventDialog).setEventInputCallback(new CalendarEventEditDialog.EventInputListener() {
+                                @Override
+                                public void onEditPressed(final WeekViewEvent oldEvent, final WeekViewEvent newEvent) {
+                                    FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getContext());
+                                    firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
+                                        @Override
+                                        public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
+
+                                        }
+
+                                        @Override
+                                        public void onGetKeyword(ArrayList<String> userKeywords) {
+
+                                        }
+
+                                        @Override
+                                        public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
+
+                                        }
+
+                                        @Override
+                                        public void onEventDeleted() {
+                                            mEventAddedListener.eventAdded(newEvent);
+                                            refreshDatabase();
+                                        }
+
+                                        @Override
+                                        public void onKeywordDeleted() {
+
+                                        }
+                                    });
+                                    firebaseHelper.removeEvent(oldEvent);
+                                }
+                            });
+                            editEventDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "eventEdit");
                         }
                     };
                     showEventLongPressDialog();
