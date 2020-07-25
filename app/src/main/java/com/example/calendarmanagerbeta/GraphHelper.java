@@ -95,6 +95,7 @@ public class GraphHelper implements IAuthenticationProvider {
         mAccessToken = accessToken;
         LinkedList<Option> requestOptions = new LinkedList<Option>();
         String completedRequest = completeDeltaRequest(moduleCode, dateTimeString);
+        requestOptions.add(new HeaderOption("Prefer", "outlook.body-content-type=\"text\""));
         requestOptions.add(new QueryOption("orderby", "receivedDateTime%20desc"));
         requestOptions.add(new QueryOption("filter", completedRequest));
         requestOptions.add(new QueryOption("top", 100));

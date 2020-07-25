@@ -106,7 +106,7 @@ public class EmailFragment extends Fragment {
                     mEmailList.add(message);
                     //System.out.println(message.body.content);
 
-                    if(i == 1) {
+                    /*if(i == 1) {
                         final EmailParser mEmailParser = EmailParser.getInstance(getContext());
                         mEmailParser.setmCallback(new ParserCallback() {
                             @Override
@@ -120,7 +120,7 @@ public class EmailFragment extends Fragment {
                             }
                         });
                         i = 0;
-                    }
+                    }*/
 
                 }
 

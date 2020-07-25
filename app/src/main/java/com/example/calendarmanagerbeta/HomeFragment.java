@@ -249,6 +249,7 @@ public class HomeFragment extends Fragment {
         } else {
             signInPrompt.setVisibility(View.VISIBLE);
             hideProgressBar();
+            //create another variable that only increases once when app is started and use that to control the logout
         }
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Home");
@@ -327,7 +328,7 @@ public class HomeFragment extends Fragment {
                             mWeekViewEventLite.Name = event.getName();
                             mWeekViewEventLite.AllDay = event.isAllDay();
                             mWeekViewEventLite.Weblink = event.getmWeblink();
-                            System.out.println(mWeekViewEventLite.AllDay);
+                            System.out.println("ALLDAY: "  + mWeekViewEventLite.AllDay);
                             String key = mEventsDatabaseReference.push().getKey();
                             mEventsDatabaseReference.child(key).setValue(mWeekViewEventLite);
                             event.setIdentifier(key);

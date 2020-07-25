@@ -40,6 +40,9 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         //String emailContent = "There will be a quiz on 16 July 2020 at 6pm.";
         System.out.println("Allparse is called");
 
+        boolean startHourSet = false;
+        boolean endHourSet = false;
+
         ArrayList<Integer> DMY = DateParse(emailBody);
         ArrayList<Integer> Time = TimeParse(emailBody);
 
@@ -71,6 +74,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         }
         if (Time.get(0) < 24 ) {
             startTime.set(Calendar.HOUR_OF_DAY, Time.get(0));
+            startHourSet = true;
             if (Time.get(1) < 60 ) {
                 startTime.set(Calendar.MINUTE, Time.get(1));
             } else {
@@ -81,9 +85,10 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         //System.out.println("EXTERNAL" + Time.get(2));
         //System.out.println("EXTERNAL" + Time.get(3));
 
-        if (Time.get(2)  < 24 ) {
+        if (Time.get(2) < 24 ) {
             System.out.println("ENTERED" + Time.get(2));
             endTime.set(Calendar.HOUR_OF_DAY, Time.get(2));
+            endHourSet = true;
             if (Time.get(3) < 60) {
                 System.out.println("ENTERED" + Time.get(3));
                 endTime.set(Calendar.MINUTE, Time.get(3));
@@ -92,25 +97,85 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             }
         }
 
+        if(Time.get(0) == 586) {
+            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n \n " + "There were too many timings in this email , so the event is added as an ALL-DAY event \n \n"
+                    + emailBody);
+
+        }
+        else {
+            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n \n " + emailBody);
+        }
+
 
         event.setName(emailSubject);
         event.setmWeblink(emailWeblink);
-        event.setStartTime(startTime);
-        event.setEndTime(endTime);
+
         // 4 cases
         // 1, if there is start time but no end time - > 10mins
         // 2, if there is end but no start -> 10mins b4
         // 3, if there is start and end
         // 4, if there is no start and no end.
 
-        if (Time.get(2) >= 24 && Time.get(3) >= 60 && Time.get(0) >= 24 && Time.get(1) >= 60 ) {
-            // if all time are invalid or
+        if(startHourSet && endHourSet) {
+            System.out.println("start and end hour set");
+        }
+        else if(startHourSet && !endHourSet) {
+            System.out.println("only start hour set");
+            endTime.set(Calendar.MINUTE, startTime.get(Calendar.MINUTE));
+            endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY) + 1);
+            /*
+            if(startTime.get(Calendar.MINUTE) >= 30) {
+                int tempEndMinute = startTime.get(Calendar.MINUTE) + 30 - 60;
+                int tempEndHour = startTime.get(Calendar.HOUR_OF_DAY) + 1;
+                endTime.set(Calendar.MINUTE, tempEndMinute);
+                endTime.set(Calendar.HOUR_OF_DAY, tempEndHour);
+                // what if it starts next day. or what if it starts next month.
+                // unimplemented
+            }
+            else {
+                endTime.set(Calendar.MINUTE, startTime.get(Calendar.MINUTE) + 30);
+                endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY));
+            }*/
+
+
+        }
+        else if(!startHourSet && endHourSet) {
+            System.out.println("only end hour set");
+            startTime.set(Calendar.MINUTE, endTime.get(Calendar.MINUTE));
+            startTime.set(Calendar.HOUR_OF_DAY, endTime.get(Calendar.HOUR_OF_DAY) - 1);
+
+            /*if(endTime.get(Calendar.MINUTE) < 30) {
+                int tempStartMinute = endTime.get(Calendar.MINUTE) - 30 + 60;
+                int tempStartHour = endTime.get(Calendar.HOUR_OF_DAY) - 1;
+                startTime.set(Calendar.MINUTE, tempStartMinute);
+                startTime.set(Calendar.HOUR_OF_DAY, tempStartHour);
+                // what if it starts next day. or what if it starts next month.
+                // unimplemented
+            }
+            else {
+                startTime.set(Calendar.MINUTE, endTime.get(Calendar.MINUTE) - 30);
+                startTime.set(Calendar.HOUR_OF_DAY, endTime.get(Calendar.HOUR_OF_DAY));
+            }*/
+
+        }
+        else if(!startHourSet && !endHourSet) {
+            // or too many timings
+
+            System.out.println("no time set");
+            //dummy start and end time
+            startTime.set(Calendar.HOUR_OF_DAY, 10);
+            startTime.set(Calendar.MINUTE, 0);
+            endTime.set(Calendar.HOUR_OF_DAY, 12);
+            endTime.set(Calendar.MINUTE, 0);
+
             event.setAllDay(true);
-        } else {
-            event.setAllDay(false);
         }
 
+        event.setStartTime(startTime);
+        event.setEndTime(endTime);
+
         event.setLocation("nil");
+
 
         System.out.println("made it to end til b4 parsercallback");
 
@@ -356,6 +421,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             DMY.add(99);
             DMY.add(99);
 
+        }
+        else if(DMYcount > 1) {
+            //unused because the event wont even be created
+            DMY.add(586);
+            DMY.add(586);
+            DMY.add(586);
         }
 
         //
@@ -757,13 +828,18 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         if (viableTimeCount > 1 || viableTimeCount == 0) {
             if (viableTimeCount > 1) {
                 System.out.println("There are more than 1 viable times in this string.");
+                Time.add(586);
+                Time.add(586);
+                Time.add(586);
+                Time.add(586);
             } else {
                 System.out.println("NO VIABLE TIME");
+                Time.add(99);
+                Time.add(99);
+                Time.add(99);
+                Time.add(99);
             }
-            Time.add(99);
-            Time.add(99);
-            Time.add(99);
-            Time.add(99);
+
             //default
 
         } else if (viableTimeCount == 1) {
