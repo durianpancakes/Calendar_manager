@@ -26,13 +26,22 @@ import com.alamkanak.weekview.WeekViewEvent;
 
 import org.w3c.dom.Text;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.TimeZone;
 
 public class NusmodsFragment extends Fragment{
     View myFragmentView;
@@ -253,6 +262,18 @@ public class NusmodsFragment extends Fragment{
                     }
 
                     @Override
+                    public void examObtained(final String moduleCode, final String lessonType, final String classNo) {
+                        System.out.println("EXAM OBTAINED");
+                        getModuleClassesListener = new GetModuleClassesListener() {
+                            @Override
+                            public void onClassesObtained(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> events) {
+                                changedModuleParamsListener.onParamsChanged(moduleCode, lessonType, classNo, events);
+                            }
+                        };
+                        getModuleClasses(moduleCode, lessonType, classNo);
+                    }
+
+                    @Override
                     public void moduleRemoved(String moduleCode) {
                         removeModule(moduleCode);
                         moduleRemoveListener.onModuleRemove(moduleCode);
@@ -359,44 +380,82 @@ public class NusmodsFragment extends Fragment{
             @Override
             public void onRefreshSpecial(NUSModuleMain nusModuleFull, String lessonType, String classNo) {
                 final ArrayList<WeekViewEvent> events = new ArrayList<>();
-                List<ModuleTimetable> moduleTimetableList = nusModuleFull.getSemesterData().get(currentSemester - 1).getTimetable();
-                for(int i = 0; i < moduleTimetableList.size(); i++){
-                    ModuleTimetable moduleTimetable = moduleTimetableList.get(i);
-                    if(lessonType.equals(moduleTimetable.getLessonType()) && classNo.equals(moduleTimetable.getClassNo())){
-                        // The class is a match
-                        System.out.println(lessonType + " " + classNo);
-                        System.out.println("MATCHED");
-                        int weeks[] = moduleTimetable.getWeeks();
-                        System.out.println("CLASSES WEEKS: " + weeks.length);
-                        for(int n = 0; n < weeks.length; n++){
-                            WeekViewEvent event = new WeekViewEvent();
-                            int actualWeek = getActualWeek(weeks[n]);
-                            int startTime = moduleTimetable.getStartTime();
-                            int endTime = moduleTimetable.getEndTime();
-                            Calendar startCal = Calendar.getInstance();
-                            startCal.setWeekDate(2020, actualWeek, getActualDayOfWeek(moduleTimetable.getDay()));
-                            startCal.set(Calendar.HOUR_OF_DAY, startTime / 100);
-                            startCal.set(Calendar.MINUTE, startTime % 100);
-                            event.setStartTime(startCal);
-                            Calendar endCal = Calendar.getInstance();
-                            endCal.setWeekDate(2020, actualWeek, getActualDayOfWeek(moduleTimetable.getDay()));
-                            endCal.set(Calendar.HOUR_OF_DAY, endTime / 100);
-                            endCal.set(Calendar.MINUTE, endTime % 100);
-                            event.setEndTime(endCal);
-                            event.setName(moduleCode + " " + lessonType + " " + classNo);
-                            event.setLocation(moduleTimetable.getVenue());
-                            event.setDescription(moduleTimetable.getLessonType() + " @ " + moduleTimetable.getVenue());
-                            events.add(event);
-                            System.out.println("EVENT ADDED");
+                ModuleSemesterData moduleSemesterData = nusModuleFull.getSemesterData().get(currentSemester - 1);
+
+                if(lessonType.equals("Exam")){
+                    if(moduleSemesterData.getExamDate() != null){
+                        // There is an exam
+                        Calendar startCal = parseDate(moduleSemesterData.getExamDate());
+
+                        // Exam duration in minutes
+                        int examDuration = moduleSemesterData.getExamDuration();
+
+                        Calendar endCal = startCal;
+                        endCal.add(Calendar.MINUTE, examDuration);
+
+                        WeekViewEvent event = new WeekViewEvent();
+                        event.setName(moduleCode + " Finals");
+                        event.setStartTime(startCal);
+                        event.setEndTime(endCal);
+                        events.add(event);
+
+                        if(getModuleClassesListener!= null){
+                            getModuleClassesListener.onClassesObtained(moduleCode, "Exam", "Finals", events);
                         }
                     }
-                }
-                if(getModuleClassesListener != null){
-                    getModuleClassesListener.onClassesObtained(moduleCode, lessonType, classNo, events);
+                } else {
+                    List<ModuleTimetable> moduleTimetableList = moduleSemesterData.getTimetable();
+                    for(int i = 0; i < moduleTimetableList.size(); i++){
+                        ModuleTimetable moduleTimetable = moduleTimetableList.get(i);
+                        if(lessonType.equals(moduleTimetable.getLessonType()) && classNo.equals(moduleTimetable.getClassNo())){
+                            // The class is a match
+                            System.out.println(lessonType + " " + classNo);
+                            int weeks[] = moduleTimetable.getWeeks();
+                            for(int n = 0; n < weeks.length; n++){
+                                WeekViewEvent event = new WeekViewEvent();
+                                int actualWeek = getActualWeek(weeks[n]);
+                                int startTime = moduleTimetable.getStartTime();
+                                int endTime = moduleTimetable.getEndTime();
+                                Calendar startCal = Calendar.getInstance();
+                                startCal.setWeekDate(2020, actualWeek, getActualDayOfWeek(moduleTimetable.getDay()));
+                                startCal.set(Calendar.HOUR_OF_DAY, startTime / 100);
+                                startCal.set(Calendar.MINUTE, startTime % 100);
+                                event.setStartTime(startCal);
+                                Calendar endCal = Calendar.getInstance();
+                                endCal.setWeekDate(2020, actualWeek, getActualDayOfWeek(moduleTimetable.getDay()));
+                                endCal.set(Calendar.HOUR_OF_DAY, endTime / 100);
+                                endCal.set(Calendar.MINUTE, endTime % 100);
+                                event.setEndTime(endCal);
+                                event.setName(moduleCode + " " + lessonType + " " + classNo);
+                                event.setLocation(moduleTimetable.getVenue());
+                                event.setDescription(moduleTimetable.getLessonType() + " @ " + moduleTimetable.getVenue());
+                                events.add(event);
+                                System.out.println("EVENT ADDED");
+                            }
+                        }
+                    }
+                    if(getModuleClassesListener != null){
+                        getModuleClassesListener.onClassesObtained(moduleCode, lessonType, classNo, events);
+                    }
                 }
             }
         });
         nusmodsHelper.refreshSpecificModuleSpecial(moduleCode, lessonType, classNo);
+    }
+
+    private Calendar parseDate(String dateString){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Calendar cal = Calendar.getInstance();
+        try{
+            Date date = sdf.parse(dateString);
+            cal.setTime(date);
+        } catch (ParseException e){
+            e.printStackTrace();
+        }
+
+
+        return cal;
     }
 
     private int getActualDayOfWeek(String day){

@@ -9,6 +9,7 @@ public class ModuleSemesterData {
     private int semester;
     private List<ModuleTimetable> timetable;
     private String examDate;
+    private int examDuration;
 
     public void setExamDate(String examDate) {
         this.examDate = examDate;
@@ -32,5 +33,13 @@ public class ModuleSemesterData {
 
     public void setTimetable(List<ModuleTimetable> timetable) {
         this.timetable = timetable;
+    }
+
+    public int getExamDuration() {
+        return examDuration;
+    }
+
+    public void setExamDuration(int examDuration) {
+        this.examDuration = examDuration;
     }
 }

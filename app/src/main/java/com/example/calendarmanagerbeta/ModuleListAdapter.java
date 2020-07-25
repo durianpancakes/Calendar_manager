@@ -90,6 +90,7 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
             String dateString = nusModuleMain.getSemesterData().get(semesterIdx).getExamDate();
             if (dateString != null) {
                 examDate.setText("Exam: " + parseDate(dateString));
+                mParamsChangedListener.examObtained(nusModuleMain.getModuleCode(), "Exam", "Finals");
             } else {
                 examDate.setText("No exam");
             }
