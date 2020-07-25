@@ -42,10 +42,10 @@ public class FirebaseHelper {
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
-        DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+        DatabaseReference mDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
         // include another reference for the module events to pull (NOT DONE)
 
-        mEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -135,10 +135,10 @@ public class FirebaseHelper {
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         final String uid = user.getUid();
-        DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+        DatabaseReference mDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
 
 
-        mEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -281,7 +281,7 @@ public class FirebaseHelper {
 
                         //System.out.println(moduleInfoList.get(0).lessonType);
 
-                        // get(1) works if the mod has a 2nd lessontype (tested)
+
                         nusModuleLite.setClassesSelected(moduleInfoList);
 
                         allModules.add(nusModuleLite);
@@ -353,27 +353,106 @@ public class FirebaseHelper {
         final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
-        final DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
+        final DatabaseReference mDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+        //final DatabaseReference mEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("events");
         System.out.println("entered removeEvent");
+        //System.out.println(event.getIdentifier());
 
-        mEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                System.out.println("onDataChanged");
-                if (snapshot.getChildren() != null) {
-                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                        System.out.println("2: " + event.getIdentifier());
-                        System.out.println("1: " + userSnapshot.child("identifier").getValue());
+
+
+
+                if(snapshot.child("events").getChildren() != null) {
+                    for (DataSnapshot userSnapshot : snapshot.child("events").getChildren()) {
+                        System.out.println("Event identifier: " + event.getIdentifier());
+                        System.out.println("for loop looking at : " + userSnapshot.child("identifier").getValue());
                         if(userSnapshot.child("identifier").getValue().equals(event.getIdentifier())) {
-                            mEventsDatabaseReference.child(userSnapshot.getKey()).removeValue();
+                            mDatabaseReference.child("events").child(userSnapshot.getKey()).removeValue();
                             callbackHelper.onEventDeleted();
                             System.out.println("event with key is removed :" + userSnapshot.getKey());
                         }
 
                     }
+
                 } else {
                     System.out.println("There are no events");
                 }
+                if(snapshot.child("modules").getChildren() != null) {
+                    for (DataSnapshot userSnapshot : snapshot.child("modules").getChildren()) {
+
+                        if(userSnapshot.child("Laboratory").exists()) {
+                            for(DataSnapshot mUserSnapshot : userSnapshot.child("Laboratory").child("lessons").getChildren()) {
+                                if(mUserSnapshot.child("identifier").getValue().equals(event.getIdentifier())) {
+                                    System.out.println("Event identifier: " + event.getIdentifier());
+                                    System.out.println("for loop looking at : " + mUserSnapshot.child("identifier").getValue());
+                                    //mDatabaseReference.child("modules").child("Laboratory").child("lessons").child(mUserSnapshot.getKey()).removeValue();
+                                    mDatabaseReference.child("modules").child(userSnapshot.child("Module Name").getValue(String.class)).child("Laboratory").child("lessons").child(mUserSnapshot.getKey()).removeValue();
+                                    callbackHelper.onEventDeleted();
+
+                                }
+                            }
+
+                        }
+                        if(userSnapshot.child("Sectional Teaching").exists()) {
+                            for(DataSnapshot mUserSnapshot : userSnapshot.child("Sectional Teaching").child("lessons").getChildren()) {
+                                if(mUserSnapshot.child("identifier").getValue().equals(event.getIdentifier())) {
+                                    System.out.println("Event identifier: " + event.getIdentifier());
+                                    System.out.println("for loop looking at : " + mUserSnapshot.child("identifier").getValue());
+
+                                    mDatabaseReference.child("modules").child(userSnapshot.child("Module Name").getValue(String.class)).child("Sectional Teaching").child("lessons").child(mUserSnapshot.getKey()).removeValue();
+                                    callbackHelper.onEventDeleted();
+
+                                }
+                            }
+
+                        }
+                        if(userSnapshot.child("Tutorial").exists()) {
+                            for(DataSnapshot mUserSnapshot : userSnapshot.child("Tutorial").child("lessons").getChildren()) {
+                                if(mUserSnapshot.child("identifier").getValue().equals(event.getIdentifier())) {
+                                    System.out.println("Event identifier: " + event.getIdentifier());
+                                    System.out.println("for loop looking at : " + mUserSnapshot.child("identifier").getValue());
+                                    mDatabaseReference.child("modules").child(userSnapshot.child("Module Name").getValue(String.class)).child("Tutorial").child("lessons").child(mUserSnapshot.getKey()).removeValue();
+                                    callbackHelper.onEventDeleted();
+
+                                }
+                            }
+
+                        }
+                        if(userSnapshot.child("Recitation").exists()) {
+                            for(DataSnapshot mUserSnapshot : userSnapshot.child("Recitation").child("lessons").getChildren()) {
+                                if(mUserSnapshot.child("identifier").getValue().equals(event.getIdentifier())) {
+                                    System.out.println("Event identifier: " + event.getIdentifier());
+                                    System.out.println("for loop looking at : " + mUserSnapshot.child("identifier").getValue());
+                                    mDatabaseReference.child("modules").child(userSnapshot.child("Module Name").getValue(String.class)).child("Recitation").child("lessons").child(mUserSnapshot.getKey()).removeValue();
+                                    callbackHelper.onEventDeleted();
+
+                                }
+                            }
+
+                        }
+                        if(userSnapshot.child("Lecture").exists()) {
+                            for(DataSnapshot mUserSnapshot : userSnapshot.child("Lecture").child("lessons").getChildren()) {
+                                if(mUserSnapshot.child("identifier").getValue().equals(event.getIdentifier())) {
+                                    System.out.println("Event identifier: " + event.getIdentifier());
+                                    System.out.println("for loop looking at : " + mUserSnapshot.child("identifier").getValue());
+                                    mDatabaseReference.child("modules").child(userSnapshot.child("Module Name").getValue(String.class)).child("Lecture").child("lessons").child(mUserSnapshot.getKey()).removeValue();
+                                    callbackHelper.onEventDeleted();
+                                }
+                            }
+
+                        }
+
+
+                    }
+
+                } else {
+                    System.out.println("There are no events");
+                }
+
+
+
 
             }
 
