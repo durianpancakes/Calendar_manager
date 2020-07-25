@@ -236,6 +236,11 @@ public class HomeFragment extends Fragment {
                             public void onEventDeleted() {
 
                             }
+
+                            @Override
+                            public void onKeywordDeleted() {
+
+                            }
                         });
                     }
                 }

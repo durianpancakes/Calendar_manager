@@ -86,7 +86,7 @@ public class NUSmodsHelper{
         }
     }
 
-    public void mapFullModule(String jsonString){
+    public void mapFullModule(String moduleCode, String jsonString){
         ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         NUSModuleMain nusModule;
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
@@ -99,7 +99,7 @@ public class NUSmodsHelper{
             nusModuleFull = nusModule;
 
             if(mOnRefreshSpecificListener != null){
-                mOnRefreshSpecificListener.onRefresh(nusModuleFull);
+                mOnRefreshSpecificListener.onRefresh(moduleCode, nusModuleFull);
             }
         } catch(IOException e){
             e.printStackTrace();
@@ -132,7 +132,7 @@ public class NUSmodsHelper{
                 Log.d("NUSmodsHelper refreshSpecificModule success", response.toString());
                 jsonString = response.toString();
 
-                mapFullModule(jsonString);
+                mapFullModule(moduleCode, jsonString);
             }
 
         }, new Response.ErrorListener(){
@@ -149,7 +149,7 @@ public class NUSmodsHelper{
         return mBaseUrl + "modules/" + moduleCode + ".json";
     }
 
-    public void refreshSpecificModuleSpecial(String moduleCode, final String lessonType, final String classNo) {
+    public void refreshSpecificModuleSpecial(final String moduleCode, final String lessonType, final String classNo) {
         String url = completeModuleUrl(moduleCode);
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>(){
             @Override
@@ -157,7 +157,7 @@ public class NUSmodsHelper{
                 Log.d("NUSmodsHelper refreshSpecificModule success", response.toString());
                 jsonString = response.toString();
 
-                mapFullModuleSpecial(jsonString, lessonType, classNo);
+                mapFullModuleSpecial(moduleCode, jsonString, lessonType, classNo);
             }
 
         }, new Response.ErrorListener(){
@@ -170,7 +170,7 @@ public class NUSmodsHelper{
         mRequestQueue.add(objectRequest);
     }
 
-    public void mapFullModuleSpecial(String jsonString, String lessonType, String classNo){
+    public void mapFullModuleSpecial(String moduleCode, String jsonString, String lessonType, String classNo){
         ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         NUSModuleMain nusModule;
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
@@ -183,7 +183,7 @@ public class NUSmodsHelper{
             nusModuleFull = nusModule;
 
             if(mOnRefreshSpecificListener != null){
-                mOnRefreshSpecificListener.onRefreshSpecial(nusModuleFull, lessonType, classNo);
+                mOnRefreshSpecificListener.onRefreshSpecial(moduleCode, nusModuleFull, lessonType, classNo);
             }
         } catch(IOException e){
             e.printStackTrace();
