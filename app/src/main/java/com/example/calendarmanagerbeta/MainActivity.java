@@ -686,6 +686,7 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
 
     @Override
     public void onParamsChanged(final String moduleCode, final String lessonType, final String classNo, final ArrayList<WeekViewEvent> classes) {
+        System.out.println(moduleCode + lessonType + classNo );
 
         //if they already exist, change their values. if not then add it in.
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -703,30 +704,6 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
             mModulesDatabaseReference.child("modules").child(moduleCode).child(lessonType).child("classNo").setValue(classNo);
             final DatabaseReference mModuleEventsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("modules").child(moduleCode).child(lessonType).child("lessons");
 
-            /*WeekViewEventLite mWeekViewEventLite = new WeekViewEventLite();
-            mWeekViewEventLite.startDayOfMonth = 24;
-            mWeekViewEventLite.startMonth = 7;
-            mWeekViewEventLite.startYear = 2020;
-            mWeekViewEventLite.startHour = 7;
-            mWeekViewEventLite.startMinute = 0;
-
-            mWeekViewEventLite.endDayOfMonth = 24;
-            mWeekViewEventLite.endMonth = 7;
-            mWeekViewEventLite.endYear = 2020;
-            mWeekViewEventLite.endHour = 8;
-            mWeekViewEventLite.endMinute = 0;
-
-            mWeekViewEventLite.Description = "nil";
-            mWeekViewEventLite.Location = "nil";
-            mWeekViewEventLite.Name = "matthew lesson";
-            mWeekViewEventLite.AllDay = false;
-            //mWeekViewEventLite.Weblink ;
-            //System.out.println(mWeekViewEventLite.AllDay);
-            String key = "matthew lesson";
-            mModuleEventsDatabaseReference.child(key).setValue(mWeekViewEventLite);
-            //event.setIdentifier(key);
-
-            mModuleEventsDatabaseReference.child(key).child("identifier").setValue(key);*/
 
 
             mModuleEventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -736,8 +713,8 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
                     if (snapshot.getChildren() != null) {
                         boolean lessonsExist = false;
                         for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                            System.out.println( "snapshot 's name : " + userSnapshot.child("Name").getValue());
-                            System.out.println( "class 's name : " + classes.get(0).getName());
+                            //System.out.println( "snapshot 's name : " + userSnapshot.child("Name").getValue());
+                            //System.out.println( "class 's name : " + classes.get(0).getName());
                             if(userSnapshot.child("Name").getValue().equals(classes.get(0).getName())) {
                                 System.out.println("Detected class name is the same, no need to re add classes");
                                 lessonsExist = true;

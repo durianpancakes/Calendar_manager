@@ -53,21 +53,24 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         if (DMY.get(0) != 99) {
             startTime.set(Calendar.DAY_OF_MONTH, DMY.get(0));
             endTime.set(Calendar.DAY_OF_MONTH, DMY.get(0));
+            System.out.println(DMY.get(0) + " start day/end day added");
             datecount++;
 
         }
         if (DMY.get(1) != 99) {
             startTime.set(Calendar.MONTH, DMY.get(1));
             endTime.set(Calendar.MONTH, DMY.get(1));
+            System.out.println(DMY.get(1) + " start mth/end mth added");
             datecount++;
         }
         if (DMY.get(2) != 99) {
             startTime.set(Calendar.YEAR, DMY.get(2));
             endTime.set(Calendar.YEAR, DMY.get(2));
+            System.out.println(DMY.get(2) + " start yr/end yr added");
             datecount++;
         }
         if (Time.get(0) < 24 ) {
-            startTime.set(Calendar.HOUR, Time.get(0));
+            startTime.set(Calendar.HOUR_OF_DAY, Time.get(0));
             if (Time.get(1) < 60 ) {
                 startTime.set(Calendar.MINUTE, Time.get(1));
             } else {
@@ -80,7 +83,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
         if (Time.get(2)  < 24 ) {
             System.out.println("ENTERED" + Time.get(2));
-            endTime.set(Calendar.HOUR, Time.get(2));
+            endTime.set(Calendar.HOUR_OF_DAY, Time.get(2));
             if (Time.get(3) < 60) {
                 System.out.println("ENTERED" + Time.get(3));
                 endTime.set(Calendar.MINUTE, Time.get(3));
@@ -95,8 +98,8 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         event.setStartTime(startTime);
         event.setEndTime(endTime);
         // 4 cases
-        // 1, if there is start time but no end time
-        // 2, if there is end but no start
+        // 1, if there is start time but no end time - > 10mins
+        // 2, if there is end but no start -> 10mins b4
         // 3, if there is start and end
         // 4, if there is no start and no end.
 
@@ -114,6 +117,8 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
         if(datecount == 3) {
             if (mCallback != null) {
+                System.out.println("datecount 3 :" + event.getStartTime().get(Calendar.DAY_OF_MONTH) + event.getStartTime().get(Calendar.MONTH) + event.getStartTime().get(Calendar.YEAR)
+                + event.getStartTime().get(Calendar.HOUR_OF_DAY) + event.getStartTime().get(Calendar.MINUTE));
                 mCallback.onEventAdded(event);
                 System.out.println("mparsercallback called");
             } else {
