@@ -98,6 +98,9 @@ public class CalendarEventEditDialog extends DialogFragment implements View.OnCl
         View view = inflater.inflate(R.layout.create_calendar_event_dialog, container, false);
         ImageButton close = view.findViewById(R.id.event_input_cancel);
         TextView save = view.findViewById(R.id.event_input_save);
+        TextView title = view.findViewById(R.id.event_input_title);
+
+        title.setText("Edit event");
 
         close.setOnClickListener(this);
         save.setOnClickListener(this);
