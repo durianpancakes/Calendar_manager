@@ -66,7 +66,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity implements KeywordManagerFragment.KeywordManagerCallback,CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -85,24 +85,6 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
     private Spinner mToolbarSpinner;
     private ArrayList<String> mUserKeywords = new ArrayList<>();
     public static ArrayList<KeywordInfo> mUserKeywordDelta = new ArrayList<>();
-//    private DeltaEmailCallback mDeltaEmailCallback;
-//    private HomeFragmentReadyListener mHomeFragmentReadyListener;
-//
-//    public interface DeltaEmailCallback{
-//        void onFinish(ArrayList<WeekViewEvent> events, ArrayList<Message> messages);
-//    }
-//
-//    public interface HomeFragmentReadyListener{
-//        void onFinish();
-//    }
-//
-//    public void setmHomeFragmentReadyListener(HomeFragmentReadyListener homeFragmentReadyListener){
-//        this.mHomeFragmentReadyListener = homeFragmentReadyListener;
-//    }
-//
-//    public void setmDeltaEmailCallback(DeltaEmailCallback deltaEmailCallback){
-//        this.mDeltaEmailCallback = deltaEmailCallback;
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -509,10 +491,10 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
     }
 
     private void signOut() {
+        openHomeFragment(null);
         mAuthHelper.signOut();
         mFirebaseAuth.signOut();
         setSignedInState(false);
-        openHomeFragment(mUserName);
     }
 
     // Silently sign in - used if there is already a
@@ -789,12 +771,30 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
 
     @Override
     public void onDateReceive(int year, int month, int day) {
-        CalendarEventInputDialog.updateDateButton(year, month, day);
+        try{
+            CalendarEventInputDialog.updateDateButton(year, month, day);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        try{
+            CalendarEventEditDialog.updateDateButton(year, month, day);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onTimeReceive(int hours, int min) {
-        CalendarEventInputDialog.updateTimeButton(hours, min);
+        try{
+            CalendarEventInputDialog.updateTimeButton(hours, min);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        try{
+            CalendarEventEditDialog.updateTimeButton(hours, min);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
