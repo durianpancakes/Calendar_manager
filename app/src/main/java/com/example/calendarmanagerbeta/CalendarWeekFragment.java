@@ -117,6 +117,11 @@ public class CalendarWeekFragment extends Fragment {
             public void onEventDeleted() {
 
             }
+
+            @Override
+            public void onKeywordDeleted() {
+
+            }
         });
         firebaseHelper.pullEvents();
     }
@@ -166,6 +171,11 @@ public class CalendarWeekFragment extends Fragment {
                                 @Override
                                 public void onEventDeleted() {
                                     refreshDatabase();
+                                }
+
+                                @Override
+                                public void onKeywordDeleted() {
+
                                 }
                             });
                             firebaseHelper.removeEvent(event);

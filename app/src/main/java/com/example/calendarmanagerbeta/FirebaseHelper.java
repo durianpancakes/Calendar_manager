@@ -1,6 +1,8 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.provider.ContactsContract;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -13,6 +15,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -314,11 +317,42 @@ public class FirebaseHelper {
         });
     }
 
+    public void getUserKeywords(){
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        DatabaseReference mKeywordsDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+        final ArrayList<String> userKeywords = new ArrayList<>();
+
+        mKeywordsDatabaseReference.child("keywords").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.getChildren() != null){
+                    for(DataSnapshot userSnapshot : snapshot.getChildren()){
+                        String keyword = userSnapshot.child("Keyword").getValue(String.class);
+                        userKeywords.add(keyword);
+                    }
+                } else {
+                    Log.d("FirebaseHelper", "getUserKeywords() no child found");
+                }
+
+                if(callbackHelper != null){
+                    callbackHelper.onGetKeyword(userKeywords);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     public void getAllKeywords() {
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
-        DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+        final DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
         final ArrayList<String> allKeywords = new ArrayList<>();
 
         mModulesDatabaseReference.child("modules").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -334,9 +368,25 @@ public class FirebaseHelper {
                     System.out.println("getallkeywords no children");
                 }
 
-                if(callbackHelper != null){
-                    callbackHelper.onGetKeyword(allKeywords);
-                }
+                mModulesDatabaseReference.child("keywords").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot.getChildren() != null){
+                            for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                                String keyword = userSnapshot.child("Keyword").getValue(String.class);
+                                allKeywords.add(keyword);
+                            }
+                        }
+                        if(callbackHelper != null){
+                            callbackHelper.onGetKeyword(allKeywords);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
 
             @Override
@@ -462,8 +512,39 @@ public class FirebaseHelper {
             }
 
         });
-
     }
+
+    public void removeKeyword(final String keyword){
+        System.out.println("Entered removeKeyword");
+        final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        final DatabaseReference mKeywordDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("keywords");
+
+        mKeywordDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.getChildren() != null){
+                    for(DataSnapshot userSnapshot : snapshot.getChildren()){
+                        System.out.println("Keyword to be removed: " + keyword);
+                        System.out.println("Database check: " + userSnapshot.child("Keyword"));
+                        if(userSnapshot.child("Keyword").getValue().equals(keyword)){
+                            mKeywordDatabaseReference.child(userSnapshot.getKey()).removeValue();
+                        }
+                    }
+                    if(callbackHelper != null){
+                        callbackHelper.onKeywordDeleted();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("FirebaseHelper", "removeKeyword NOT SUCCESSFUL");
+            }
+        });
+    }
+
     public ArrayList<WeekViewEvent> extractEvents(DataSnapshot userSnapshot) {
 
         final ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();

@@ -9,4 +9,5 @@ public interface FirebaseCallback {
     void onGetKeyword(ArrayList<String> userKeywords);
     void onGetEvents(ArrayList<WeekViewEvent> userEvents);
     void onEventDeleted();
+    void onKeywordDeleted();
 }

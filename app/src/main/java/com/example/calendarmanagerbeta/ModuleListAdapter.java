@@ -90,6 +90,7 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
             String dateString = nusModuleMain.getSemesterData().get(semesterIdx).getExamDate();
             if (dateString != null) {
                 examDate.setText("Exam: " + parseDate(dateString));
+                mParamsChangedListener.examObtained(nusModuleMain.getModuleCode(), "Exam", "Finals");
             } else {
                 examDate.setText("No exam");
             }
@@ -112,6 +113,7 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                         break;
                     case "Laboratory":
                         mModuleLaboratory.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        break;
                 }
             }
 
@@ -252,9 +254,11 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
             spinnerLaboratoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerLaboratory.setAdapter(spinnerLaboratoryAdapter);
             if(mModuleLaboratory.size() == 0){
+                System.out.println(nusModuleMain.getModuleCode() + " there are no lab classes");
                 textLaboratory.setVisibility(View.GONE);
                 spinnerLaboratory.setVisibility(View.GONE);
             } else {
+                System.out.println(nusModuleMain.getModuleCode() + " there are lab classes");
                 for(int i = 0; i < spinnerLaboratory.getCount(); i++){
                     if(spinnerLaboratory.getItemAtPosition(i).equals(laboratoryChosenDB)){
                         spinnerLaboratory.setSelection(i);

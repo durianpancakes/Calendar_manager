@@ -66,7 +66,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity implements CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements KeywordManagerFragment.KeywordManagerCallback,CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -429,6 +429,11 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
             public void onEventDeleted() {
 
             }
+
+            @Override
+            public void onKeywordDeleted() {
+
+            }
         });
 
         mNavigationView.setCheckedItem(R.id.nav_email);
@@ -680,7 +685,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
 //    }
 
     @Override
-
     public void onParamsChanged(final String moduleCode, final String lessonType, final String classNo, final ArrayList<WeekViewEvent> classes) {
         System.out.println(moduleCode + lessonType + classNo );
 
@@ -692,7 +696,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
             System.out.println("User is not signed in, cannot add modules");
         }
         else {
-
             String uid = user.getUid();
             System.out.println(user.getDisplayName() + " is adding the module " + moduleCode + " " + lessonType + " " + classNo);
             DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
@@ -844,5 +847,23 @@ public class MainActivity extends AppCompatActivity implements CalendarDayFragme
         System.out.println(event.getLocation());
         System.out.println("START: " + event.getStartTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getStartTime().get(Calendar.MONTH) + 1) + "/" + event.getStartTime().get(Calendar.YEAR));
         System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
+    }
+
+    // Callback methods from KeywordManagerFragment.java
+    @Override
+    public void onKeywordAdded(String keyword) {
+        System.out.println("onKeywordAdded " + keyword);
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        DatabaseReference mKeywordDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid);
+        mKeywordDatabaseReference.child("keywords").child(keyword).child("Keyword").setValue(keyword);
+    }
+
+    @Override
+    public void onKeywordRemoved(String keyword) {
+        System.out.println("onKeywordRemoved " + keyword);
+        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
+        firebaseHelper.removeKeyword(keyword);
     }
 }

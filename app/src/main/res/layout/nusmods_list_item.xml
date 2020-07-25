@@ -6,136 +6,144 @@
     android:gravity="center_horizontal"
     android:orientation="horizontal"
     android:padding="10dp">
-
-    <LinearLayout
-        android:id="@+id/module_info"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
+        app:cardElevation="10dp"
+        app:contentPadding="10dp">
         <RelativeLayout
-            android:layout_width="346dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <TextView
-                android:id="@+id/module_code_and_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/module_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="CG1112 Engineering Principles and Practices II"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:layout_width="346dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.8">
+
+                    <TextView
+                        android:id="@+id/module_code_and_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="CG1112 Engineering Principles and Practices II"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/exam_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/module_code_and_title"
+                        android:text="Exam: 24-May-2020 5.00 PM" />
+
+                    <TextView
+                        android:id="@+id/textView7"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/module_code_and_title"
+                        android:layout_marginLeft="-2dp"
+                        android:layout_toRightOf="@id/exam_date"
+                        android:paddingHorizontal="8dp"
+                        android:text="·" />
+
+                    <TextView
+                        android:id="@+id/module_credits"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/module_code_and_title"
+                        android:layout_toRightOf="@id/textView7"
+                        android:text="4 MCs" />
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/delete_module"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:background="@null"
+                    app:srcCompat="@drawable/ic_baseline_delete_outline_24" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/exam_date"
+                android:id="@+id/module_lecture"
                 android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_below="@id/module_info"
+                android:gravity="center"
+                android:text="Lecture: "
+                android:textAlignment="gravity" />
+
+            <Spinner
+                android:id="@+id/select_lecture"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/module_code_and_title"
-                android:text="Exam: 24-May-2020 5.00 PM" />
+                android:layout_below="@id/module_info"
+                android:layout_toRightOf="@id/module_lecture" />
 
             <TextView
-                android:id="@+id/textView7"
+                android:id="@+id/module_tutorial"
                 android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_below="@id/select_lecture"
+                android:gravity="center"
+                android:text="Tutorial: " />
+
+            <Spinner
+                android:id="@+id/select_tutorial"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/module_code_and_title"
-                android:layout_marginLeft="-2dp"
-                android:layout_toRightOf="@id/exam_date"
-                android:paddingHorizontal="8dp"
-                android:text="·" />
+                android:layout_below="@id/select_lecture"
+                android:layout_toRightOf="@id/module_tutorial" />
 
             <TextView
-                android:id="@+id/module_credits"
+                android:id="@+id/module_sectional_teaching"
                 android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_below="@id/select_tutorial"
+                android:gravity="center"
+                android:text="Sectional Teaching:" />
+
+            <Spinner
+                android:id="@+id/select_sectional_teaching"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/module_code_and_title"
-                android:layout_toRightOf="@id/textView7"
-                android:text="4 MCs" />
+                android:layout_below="@id/select_tutorial"
+                android:layout_toRightOf="@id/module_sectional_teaching" />
+
+            <TextView
+                android:id="@+id/module_recitation"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_below="@id/select_sectional_teaching"
+                android:gravity="center|center_horizontal"
+                android:text="Recitation: " />
+
+            <Spinner
+                android:id="@+id/select_recitation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/select_sectional_teaching"
+                android:layout_toRightOf="@id/module_recitation" />
+
+            <TextView
+                android:id="@+id/module_laboratory"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_below="@id/select_recitation"
+                android:gravity="center|center_horizontal"
+                android:text="Laboratory:" />
+
+            <Spinner
+                android:id="@+id/select_laboratory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/select_recitation"
+                android:layout_toRightOf="@id/module_laboratory" />
         </RelativeLayout>
 
-        <ImageButton
-            android:id="@+id/delete_module"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@null"
-            app:srcCompat="@drawable/ic_baseline_delete_outline_24" />
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/module_lecture"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
-        android:layout_below="@id/module_info"
-        android:gravity="center"
-        android:text="Lecture: "
-        android:textAlignment="gravity" />
-
-    <Spinner
-        android:id="@+id/select_lecture"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/module_info"
-        android:layout_toRightOf="@id/module_lecture" />
-
-    <TextView
-        android:id="@+id/module_tutorial"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
-        android:layout_below="@id/select_lecture"
-        android:gravity="center"
-        android:text="Tutorial: " />
-
-    <Spinner
-        android:id="@+id/select_tutorial"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/select_lecture"
-        android:layout_toRightOf="@id/module_tutorial" />
-
-    <TextView
-        android:id="@+id/module_sectional_teaching"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
-        android:layout_below="@id/select_tutorial"
-        android:gravity="center"
-        android:text="Sectional Teaching:" />
-
-    <Spinner
-        android:id="@+id/select_sectional_teaching"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/select_tutorial"
-        android:layout_toRightOf="@id/module_sectional_teaching" />
-
-    <TextView
-        android:id="@+id/module_recitation"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
-        android:layout_below="@id/select_sectional_teaching"
-        android:gravity="center|center_horizontal"
-        android:text="Recitation: " />
-
-    <Spinner
-        android:id="@+id/select_recitation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/select_sectional_teaching"
-        android:layout_toRightOf="@id/module_recitation" />
-
-    <TextView
-        android:id="@+id/module_laboratory"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
-        android:layout_below="@id/select_recitation"
-        android:gravity="center|center_horizontal"
-        android:text="Laboratory:" />
-
-    <Spinner
-        android:id="@+id/select_laboratory"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/select_recitation"
-        android:layout_toRightOf="@id/module_laboratory" />
+    </androidx.cardview.widget.CardView>
 </RelativeLayout>
