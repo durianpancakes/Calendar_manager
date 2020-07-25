@@ -70,7 +70,7 @@ public class CalendarEventEditDialog extends DialogFragment implements View.OnCl
     private String[] mRepeatArrayOptions;
 
     public interface EventInputListener{
-        void onAddPressed(WeekViewEvent event);
+        void onEditPressed(WeekViewEvent oldEvent, WeekViewEvent newEvent);
     }
 
     public void setEventInputCallback(CalendarEventEditDialog.EventInputListener eventInputListener){
@@ -331,14 +331,13 @@ public class CalendarEventEditDialog extends DialogFragment implements View.OnCl
             case R.id.event_input_save:
                 if(validateInputs() && !nameError){
                     WeekViewEvent event = new WeekViewEvent();
-                    event.setIdentifier(inputCalendarEvent.getIdentifier());
                     event.setName(eventName.getText().toString());
                     event.setStartTime(startTime);
                     event.setEndTime(endTime);
                     event.setDescription(descriptionText.getText().toString());
                     event.setLocation(locationText.getText().toString());
                     event.setAllDay(mAllDay);
-                    mListener.onAddPressed(event);
+                    mListener.onEditPressed(inputCalendarEvent, event);
                     dismiss();
                 } else {
                     break;
