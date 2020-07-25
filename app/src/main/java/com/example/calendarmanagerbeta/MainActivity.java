@@ -509,10 +509,10 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
     }
 
     private void signOut() {
+        openHomeFragment(null);
         mAuthHelper.signOut();
         mFirebaseAuth.signOut();
         setSignedInState(false);
-        openHomeFragment(mUserName);
     }
 
     // Silently sign in - used if there is already a

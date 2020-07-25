@@ -1,6 +1,8 @@
 package com.example.calendarmanagerbeta;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,9 +12,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +35,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class CalendarEventInputDialog extends DialogFragment implements View.OnClickListener{
+public class CalendarEventInputDialog extends DialogFragment implements View.OnClickListener {
     private EventInputListener eventInputListener;
     private static int DATE_BUTTON_ID = 0;
     private static int TIME_BUTTON_ID = 0;
@@ -61,8 +65,8 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
     private int repeatSelectedIndex = 0;
 
     private WeekViewEvent calendarEvent = new WeekViewEvent();
-    private static Calendar startTime = Calendar.getInstance();
-    private static Calendar endTime = Calendar.getInstance();
+    private static Calendar startTime;
+    private static Calendar endTime;
 
     private String[] mRemindersArrayOptions;
     private String[] mRepeatArrayOptions;
@@ -85,6 +89,8 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
         setStyle(DialogFragment.STYLE_NORMAL, R.style.FullscreenDialogTheme);
         mRemindersArrayOptions = getResources().getStringArray(R.array.reminders_array);
         mRepeatArrayOptions = getResources().getStringArray(R.array.repeat_array);
+        startTime = Calendar.getInstance();
+        endTime = Calendar.getInstance();
     }
 
     @Nullable
@@ -164,7 +170,8 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
             @Override
             public void onClick(View view) {
                 DATE_BUTTON_ID = 1;
-                DialogFragment datePicker = DatePickerFragment.newInstance(startTime);
+                Calendar cal = (Calendar)startTime.clone();
+                DialogFragment datePicker = DatePickerFragment.newInstance(cal);
                 datePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "datePicker");
             }
         });
@@ -175,7 +182,8 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
             @Override
             public void onClick(View view) {
                 TIME_BUTTON_ID = 1;
-                DialogFragment timePicker = TimePickerFragment.newInstance(startTime);
+                Calendar cal = (Calendar)startTime.clone();
+                DialogFragment timePicker = TimePickerFragment.newInstance(cal);
                 timePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "timePicker");
             }
         });
@@ -186,7 +194,8 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
             @Override
             public void onClick(View view) {
                 DATE_BUTTON_ID = 2;
-                DialogFragment datePicker = DatePickerFragment.newInstance(endTime);
+                Calendar cal = (Calendar)endTime.clone();
+                DialogFragment datePicker = DatePickerFragment.newInstance(cal);
                 datePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "datePicker");
             }
         });
@@ -197,7 +206,8 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
             @Override
             public void onClick(View view) {
                 TIME_BUTTON_ID = 2;
-                DialogFragment timePicker = TimePickerFragment.newInstance(endTime);
+                Calendar cal = (Calendar)endTime.clone();
+                DialogFragment timePicker = TimePickerFragment.newInstance(cal);
                 timePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "timePicker");
             }
         });
@@ -254,12 +264,22 @@ public class CalendarEventInputDialog extends DialogFragment implements View.OnC
             }
         });
 
+        checkCal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar cal = (Calendar)startTime.clone();
+                DialogFragment checkCalendarDialog = WeekViewDialog.newInstance(cal);
+                checkCalendarDialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "checkCalendar");
+            }
+        });
+
         validateInputs();
 
         return view;
     }
 
     public static void updateDateButton(int year, int month, int day) {
+        System.out.println("UPDATE DATE BUTTON");
         Calendar newCal = Calendar.getInstance(TimeZone.getDefault());
         newCal.set(year, month, day);
         String newDayOfWeek = newCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT_FORMAT, Locale.ENGLISH);

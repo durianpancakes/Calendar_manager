@@ -117,8 +117,8 @@ public class HomeFragment extends Fragment {
         mProgress = getActivity().findViewById(R.id.progressbar);
         showProgressBar();
         View homeView = inflater.inflate(R.layout.fragment_home, container, false);
-        signInPrompt = (LinearLayout)homeView.findViewById(R.id.home_signin_prompt);
-        recyclerView = (RecyclerView)homeView.findViewById(R.id.home_sectioned_recyclerView);
+        signInPrompt = homeView.findViewById(R.id.home_signin_prompt);
+        recyclerView = homeView.findViewById(R.id.home_sectioned_recyclerView);
         if(mUserName != null){
             signInPrompt.setVisibility(View.GONE);
             // Setup recycler view
