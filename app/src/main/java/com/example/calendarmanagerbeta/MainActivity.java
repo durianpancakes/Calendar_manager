@@ -776,7 +776,7 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
     }
     // END: Callback methods from KeywordManagerFragment.java
 
-    // START: Callback methods from ReminderFragment
+    // (INCOMPLETE) START: Callback methods from ReminderFragment
     @Override
     public void onToolbarCalendarClicked() {
         openWeekCalendar();

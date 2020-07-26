@@ -17,7 +17,8 @@
         <item
             android:id="@+id/nav_reminder"
             android:icon="@drawable/ic_baseline_access_alarm_24"
-            android:title="Reminder"/>
+            android:title="Reminder"
+            android:visible="false"/>
 
         <item
             android:title="Calendar"
