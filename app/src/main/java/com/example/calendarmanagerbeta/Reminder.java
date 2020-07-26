@@ -1,49 +1,68 @@
 package com.example.calendarmanagerbeta;
 
-public class Reminder {
-    private String mIdentifier;
-    private String mTitle;
-    private String mDate;
-    private String mActive;
+import java.util.Calendar;
 
-    public Reminder(String identifier, String title, String date, String active){
-        mIdentifier = identifier;
-        mTitle = title;
-        mDate = date;
-        mActive = active;
+public class Reminder {
+    private int mID;
+    private String mTitle;
+    private Calendar mTime;
+    private Boolean mActive;
+    private Boolean mAllDay;
+
+    public Reminder(int ID, String Title, Calendar Date, Boolean Active, Boolean AllDay){
+        mID = ID;
+        mTitle = Title;
+        mTime = Date;
+        mActive = Active;
+        mAllDay = AllDay;
+    }
+
+    public Reminder(String Title, Calendar Date, Boolean Active, Boolean AllDay){
+        mTitle = Title;
+        mTime = Date;
+        mActive = Active;
+        mAllDay = AllDay;
     }
 
     public Reminder(){}
 
-    public String getmIdentifier() {
-        return mIdentifier;
+    public int getID() {
+        return mID;
     }
 
-    public void setmIdentifier(String mIdentifier) {
-        this.mIdentifier = mIdentifier;
+    public void setID(int ID) {
+        mID = ID;
     }
 
-    public String getmTitle() {
+    public String getTitle() {
         return mTitle;
     }
 
-    public void setmTitle(String mTitle) {
-        this.mTitle = mTitle;
+    public void setTitle(String title) {
+        mTitle = title;
     }
 
-    public String getmDate() {
-        return mDate;
+    public Calendar getTime() {
+        return mTime;
     }
 
-    public void setmDate(String mDate) {
-        this.mDate = mDate;
+    public void setTime(Calendar time) {
+        mTime = time;
     }
 
-    public String getmActive() {
+    public Boolean getActive() {
         return mActive;
     }
 
-    public void setmActive(String mActive) {
-        this.mActive = mActive;
+    public void setActive(Boolean active) {
+        mActive = active;
+    }
+
+    public Boolean getAllDay(){
+        return mAllDay;
+    }
+
+    public void setAllDay(Boolean allDay){
+        mAllDay = allDay;
     }
 }

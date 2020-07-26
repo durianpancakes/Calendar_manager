@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="4dp"
+        android:padding="4dp"
+        android:layout_marginBottom="4dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/recycler_reminder_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reminder Title"
+            android:paddingHorizontal="16dp"
+            android:textSize="16sp"/>
+        <TextView
+            android:id="@+id/recycler_reminder_datetime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:text="Reminder date and time"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/recycler_reminder_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_baseline_delete_outline_24"/>
+    
+</RelativeLayout>

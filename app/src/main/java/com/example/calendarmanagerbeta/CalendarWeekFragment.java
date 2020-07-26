@@ -306,7 +306,6 @@ public class CalendarWeekFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.toolbar_cal_btn :
             {
-                Calendar cal = Calendar.getInstance();
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), null, datePickerDialogCalendar.get(Calendar.YEAR), datePickerDialogCalendar.get(Calendar.MONTH), datePickerDialogCalendar.get(Calendar.DAY_OF_MONTH));
                 dialog.show();
                 dialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
