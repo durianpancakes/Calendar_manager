@@ -1,11 +1,6 @@
 package com.example.calendarmanagerbeta;
 
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,8 +10,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -177,9 +170,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
             case R.id.calendar_day_view:
                 openDayCalendar();
                 break;
-            case R.id.calendar_month_view:
-                openMonthCalendar();
-                break;
             case R.id.calendar_week_view:
                 openWeekCalendar();
                 break;
@@ -273,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
             menu.removeItem(R.id.nav_home);
             menu.removeItem(R.id.nav_email);
             menu.findItem(R.id.calendar_submenu).getSubMenu().removeItem(R.id.calendar_day_view);
-            menu.findItem(R.id.calendar_submenu).getSubMenu().removeItem(R.id.calendar_month_view);
             menu.findItem(R.id.calendar_submenu).getSubMenu().removeItem(R.id.calendar_week_view);
             menu.findItem(R.id.account_submenu).getSubMenu().removeItem(R.id.nav_signout);
         }
@@ -428,15 +417,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
         toolbar.setSubtitle("Day View");
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarDayFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_day_view);
-    }
-
-    private void openMonthCalendar(){
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        mToolbarSpinner.setVisibility(View.GONE);
-        toolbar.setTitle("Calendar");
-        toolbar.setSubtitle("Month View");
-        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarMonthFragment()).commit();
-        mNavigationView.setCheckedItem(R.id.calendar_month_view);
     }
 
     private void openWeekCalendar(){

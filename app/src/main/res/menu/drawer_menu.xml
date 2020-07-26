@@ -19,10 +19,6 @@
             android:id="@+id/calendar_submenu">
             <menu>
                 <group android:checkableBehavior="single">
-                    <item
-                        android:id="@+id/calendar_month_view"
-                        android:icon="@drawable/ic_view_month_24dp"
-                        android:title="Month" />
 
                     <item
                         android:id="@+id/calendar_week_view"
