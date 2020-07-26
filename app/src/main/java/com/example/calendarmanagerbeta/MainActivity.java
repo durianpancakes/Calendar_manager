@@ -308,32 +308,6 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
         }
     }
 
-
-//    public String getLastDateTimeString(){
-//        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-//        String lastSyncDateTime = sharedPreferences.getString("lastSyncDateTime", getCurrentDateTimeString());
-//        System.out.println("Previous synchronized at: " + lastSyncDateTime);
-//
-//        return lastSyncDateTime;
-//    }
-//
-//    public void setLastDateTimeString(){
-//        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPreferences.edit();
-//        System.out.println("New synchronized at: "+ getCurrentDateTimeString());
-//        editor.putString("lastSyncDateTime", getCurrentDateTimeString());
-//        editor.commit();
-//    }
-//
-//    public String getCurrentDateTimeString(){
-//        TimeZone tz = TimeZone.getTimeZone("UTC");
-//        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-//        df.setTimeZone(tz);
-//        String nowAsISO = df.format(new Date());
-//
-//        return nowAsISO;
-//    }
-
     // Create a new profile picture based on user initials
     public Drawable createProfilePicture(String userName){
         LayoutInflater layoutInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -442,18 +416,6 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
         mToolbarSpinner.setVisibility(View.GONE);
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new NusmodsFragment()).commit();
     }
-
-//    private void openViewEmailFragment(Message message){
-//        mToolbarSpinner.setVisibility(View.GONE);
-//        DisplayEmailFragment displayEmailFragment = DisplayEmailFragment.newInstance(message);
-//        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEmailFragment).commit();
-//    }
-//
-//    private void openViewEventFragment(WeekViewEvent event){
-//        mToolbarSpinner.setVisibility(View.GONE);
-//        DisplayEventFragment displayEventFragment = DisplayEventFragment.newInstance(event);
-//        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right).addToBackStack(null).replace(R.id.fragment_container, displayEventFragment).commit();
-//    }
 
     private void openViewEmailDialog(Message message){
         mToolbarSpinner.setVisibility(View.GONE);
@@ -611,50 +573,6 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
             }
         };
     }
-
-//    private ICallback<IMessageCollectionPage> getDeltaEmailCallback() {
-//        return new ICallback<IMessageCollectionPage>() {
-//            @Override
-//            public void success(IMessageCollectionPage iMessageCollectionPage) {
-//                Log.d("DELTA EMAIL", "Pull successful");
-//                int deltaEmails = 0;
-//                final ArrayList<WeekViewEvent> events = new ArrayList<>();
-//                ArrayList<Message> messages = new ArrayList<>();
-//
-//                setLastDateTimeString();
-//                deltaEmails = iMessageCollectionPage.getCurrentPage().size();
-//                System.out.println("New emails: " + deltaEmails);
-//
-//                for(Message message : iMessageCollectionPage.getCurrentPage()){
-//                    // Parse all emails here
-//                    messages.add(message);
-//                    EmailParser emailParser = EmailParser.getInstance(getApplicationContext());
-//                    emailParser.setmCallback(new ParserCallback() {
-//                        @Override
-//                        public void onEventAdded(WeekViewEvent event) {
-//                            Log.w("EMAIL PARSER", "Event added from email");
-//                            events.add(event);
-//                        }
-//                    });
-//                    emailParser.AllParse(message.body.content);
-//                    deltaEmails++;
-//                }
-//
-//                if(mDeltaEmailCallback != null){
-//                    mDeltaEmailCallback.onFinish(events, messages);
-//                }
-//
-//                hideProgressBar();
-//            }
-//
-//            @Override
-//            public void failure(ClientException ex) {
-//                Log.d("DELTA EMAIL", "Pull failed");
-//
-//                hideProgressBar();
-//            }
-//        };
-//    }
 
     @Override
     public void onParamsChanged(final String moduleCode, final String lessonType, final String classNo, final ArrayList<WeekViewEvent> classes) {
@@ -839,7 +757,7 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
         System.out.println("END: " + event.getEndTime().get(Calendar.DAY_OF_MONTH) + "/" + (event.getEndTime().get(Calendar.MONTH) + 1) + "/" + event.getEndTime().get(Calendar.YEAR));
     }
 
-    // Callback methods from KeywordManagerFragment.java
+    // START: Callback methods from KeywordManagerFragment.java
     @Override
     public void onKeywordAdded(String keyword) {
         System.out.println("onKeywordAdded " + keyword);
@@ -856,9 +774,20 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
         FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
         firebaseHelper.removeKeyword(keyword);
     }
+    // END: Callback methods from KeywordManagerFragment.java
 
+    // START: Callback methods from ReminderFragment
     @Override
     public void onToolbarCalendarClicked() {
         openWeekCalendar();
     }
+
+    @Override
+    public void onReminderAdded(Reminder reminder) {
+    }
+
+    @Override
+    public void onReminderDelete(Reminder reminder) {
+    }
+    // END: Callback methods from ReminderFragment
 }
