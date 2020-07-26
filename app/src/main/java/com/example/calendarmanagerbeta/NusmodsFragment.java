@@ -463,7 +463,7 @@ public class NusmodsFragment extends Fragment{
                                 endCal.set(Calendar.HOUR_OF_DAY, endTime / 100);
                                 endCal.set(Calendar.MINUTE, endTime % 100);
                                 event.setEndTime(endCal);
-                                event.setName(moduleCodeReceived + " " + lessonType + " " + classNo);
+                                event.setName(moduleCodeReceived + " " + receivedlessonType + " " + receivedclassNo);
                                 event.setLocation(moduleTimetable.getVenue());
                                 event.setDescription(moduleTimetable.getLessonType() + " @ " + moduleTimetable.getVenue());
                                 events.add(event);
