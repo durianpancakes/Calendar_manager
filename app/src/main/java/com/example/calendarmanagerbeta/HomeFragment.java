@@ -1,13 +1,16 @@
 package com.example.calendarmanagerbeta;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
@@ -50,6 +53,11 @@ public class HomeFragment extends Fragment {
     private DeltaEmailCallback mDeltaEmailCallback;
     private HomeFragmentReadyListener mHomeFragmentReadyListener;
     private ProgressBar mProgress = null;
+    private ToolbarCalendarButtonCallback mToolbarButtonCallback;
+
+    public interface ToolbarCalendarButtonCallback{
+        void onToolbarCalendarClicked();
+    }
 
     public interface DeltaEmailCallback{
         void onFinish(String moduleCode, ArrayList<WeekViewEvent> events, ArrayList<Message> messages);
@@ -57,6 +65,10 @@ public class HomeFragment extends Fragment {
 
     public interface HomeFragmentReadyListener{
         void onFinish();
+    }
+
+    public void setToolbarCalendarButtonCallback(ToolbarCalendarButtonCallback toolbarCalendarButtonCallback){
+        this.mToolbarButtonCallback = toolbarCalendarButtonCallback;
     }
 
     public void setmHomeFragmentReadyListener(HomeFragmentReadyListener homeFragmentReadyListener){
@@ -87,7 +99,19 @@ public class HomeFragment extends Fragment {
         if (getArguments() != null) {
             mUserName = getArguments().getString(USER_NAME);
         }
+        setHasOptionsMenu(true);
         keywordInfoArrayList = MainActivity.mUserKeywordDelta;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.toolbar_cal_btn :
+            {
+                mToolbarButtonCallback.onToolbarCalendarClicked();
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void showProgressBar() {
@@ -369,5 +393,22 @@ public class HomeFragment extends Fragment {
                 hideProgressBar();
             }
         };
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if(context instanceof HomeFragment.ToolbarCalendarButtonCallback){
+            mToolbarButtonCallback = (HomeFragment.ToolbarCalendarButtonCallback)context;
+        }
+        else{
+            throw new RuntimeException(context.toString() + " must implement listener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mToolbarButtonCallback = null;
     }
 }

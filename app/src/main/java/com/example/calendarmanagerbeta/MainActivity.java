@@ -66,7 +66,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity implements KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements HomeFragment.ToolbarCalendarButtonCallback ,KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -196,14 +196,14 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
 
         inflater.inflate(R.menu.toolbar_menu, menu);
 
-        menu.findItem(R.id.go_current_day).setVisible(mIsSignedIn);
+        menu.findItem(R.id.toolbar_cal_btn).setVisible(mIsSignedIn);
         menu.setGroupVisible(R.id.toolbar_opt_group, mIsSignedIn);
 
         return true;
     }
 
     public boolean onPrepareOptionsMenu(Menu menu){
-        menu.findItem(R.id.go_current_day).setVisible(mIsSignedIn);
+        menu.findItem(R.id.toolbar_cal_btn).setVisible(mIsSignedIn);
         menu.setGroupVisible(R.id.toolbar_opt_group, mIsSignedIn);
 
         return true;
@@ -865,5 +865,10 @@ public class MainActivity extends AppCompatActivity implements KeywordManagerFra
         System.out.println("onKeywordRemoved " + keyword);
         FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(getApplicationContext());
         firebaseHelper.removeKeyword(keyword);
+    }
+
+    @Override
+    public void onToolbarCalendarClicked() {
+        openWeekCalendar();
     }
 }

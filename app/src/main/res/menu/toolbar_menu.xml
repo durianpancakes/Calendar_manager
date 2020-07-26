@@ -17,7 +17,7 @@
 
     <item
         android:title="Current Day"
-        android:id="@+id/go_current_day"
+        android:id="@+id/toolbar_cal_btn"
         android:icon="@drawable/ic_today_black_24dp"
         app:showAsAction="always"/>
 </menu>

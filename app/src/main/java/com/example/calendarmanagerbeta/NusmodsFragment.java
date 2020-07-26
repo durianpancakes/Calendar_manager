@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -111,6 +114,8 @@ public class NusmodsFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setHasOptionsMenu(true);
+
         mProgress = getActivity().findViewById(R.id.progressbar);
         showProgressBar();
 
@@ -137,6 +142,13 @@ public class NusmodsFragment extends Fragment{
                 hideProgressBar();
             }
         });
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        menu.findItem(R.id.toolbar_cal_btn).setVisible(false);
     }
 
     public boolean isInCurrentSemester(NUSModuleLite nusModule){

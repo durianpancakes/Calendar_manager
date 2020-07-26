@@ -3,6 +3,7 @@ package com.example.calendarmanagerbeta;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -63,6 +64,7 @@ public class KeywordManagerFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         mProgress = getActivity().findViewById(R.id.progressbar);
         showProgressBar();
     }
@@ -178,6 +180,13 @@ public class KeywordManagerFragment extends Fragment {
         refreshFromDatabase();
 
         return myFragmentView;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        menu.findItem(R.id.toolbar_cal_btn).setVisible(false);
     }
 
     @Override

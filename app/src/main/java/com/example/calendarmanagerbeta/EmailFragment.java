@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -54,6 +55,7 @@ public class EmailFragment extends Fragment {
     public interface EmailFragmentCallback{
         void onEmailPressed(Message message);
         void onEmailSpinnerItemPressed(String keyword);
+        void onToolbarCalendarClicked();
     }
 
     @Override
@@ -71,6 +73,18 @@ public class EmailFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mCallback = null;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.toolbar_cal_btn :
+            {
+                System.out.println("CLICKED");
+                mCallback.onToolbarCalendarClicked();
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void showProgressBar() {
@@ -194,6 +208,8 @@ public class EmailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
 
         mProgress = getActivity().findViewById(R.id.progressbar);
         showProgressBar();

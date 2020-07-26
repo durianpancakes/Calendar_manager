@@ -1,5 +1,6 @@
 package com.example.calendarmanagerbeta;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.RectF;
@@ -12,8 +13,10 @@ import androidx.fragment.app.Fragment;
 
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.alamkanak.weekview.MonthLoader;
@@ -48,6 +51,7 @@ public class CalendarWeekFragment extends Fragment {
     private CalendarWeekFragment.EventAddedListener mEventAddedListener;
     private LongPressListener mLongPressListener;
     private String[] monthStrings = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+    private Calendar datePickerDialogCalendar;
 
     public CalendarWeekFragment() {
         // Required empty public constructor
@@ -70,6 +74,7 @@ public class CalendarWeekFragment extends Fragment {
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Calendar");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("Week View");
+
 
         refreshDatabase();
         setupWeekView();
@@ -292,6 +297,32 @@ public class CalendarWeekFragment extends Fragment {
 
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        datePickerDialogCalendar = Calendar.getInstance();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.toolbar_cal_btn :
+            {
+                Calendar cal = Calendar.getInstance();
+                DatePickerDialog dialog = new DatePickerDialog(getContext(), null, datePickerDialogCalendar.get(Calendar.YEAR), datePickerDialogCalendar.get(Calendar.MONTH), datePickerDialogCalendar.get(Calendar.DAY_OF_MONTH));
+                dialog.show();
+                dialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        System.out.println(year + " " + month + " " + day);
+                        datePickerDialogCalendar.set(Calendar.YEAR, year);
+                        datePickerDialogCalendar.set(Calendar.MONTH, month);
+                        datePickerDialogCalendar.set(Calendar.DAY_OF_MONTH, day);
+                        mWeekView.goToDate(datePickerDialogCalendar);
+                    }
+                });
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public interface EventAddedListener{
