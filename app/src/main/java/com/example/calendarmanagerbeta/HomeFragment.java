@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
@@ -46,7 +47,7 @@ public class HomeFragment extends Fragment {
 
     private String mUserName;
     private RecyclerView recyclerView;
-    private LinearLayout signInPrompt;
+    private FrameLayout signInPrompt;
     private ArrayList<String> mUserKeywords = new ArrayList<>();
     private ArrayList<KeywordInfo> keywordInfoArrayList = new ArrayList<>();
     private ArrayList<WeekViewEvent> eventArrayList = new ArrayList<>();

@@ -2,6 +2,7 @@ package com.example.calendarmanagerbeta;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -27,6 +28,8 @@ import android.util.Log;
 
 
 import com.alamkanak.weekview.WeekViewEvent;
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -59,7 +62,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.ToolbarCalendarButtonCallback ,KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements ReminderFragment.ToolbarCalendarButtonCallback, HomeFragment.ToolbarCalendarButtonCallback ,KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -69,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
     private NavigationView mNavigationView;
     private View mHeaderView;
     private Drawable mProfilePicture;
+    private TextDrawable mDrawableBuilder;
+    private ColorGenerator mColorGenerator = ColorGenerator.DEFAULT;
     private boolean mIsSignedIn = false;
     private String mUserName = null;
     private String mUserEmail = null;
@@ -160,6 +165,9 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
                 break;
             case R.id.nav_email:
                 openEmailFragment();
+                break;
+            case R.id.nav_reminder:
+                openRemindersFragment();
                 break;
             case R.id.nav_signin:
                 signIn();
@@ -284,8 +292,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
             }
             else{
                 // Profile picture is not present, create new based on initials
-                mProfilePicture = createProfilePicture(mUserName);
-                userProfilePicture.setImageDrawable(mProfilePicture);
+                String initialLetter = mUserName.substring(0, 1);
+                int color = mColorGenerator.getRandomColor();
+                mDrawableBuilder = TextDrawable.builder().beginConfig().width(256).height(256).endConfig().buildRound(initialLetter, color);
+                userProfilePicture.setImageDrawable(mDrawableBuilder);
             }
         } else {
             mUserName = null;
@@ -365,14 +375,18 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
     public void openHomeFragment(String userName) {
         Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
-        toolbar.setTitle("Home");
-        toolbar.setSubtitle("");
         HomeFragment fragment = HomeFragment.createInstance(userName);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();
 
         mNavigationView.setCheckedItem(R.id.nav_home);
+    }
+
+    public void openRemindersFragment(){
+        mToolbarSpinner.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new ReminderFragment()).commit();
+        mNavigationView.setCheckedItem(R.id.nav_reminder);
     }
 
     public void openEmailFragment(){
@@ -413,8 +427,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
     private void openDayCalendar(){
         Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
-        toolbar.setTitle("Calendar");
-        toolbar.setSubtitle("Day View");
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarDayFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_day_view);
     }
@@ -422,8 +434,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Tool
     private void openWeekCalendar(){
         Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
-        toolbar.setTitle("Calendar");
-        toolbar.setSubtitle("Week View");
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarWeekFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_week_view);
     }

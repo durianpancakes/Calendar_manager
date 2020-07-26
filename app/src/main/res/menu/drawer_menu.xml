@@ -15,6 +15,11 @@
             android:title="Email"/>
 
         <item
+            android:id="@+id/nav_reminder"
+            android:icon="@drawable/ic_baseline_access_alarm_24"
+            android:title="Reminder"/>
+
+        <item
             android:title="Calendar"
             android:id="@+id/calendar_submenu">
             <menu>
