@@ -97,18 +97,14 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             }
         }
 
-        if(Time.get(0) == 586) {
-            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n" + "EVENT IS ADDED AS ALL-DAY BECAUSE THERE WERE TOO MANY TIMINGS \n"
-                    + "--------------------- \n \n \n " + emailBody);
 
-        }
-        else {
-            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n " + "--------------------- \n \n \n " + emailBody);
-        }
+
+        event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n " + "--------------------- \n \n \n " + emailBody);
 
 
         event.setName(emailSubject);
         event.setmWeblink(emailWeblink);
+        event.setLocation("parsed");
 
         // 4 cases
         // 1, if there is start time but no end time - > 10mins
@@ -169,14 +165,22 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             startTime.set(Calendar.MINUTE, 0);
             endTime.set(Calendar.HOUR_OF_DAY, 12);
             endTime.set(Calendar.MINUTE, 0);
+            event.setLocation("parsed, All day");
+            if(Time.get(0) == 586) {
+                event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n" + "EVENT IS ADDED AS ALL-DAY BECAUSE THERE WERE TOO MANY TIMINGS \n"
+                        + "--------------------- \n \n \n " + emailBody);
 
+            }
+            else {
+                event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n" + "EVENT IS ADDED AS ALL-DAY BECAUSE THERE WERE NO TIMINGS  \n" + "--------------------- \n \n \n " + emailBody);
+            }
             event.setAllDay(true);
         }
 
         event.setStartTime(startTime);
         event.setEndTime(endTime);
 
-        event.setLocation("parsed");
+
 
 
         System.out.println("made it to end til b4 parsercallback");
@@ -881,12 +885,15 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         System.out.println("In splitTime, : " + time);
         int hour = 0;
         int minute = 0;
+        int flag = 0;
 
         if (time.startsWith("13") || time.startsWith("14") || time.startsWith("15") || time.startsWith("16") || time.startsWith("17") || time.startsWith("18") ||
                 time.startsWith("19") || time.startsWith("20") || time.startsWith("21") || time.startsWith("22") || time.startsWith("23") || time.startsWith("00")) {
             System.out.println(time + " in splitTime 24hr section");
 
             while (matcher.find() && matcher1.find()) {
+                flag++;
+
                 // has to be && because matcher might find the minute time.
 
                 hour = Integer.parseInt(matcher.group(0));
@@ -903,6 +910,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                     timeStorage.add(minute);
                 }
 
+            }
+            if(flag == 0) {
+                hour = 99;
+                minute = 99;
+                timeStorage.add(hour);
+                timeStorage.add(minute);
             }
 
 
