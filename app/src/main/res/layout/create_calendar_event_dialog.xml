@@ -77,6 +77,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:text="DOES NOT REPEAT"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="spread"
@@ -182,6 +183,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:text="15 minutes"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="spread"
@@ -264,6 +266,7 @@
             android:fontFamily="sans-serif-medium"
             android:paddingHorizontal="4dp"
             android:text="REMINDERS"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/input_description" />
 
@@ -275,6 +278,7 @@
             android:fontFamily="sans-serif-medium"
             android:paddingHorizontal="4dp"
             android:text="REPEAT"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/input_reminder" />
 
