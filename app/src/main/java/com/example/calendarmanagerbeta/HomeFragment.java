@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.alamkanak.weekview.WeekViewEvent;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,6 +56,7 @@ public class HomeFragment extends Fragment {
     private HomeFragmentReadyListener mHomeFragmentReadyListener;
     private ProgressBar mProgress = null;
     private ToolbarCalendarButtonCallback mToolbarButtonCallback;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     public interface ToolbarCalendarButtonCallback{
         void onToolbarCalendarClicked();
@@ -144,7 +146,26 @@ public class HomeFragment extends Fragment {
         View homeView = inflater.inflate(R.layout.fragment_home, container, false);
         signInPrompt = homeView.findViewById(R.id.home_signin_prompt);
         recyclerView = homeView.findViewById(R.id.home_sectioned_recyclerView);
+        mSwipeRefreshLayout = homeView.findViewById(R.id.home_swipe_view);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshAll();
+            }
+        });
+
+        refreshAll();
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Home");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+
+        return homeView;
+    }
+
+    public void refreshAll(){
         if(mUserName != null){
+            keywordInfoArrayList.clear();
+            eventArrayList.clear();
             signInPrompt.setVisibility(View.GONE);
             // Setup recycler view
             recyclerView.setHasFixedSize(true);
@@ -171,6 +192,7 @@ public class HomeFragment extends Fragment {
                         @Override
                         public void run() {
                             recyclerView.setAdapter(adapter);
+                            mSwipeRefreshLayout.setRefreshing(false);
                         }
                     });
                 }
@@ -276,11 +298,6 @@ public class HomeFragment extends Fragment {
             hideProgressBar();
             //create another variable that only increases once when app is started and use that to control the logout
         }
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Home");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
-
-        return homeView;
     }
 
     public String getLastDateTimeString(){

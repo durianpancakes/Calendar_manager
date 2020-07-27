@@ -57,6 +57,8 @@ public class IntroFragment extends Fragment implements SlidePolicy {
         cloudImage = (ImageView) myFragmentView.findViewById(R.id.intro_cloud_image);
         detectedText = (TextView) myFragmentView.findViewById(R.id.intro_detected_database);
 
+
+
         if(!isPolicyRespected()) {
             setSignedIn();
             signInButton.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +119,6 @@ public class IntroFragment extends Fragment implements SlidePolicy {
 
     @Override
     public void onUserIllegallyRequestedNextPage() {
-
+        Toast.makeText(getContext(), "Please complete the sign-in!", Toast.LENGTH_LONG).show();
     }
 }
