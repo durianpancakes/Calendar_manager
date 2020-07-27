@@ -14,6 +14,7 @@ import android.widget.DatePicker;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,12 +56,10 @@ public class HomeFragment extends Fragment {
     private DeltaEmailCallback mDeltaEmailCallback;
     private HomeFragmentReadyListener mHomeFragmentReadyListener;
     private ProgressBar mProgress = null;
-    private ToolbarCalendarButtonCallback mToolbarButtonCallback;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private HomeFragmentCallback mHomeCallback;
 
-    public interface ToolbarCalendarButtonCallback{
-        void onToolbarCalendarClicked();
-    }
+
 
     public interface DeltaEmailCallback{
         void onFinish(String moduleCode, ArrayList<WeekViewEvent> events, ArrayList<Message> messages);
@@ -68,10 +67,6 @@ public class HomeFragment extends Fragment {
 
     public interface HomeFragmentReadyListener{
         void onFinish();
-    }
-
-    public void setToolbarCalendarButtonCallback(ToolbarCalendarButtonCallback toolbarCalendarButtonCallback){
-        this.mToolbarButtonCallback = toolbarCalendarButtonCallback;
     }
 
     public void setmHomeFragmentReadyListener(HomeFragmentReadyListener homeFragmentReadyListener){
@@ -82,19 +77,27 @@ public class HomeFragment extends Fragment {
         this.mDeltaEmailCallback = deltaEmailCallback;
     }
 
-    public HomeFragment() {
-
+    public interface HomeFragmentCallback{
+        void onToolbarCalendarClicked();
     }
 
-    public static HomeFragment createInstance(String userName) {
-        HomeFragment fragment = new HomeFragment();
-
-        // Add the provided username to the fragment's arguments
-        Bundle args = new Bundle();
-        args.putString(USER_NAME, userName);
-        fragment.setArguments(args);
-        return fragment;
+    public void setHomeFragmentCallback(HomeFragmentCallback homeFragmentCallback){
+        this.mHomeCallback = homeFragmentCallback;
     }
+
+    public HomeFragment(String mUserName) {
+        this.mUserName = mUserName;
+    }
+
+//    public static HomeFragment createInstance(String userName) {
+//        HomeFragment fragment = new HomeFragment();
+//
+//        // Add the provided username to the fragment's arguments
+//        Bundle args = new Bundle();
+//        args.putString(USER_NAME, userName);
+//        fragment.setArguments(args);
+//        return fragment;
+//    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -111,7 +114,7 @@ public class HomeFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.toolbar_cal_btn :
             {
-                mToolbarButtonCallback.onToolbarCalendarClicked();
+                mHomeCallback.onToolbarCalendarClicked();
             }
         }
         return super.onOptionsItemSelected(item);
@@ -150,10 +153,11 @@ public class HomeFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                System.out.println("ONREFRESHLISTENER");
                 refreshAll();
             }
         });
-
+        System.out.println("MAIN");
         refreshAll();
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Home");
@@ -193,19 +197,22 @@ public class HomeFragment extends Fragment {
                         public void run() {
                             recyclerView.setAdapter(adapter);
                             mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getContext(), "Refresh completed. If you notice any errors, please refresh by swiping down", Toast.LENGTH_LONG).show();
                         }
                     });
                 }
             });
 
+            final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+
             final FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                     final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    System.out.println(user + " " + mUserName);
                     if (user == null) {
                         // user is signed into Microsoft, but not Firebase
                         Log.e("Firebase Auth", "User is not signed in");
-                        startActivity(new Intent(getContext(), MyAppIntro.class));
                     } else {
                         // user is signed in
                         Log.d("Firebase Auth", "User is signed in");
@@ -292,7 +299,8 @@ public class HomeFragment extends Fragment {
                     }
                 }
             };
-            FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
+            mFirebaseAuth.removeAuthStateListener(authStateListener);
+            mFirebaseAuth.addAuthStateListener(authStateListener);
         } else {
             signInPrompt.setVisibility(View.VISIBLE);
             hideProgressBar();
@@ -416,8 +424,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if(context instanceof HomeFragment.ToolbarCalendarButtonCallback){
-            mToolbarButtonCallback = (HomeFragment.ToolbarCalendarButtonCallback)context;
+        if(context instanceof HomeFragment.HomeFragmentCallback){
+            mHomeCallback = (HomeFragment.HomeFragmentCallback)context;
         }
         else{
             throw new RuntimeException(context.toString() + " must implement listener");
@@ -427,6 +435,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mToolbarButtonCallback = null;
+        mHomeCallback = null;
     }
 }

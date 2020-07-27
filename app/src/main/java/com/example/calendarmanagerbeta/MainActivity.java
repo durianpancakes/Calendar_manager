@@ -1,10 +1,12 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.hardware.biometrics.BiometricPrompt;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +27,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.DialogFragment;
 
 import android.util.Log;
+import android.widget.Toast;
 
 
 import com.alamkanak.weekview.WeekViewEvent;
@@ -62,7 +65,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity implements ReminderFragment.ToolbarCalendarButtonCallback, HomeFragment.ToolbarCalendarButtonCallback ,KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements ReminderFragment.ToolbarCalendarButtonCallback, HomeFragment.HomeFragmentCallback ,KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -347,11 +350,10 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
 
     // Load the "Home" fragment
     public void openHomeFragment(String userName) {
-        Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
-        HomeFragment fragment = HomeFragment.createInstance(userName);
+//        HomeFragment fragment = HomeFragment.createInstance(userName);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
+                .replace(R.id.fragment_container, new HomeFragment(userName))
                 .commit();
 
         mNavigationView.setCheckedItem(R.id.nav_home);
@@ -399,14 +401,12 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
     }
 
     private void openDayCalendar(){
-        Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarDayFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_day_view);
     }
 
     private void openWeekCalendar(){
-        Toolbar toolbar = findViewById(R.id.toolbar);
         mToolbarSpinner.setVisibility(View.GONE);
         getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new CalendarWeekFragment()).commit();
         mNavigationView.setCheckedItem(R.id.calendar_week_view);
@@ -444,9 +444,14 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
 
     private void signOut() {
         openHomeFragment(null);
+        mAuthHelper.setMsAuthHelperCallback(new AuthenticationHelper.MSAuthHelperCallback() {
+            @Override
+            public void onSignedOutSuccess() {
+                setSignedInState(false);
+                mFirebaseAuth.signOut();
+            }
+        });
         mAuthHelper.signOut();
-        mFirebaseAuth.signOut();
-        setSignedInState(false);
     }
 
     // Silently sign in - used if there is already a
@@ -476,8 +481,10 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
                 GraphHelper graphHelper = GraphHelper.getInstance();
                 graphHelper.getUser(accessToken, getUserCallback());
 
-                // Get NUSmods helper
-                NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getApplicationContext());
+
+                if(FirebaseAuth.getInstance().getCurrentUser() == null){
+                    startActivity(new Intent(getApplicationContext(), MyAppIntro.class));
+                }
             }
             // </OnSuccessSnippet>
 
@@ -675,6 +682,8 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
             DatabaseReference mModulesDatabaseReference = mFirebaseDatabase.getReference().child("users").child(uid).child("modules");
             mModulesDatabaseReference.child(moduleCode.toString()).removeValue();
         }
+
+        Toast.makeText(getApplicationContext(), "Module " + moduleCode + " deleted", Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -18,6 +18,15 @@ public class AuthenticationHelper {
     private static AuthenticationHelper INSTANCE = null;
     private ISingleAccountPublicClientApplication mPCA = null;
     private String[] mScopes = { "User.Read", "Calendars.Read" , "Mail.Read"};
+    private MSAuthHelperCallback msAuthHelperCallback;
+
+    public interface MSAuthHelperCallback{
+        void onSignedOutSuccess();
+    }
+
+    public void setMsAuthHelperCallback(MSAuthHelperCallback msAuthHelperCallback){
+        this.msAuthHelperCallback = msAuthHelperCallback;
+    }
 
     private AuthenticationHelper(Context ctx, final IAuthenticationHelperCreatedListener listener) {
         PublicClientApplication.createSingleAccountPublicClientApplication(ctx, R.raw.msal_config,
@@ -70,6 +79,9 @@ public class AuthenticationHelper {
             @Override
             public void onSignOut() {
                 Log.d("AUTHHELPER", "Signed out");
+                if(msAuthHelperCallback != null){
+                    msAuthHelperCallback.onSignedOutSuccess();
+                }
             }
 
             @Override
