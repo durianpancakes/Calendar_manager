@@ -994,9 +994,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                 // idk if this even happens..
                 if (time.startsWith("0")) {
                     timeStorage.add(Integer.parseInt(time.substring(1)));
+
                 } else {
                     timeStorage.add(Integer.parseInt(time));
+
                 }
+                timeStorage.add(0);
 
             }
 
