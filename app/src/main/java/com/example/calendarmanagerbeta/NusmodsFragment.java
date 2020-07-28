@@ -198,7 +198,7 @@ public class NusmodsFragment extends Fragment{
         myFragmentView = inflater.inflate(R.layout.fragment_nusmods, container, false);
         semesterData = myFragmentView.findViewById(R.id.current_semester);
         moduleEditText = myFragmentView.findViewById(R.id.module_input);
-        addModuleButton = myFragmentView.findViewById(R.id.add_keyword);
+        addModuleButton = myFragmentView.findViewById(R.id.add_module);
         moduleList = myFragmentView.findViewById(R.id.keywords_listview);
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Modules");
