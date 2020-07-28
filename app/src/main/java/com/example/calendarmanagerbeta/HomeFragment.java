@@ -197,7 +197,6 @@ public class HomeFragment extends Fragment {
                         public void run() {
                             recyclerView.setAdapter(adapter);
                             mSwipeRefreshLayout.setRefreshing(false);
-                            Toast.makeText(getContext(), "Refresh completed. If you notice any errors, please refresh by swiping down", Toast.LENGTH_LONG).show();
                         }
                     });
                 }

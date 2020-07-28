@@ -133,10 +133,23 @@ public class CalendarEventEditDialog extends DialogFragment implements View.OnCl
         String toTimeString = sdf2.format(endDate);
 
         eventName.setText(inputCalendarEvent.getName());
+        if(inputCalendarEvent.getName().length() != 0){
+            nameError = false;
+            nameErrorMsg.setVisibility(View.GONE);
+        } else {
+            nameError = true;
+            nameErrorMsg.setVisibility(View.VISIBLE);
+        }
         eventName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                if(charSequence.length() == 0){
+                    nameError = true;
+                    nameErrorMsg.setVisibility(View.VISIBLE);
+                } else {
+                    nameError = false;
+                    nameErrorMsg.setVisibility(View.GONE);
+                }
             }
 
             @Override
