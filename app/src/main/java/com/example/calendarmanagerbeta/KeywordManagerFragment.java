@@ -116,7 +116,7 @@ public class KeywordManagerFragment extends Fragment {
         mManagerInternalCallback = new ManagerInternalCallback() {
             @Override
             public void onRefreshCompleted() {
-                final EditText addKeywordEditText = myFragmentView.findViewById(R.id.add_keyword_edittext);
+                final EditText addKeywordEditText = myFragmentView.findViewById(R.id.reminder_edittext);
                 Button addKeywordBtn = myFragmentView.findViewById(R.id.add_keyword);
                 addKeywordBtn.setOnClickListener(new View.OnClickListener() {
                     @Override

@@ -7,54 +7,39 @@
     android:layout_height="match_parent"
     tools:context=".KeywordManagerFragment">
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/keywords_listview"
-        app:layout_constraintEnd_toEndOf="parent"
+    <EditText
+        android:id="@+id/keyword_input"
+        android:layout_width="292dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:completionThreshold="1"
+        android:hint="Keyword"
+        android:textSize="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <RelativeLayout
-            android:id="@+id/relativeLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <EditText
-                android:id="@+id/add_keyword_edittext"
-                android:layout_width="292dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="6dp"
-                android:completionThreshold="1"
-                android:hint="Keyword"
-                android:textSize="16dp" />
-
-            <Button
-                android:id="@+id/add_keyword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_toEndOf="@+id/add_keyword_edittext"
-                android:text="ADD" />
-        </RelativeLayout>
-    </FrameLayout>
+    <Button
+        android:id="@+id/add_keyword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="ADD"
+        app:layout_constraintBottom_toBottomOf="@+id/keyword_input"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/keyword_input"
+        app:layout_constraintTop_toTopOf="@+id/keyword_input" />
 
 
     <ListView
         android:id="@+id/keywords_listview"
         android:layout_width="0dp"
         android:layout_height="570dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout">
+        app:layout_constraintTop_toBottomOf="@+id/keyword_input">
 
     </ListView>
 
