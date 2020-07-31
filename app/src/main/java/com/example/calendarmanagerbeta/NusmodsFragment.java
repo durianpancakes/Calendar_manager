@@ -185,7 +185,11 @@ public class NusmodsFragment extends Fragment{
     public boolean isValidModule(String moduleCode){
         for(int i = 0; i < nusModuleLiteList.size(); i++){
             if(moduleCode.equals(nusModuleLiteList.get(i).getModuleCode())){
-                return true;
+                for(int n = 0; n < nusModuleLiteList.get(i).getSemesters().size(); n++){
+                    if(nusModuleLiteList.get(i).getSemesters().get(n) == currentSemester){
+                        return true;
+                    }
+                }
             }
         }
         return false;
