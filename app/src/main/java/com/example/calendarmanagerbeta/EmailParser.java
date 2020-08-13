@@ -99,7 +99,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
 
 
-        event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n " + "--------------------- \n \n \n " + emailBody);
+        event.setDescription("this event was created by the email parser \n " + "--------------------- \n \n \n " + emailBody);
 
 
         event.setName(emailSubject);
@@ -119,7 +119,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             System.out.println("only start hour set");
             endTime.set(Calendar.MINUTE, startTime.get(Calendar.MINUTE));
             endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY) + 1);
-            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n" + "END HOUR UNDETECTED SO IT ENDS 1 HOUR AFTER START TIME \n" + "--------------------- \n \n \n " + emailBody);
+            event.setDescription("this event was created by the email parser \n" + "end hour undetected so it ends 1 hour after start time \n" + "--------------------- \n \n \n " + emailBody);
             /*
             if(startTime.get(Calendar.MINUTE) >= 30) {
                 int tempEndMinute = startTime.get(Calendar.MINUTE) + 30 - 60;
@@ -140,7 +140,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             System.out.println("only end hour set");
             startTime.set(Calendar.MINUTE, endTime.get(Calendar.MINUTE));
             startTime.set(Calendar.HOUR_OF_DAY, endTime.get(Calendar.HOUR_OF_DAY) - 1);
-            event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n \n \n" + "START HOUR UNDETECTED SO IT STARTS 1 HOUR BEFORE THE END TIME \n " + "--------------------- \n \n \n " + emailBody);
+            event.setDescription("this event was created by the email parser \n \n \n" + "start hour undetected so it starts 1 hour before the end time \n " + "--------------------- \n \n \n " + emailBody);
 
             /*if(endTime.get(Calendar.MINUTE) < 30) {
                 int tempStartMinute = endTime.get(Calendar.MINUTE) - 30 + 60;
@@ -167,12 +167,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             endTime.set(Calendar.MINUTE, 0);
             event.setLocation("parsed, All day");
             if(Time.get(0) == 586) {
-                event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n" + "EVENT IS ADDED AS ALL-DAY BECAUSE THERE WERE TOO MANY TIMINGS \n"
+                event.setDescription("this event was created by the email parser \n" + "event is added as all-day because there were too many timings \n"
                         + "--------------------- \n \n \n " + emailBody);
 
             }
             else {
-                event.setDescription("THIS EVENT WAS CREATED BY THE EMAIL PARSER \n" + "EVENT IS ADDED AS ALL-DAY BECAUSE THERE WERE NO TIMINGS  \n" + "--------------------- \n \n \n " + emailBody);
+                event.setDescription("this event was created by the email parser \n" + "event is added as all-day because there were no timings  \n" + "--------------------- \n \n \n " + emailBody);
             }
             event.setAllDay(true);
         }
@@ -199,8 +199,8 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         }
         else if(datecount == 2) {
             // no year
-            startTime.set(Calendar.YEAR, 2020);
-            endTime.set(Calendar.YEAR, 2020);
+            //startTime.set(Calendar.YEAR, 2020);
+            //endTime.set(Calendar.YEAR, 2020);
             // hard coded for now?
             event.setStartTime(startTime);
             event.setEndTime(endTime);
