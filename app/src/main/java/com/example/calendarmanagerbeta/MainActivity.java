@@ -65,7 +65,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity implements ReminderFragment.ToolbarCalendarButtonCallback, HomeFragment.HomeFragmentCallback ,KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
+public class MainActivity extends AppCompatActivity implements HomeFragment.HomeFragmentCallback ,KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
@@ -168,9 +168,6 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
                 break;
             case R.id.nav_email:
                 openEmailFragment();
-                break;
-            case R.id.nav_reminder:
-                openRemindersFragment();
                 break;
             case R.id.nav_signin:
                 signIn();
@@ -357,12 +354,6 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
                 .commit();
 
         mNavigationView.setCheckedItem(R.id.nav_home);
-    }
-
-    public void openRemindersFragment(){
-        mToolbarSpinner.setVisibility(View.GONE);
-        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, new ReminderFragment()).commit();
-        mNavigationView.setCheckedItem(R.id.nav_reminder);
     }
 
     public void openEmailFragment(){
@@ -719,6 +710,8 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
         openViewEmailDialog(message);
     }
 
+
+
     @Override
     public void onEmailSpinnerItemPressed(String keyword) {
         System.out.println("MAIN ACTIVITY: " + keyword);
@@ -789,14 +782,6 @@ public class MainActivity extends AppCompatActivity implements ReminderFragment.
     @Override
     public void onToolbarCalendarClicked() {
         openWeekCalendar();
-    }
-
-    @Override
-    public void onReminderAdded(Reminder reminder) {
-    }
-
-    @Override
-    public void onReminderDelete(Reminder reminder) {
     }
     // END: Callback methods from ReminderFragment
 }
