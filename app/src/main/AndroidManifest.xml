@@ -53,5 +53,7 @@ Intent filter to capture authorization code response from the default browser on
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".AlarmReceiver" />
     </application>
 </manifest>

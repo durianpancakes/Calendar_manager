@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.widget.Toast;
 
 import com.alamkanak.weekview.WeekViewEvent;
 
@@ -45,7 +46,7 @@ public class ReminderHelper {
         String event_start = sdf.format(startDate);
         intent.putExtra("EVENT_START", event_start);
 
-        Calendar endCal = event.getStartTime();
+        Calendar endCal = event.getEndTime();
         Date endDate = endCal.getTime();
         String event_end = sdf.format(endDate);
         intent.putExtra("EVENT_END", event_end);
@@ -56,10 +57,13 @@ public class ReminderHelper {
         Calendar notifyAtCal = startCal;
         notifyAtCal.add(Calendar.MINUTE, -10);
         long diffTime = notifyAtCal.getTimeInMillis() - currentTime;
+        SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MMM/yyyy hh:mm a");
 
         intent.putExtra("ID", diffTime);
 
         PendingIntent mPendingIntent = PendingIntent.getBroadcast(mContext, (int) diffTime, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        Toast.makeText(mContext, "Alarm set at: " + sdf2.format(notifyAtCal.getTime()), Toast.LENGTH_LONG).show();
 
         mAlarmManager.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + diffTime, mPendingIntent);
     }
