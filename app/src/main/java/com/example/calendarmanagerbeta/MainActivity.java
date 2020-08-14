@@ -1,5 +1,9 @@
 package com.example.calendarmanagerbeta;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.biometrics.BiometricPrompt;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -70,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Home
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
     public static final String PREFS_NAME = "CalendarManagerPreferences";
+    public static final String CHANNEL_ID = "event_reminder";
 
     private DrawerLayout mDrawer;
     private NavigationView mNavigationView;
@@ -148,6 +154,35 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Home
         // </InitialLoginSnippet>
 
         mFirebaseAuth = FirebaseAuth.getInstance();
+
+        createNotificationChannels();
+
+        AlarmManager alarmManager = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        intent.putExtra("COMMAND_ID", 1);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), Integer.MIN_VALUE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        long intendedTime = cal.getTimeInMillis();
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        if(intendedTime >= currentTime){
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, intendedTime, AlarmManager.INTERVAL_DAY, pendingIntent);
+        } else {
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            intendedTime = cal.getTimeInMillis();
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, intendedTime, AlarmManager.INTERVAL_DAY, pendingIntent);
+        }
+    }
+
+    private void createNotificationChannels(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel1 = new NotificationChannel(CHANNEL_ID, "Event Reminder", NotificationManager.IMPORTANCE_DEFAULT);
+            channel1.setDescription("Show reminders of events");
+
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel1);
+        }
     }
 
     @Override

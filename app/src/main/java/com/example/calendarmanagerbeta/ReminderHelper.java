@@ -2,14 +2,17 @@ package com.example.calendarmanagerbeta;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.SystemClock;
 import android.widget.Toast;
 
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -29,42 +32,92 @@ public class ReminderHelper {
         mContext = context;
     }
 
-    public void setAlarm(WeekViewEvent event){
+    public void setSync(){
+
+    }
+
+    public void setAlarm(WeekViewEvent event, int id) {
+        if (Calendar.getInstance().getTime().before(event.getStartTime().getTime())) {
+            mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+
+            // Create an Intent object by giving the context and the class of the next activity to be opened
+            Intent intent = new Intent(mContext, AlarmReceiver.class);
+            intent.putExtra("COMMAND_ID", 0);
+            String event_name = event.getName();
+            intent.putExtra("EVENT_NAME", event_name);
+            if (event.getLocation().length() != 0) {
+                String event_location = event.getLocation();
+                intent.putExtra("EVENT_LOCATION", event_location);
+            }
+            Calendar startCal = event.getStartTime();
+            Date startDate = startCal.getTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+            String event_start = sdf.format(startDate);
+            intent.putExtra("EVENT_START", event_start);
+
+            Calendar endCal = event.getEndTime();
+            Date endDate = endCal.getTime();
+            String event_end = sdf.format(endDate);
+            intent.putExtra("EVENT_END", event_end);
+
+            // Default alarm to be set at 10 minutes before for simplicity sake
+            Calendar currentCal = Calendar.getInstance();
+            long currentTime = currentCal.getTimeInMillis();
+            Calendar notifyAtCal = startCal;
+            notifyAtCal.add(Calendar.MINUTE, -10);
+            long diffTime = notifyAtCal.getTimeInMillis() - currentTime;
+            SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MMM/yyyy hh:mm a");
+
+            intent.putExtra("ID", id);
+
+            PendingIntent mPendingIntent = PendingIntent.getBroadcast(mContext, id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+            Toast.makeText(mContext, "Alarm set at: " + sdf2.format(notifyAtCal.getTime()), Toast.LENGTH_LONG).show();
+
+            mAlarmManager.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + diffTime, mPendingIntent);
+        }
+    }
+
+    public void removeAlarm(int id){
         mAlarmManager = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
 
-        // Create an Intent object by giving the context and the class of the next activity to be opened
-        Intent intent = new Intent(mContext, AlarmReceiver.class);
-        String event_name = event.getName();
-        intent.putExtra("EVENT_NAME", event_name);
-        if(event.getLocation().length() != 0){
-            String event_location = event.getLocation();
-            intent.putExtra("EVENT_LOCATION", event_location);
-        }
-        Calendar startCal = event.getStartTime();
-        Date startDate = startCal.getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-        String event_start = sdf.format(startDate);
-        intent.putExtra("EVENT_START", event_start);
+        PendingIntent mPendingIntent = PendingIntent.getBroadcast(mContext, id, new Intent(mContext, AlarmReceiver.class), 0);
+        mAlarmManager.cancel(mPendingIntent);
+    }
 
-        Calendar endCal = event.getEndTime();
-        Date endDate = endCal.getTime();
-        String event_end = sdf.format(endDate);
-        intent.putExtra("EVENT_END", event_end);
+    public void refreshDailyAlarms(){
+        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance(mContext);
+        firebaseHelper.setFirebaseCallbackListener(new FirebaseCallback() {
+            @Override
+            public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
 
-        // Default alarm to be set at 10 minutes before for simplicity sake
-        Calendar currentCal = Calendar.getInstance();
-        long currentTime = currentCal.getTimeInMillis();
-        Calendar notifyAtCal = startCal;
-        notifyAtCal.add(Calendar.MINUTE, -10);
-        long diffTime = notifyAtCal.getTimeInMillis() - currentTime;
-        SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MMM/yyyy hh:mm a");
+            }
 
-        intent.putExtra("ID", diffTime);
+            @Override
+            public void onGetKeyword(ArrayList<String> userKeywords) {
 
-        PendingIntent mPendingIntent = PendingIntent.getBroadcast(mContext, (int) diffTime, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            }
 
-        Toast.makeText(mContext, "Alarm set at: " + sdf2.format(notifyAtCal.getTime()), Toast.LENGTH_LONG).show();
+            @Override
+            public void onGetEvents(ArrayList<WeekViewEvent> userEvents) {
+                for(int i = 0; i <= userEvents.size(); i++){
+                    removeAlarm(i);
+                    if(i != userEvents.size()) {
+                        setAlarm(userEvents.get(i), i);
+                    }
+                }
+            }
 
-        mAlarmManager.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + diffTime, mPendingIntent);
+            @Override
+            public void onEventDeleted() {
+
+            }
+
+            @Override
+            public void onKeywordDeleted() {
+
+            }
+        });
+        firebaseHelper.pullEventsByDay(Calendar.getInstance());
     }
 }
