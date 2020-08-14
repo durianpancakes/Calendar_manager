@@ -120,6 +120,8 @@ public class CalendarWeekFragment extends Fragment {
                 mEvents = userEvents;
                 mWeekView.getMonthChangeListener().onMonthChange(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH));
                 mWeekView.notifyDatasetChanged();
+//                ReminderHelper reminderHelper = ReminderHelper.getInstance(getContext());
+//                reminderHelper.refreshAllAlarms(userEvents);
             }
 
             @Override

@@ -15,8 +15,6 @@ import com.alamkanak.weekview.WeekViewEvent;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import static com.example.calendarmanagerbeta.MainActivity.CHANNEL_ID;
-
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -39,7 +37,7 @@ public class BootReceiver extends BroadcastReceiver {
                     ReminderHelper reminderHelper = ReminderHelper.getInstance(context);
                     Toast.makeText(context, "(Calendar Manager) There are " + userEvents.size() + " event(s) today", Toast.LENGTH_LONG).show();
                     for(int i = 0; i < userEvents.size(); i++){
-                        reminderHelper.setAlarm(userEvents.get(i));
+                        reminderHelper.setAlarm(userEvents.get(i), i);
                     }
                 }
             }
