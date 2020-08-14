@@ -1,7 +1,5 @@
 package com.example.calendarmanagerbeta;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.biometrics.BiometricPrompt;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -73,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Home
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
     public static final String PREFS_NAME = "CalendarManagerPreferences";
-    public static final String CHANNEL_ID = "event_reminder";
 
     private DrawerLayout mDrawer;
     private NavigationView mNavigationView;
@@ -152,18 +148,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Home
         // </InitialLoginSnippet>
 
         mFirebaseAuth = FirebaseAuth.getInstance();
-
-        createNotificationChannels();
-    }
-
-    private void createNotificationChannels(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            NotificationChannel channel1 = new NotificationChannel(CHANNEL_ID, "Event Reminder", NotificationManager.IMPORTANCE_DEFAULT);
-            channel1.setDescription("Show reminders of events");
-
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel1);
-        }
     }
 
     @Override
