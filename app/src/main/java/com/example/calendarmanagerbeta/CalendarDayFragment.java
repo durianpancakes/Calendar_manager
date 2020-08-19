@@ -31,10 +31,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class CalendarDayFragment extends Fragment {
     View myFragmentView;
     private WeekView mDayView;
@@ -116,6 +112,8 @@ public class CalendarDayFragment extends Fragment {
                 mEvents = userEvents;
                 mDayView.getMonthChangeListener().onMonthChange(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH));
                 mDayView.notifyDatasetChanged();
+                ReminderHelper reminderHelper = ReminderHelper.getInstance(getContext());
+                reminderHelper.refreshDailyAlarms();
             }
 
             @Override

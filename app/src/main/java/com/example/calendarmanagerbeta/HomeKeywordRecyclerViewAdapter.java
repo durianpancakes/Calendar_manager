@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class HomeKeywordRecyclerViewAdapter extends RecyclerView.Adapter<HomeKeywordRecyclerViewAdapter.KeywordViewHolder>{
     class KeywordViewHolder extends RecyclerView.ViewHolder{
@@ -50,6 +52,7 @@ public class HomeKeywordRecyclerViewAdapter extends RecyclerView.Adapter<HomeKey
     public HomeKeywordRecyclerViewAdapter(Context context, ArrayList<KeywordInfo> arrayList){
         this.context = context;
         this.arrayList = arrayList;
+        Collections.sort(this.arrayList);
     }
 
     @Override

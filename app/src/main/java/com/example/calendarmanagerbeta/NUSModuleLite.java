@@ -3,7 +3,7 @@ package com.example.calendarmanagerbeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NUSModuleLite {
+public class NUSModuleLite implements Comparable<NUSModuleLite>{
     private String moduleCode;
     private String title;
     private ArrayList<ModuleInfo> classesSelected;
@@ -39,5 +39,10 @@ public class NUSModuleLite {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public int compareTo(NUSModuleLite nusModuleLite) {
+        return this.getModuleCode().compareTo(nusModuleLite.getModuleCode());
     }
 }

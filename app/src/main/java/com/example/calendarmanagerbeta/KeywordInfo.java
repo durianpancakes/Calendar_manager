@@ -5,7 +5,7 @@ import com.microsoft.graph.models.extensions.Message;
 
 import java.util.ArrayList;
 
-public class KeywordInfo{
+public class KeywordInfo implements Comparable<KeywordInfo>{
     private String mKeyword;
     private int mNumOfDeltaEmails;
     private int mNumOfEventsAdded;
@@ -54,4 +54,8 @@ public class KeywordInfo{
     private ArrayList<WeekViewEvent> mDeltaEventsAdded;
 
 
+    @Override
+    public int compareTo(KeywordInfo keywordInfo) {
+        return this.mKeyword.compareTo(keywordInfo.getmKeyword());
+    }
 }

@@ -1,13 +1,18 @@
 package com.example.calendarmanagerbeta;
 
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.SystemClock;
 import android.widget.Toast;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.alamkanak.weekview.WeekViewEvent;
 
@@ -15,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
+import static com.example.calendarmanagerbeta.MainActivity.CHANNEL_ID;
 
 public class ReminderHelper {
     private Context mContext;
@@ -72,7 +79,17 @@ public class ReminderHelper {
 
             PendingIntent mPendingIntent = PendingIntent.getBroadcast(mContext, id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-            Toast.makeText(mContext, "Alarm set at: " + sdf2.format(notifyAtCal.getTime()), Toast.LENGTH_LONG).show();
+            // DEBUG:
+            NotificationManagerCompat mNotificationManager;
+            Notification notification2 = new NotificationCompat.Builder(mContext, CHANNEL_ID)
+                    .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.ic_launcher))
+                    .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
+                    .setContentTitle("Alarm set at: " + sdf2.format(notifyAtCal.getTime()))
+                    .setAutoCancel(true)
+                    .setOnlyAlertOnce(true).build();
+            mNotificationManager = NotificationManagerCompat.from(mContext);
+            mNotificationManager.notify(id, notification2);
+            // END DEBUG:
 
             mAlarmManager.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + diffTime, mPendingIntent);
         }

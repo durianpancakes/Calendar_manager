@@ -61,20 +61,13 @@ import com.microsoft.graph.models.extensions.User;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.InputStream;
-import java.security.Key;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
-import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.HomeFragmentCallback ,KeywordManagerFragment.KeywordManagerCallback, CalendarDayFragment.EventAddedListener, CalendarWeekFragment.EventAddedListener, EmailFragment.EmailFragmentCallback, TimePickerFragment.OnTimeReceiveCallback, DatePickerFragment.OnDateReceiveCallback, NavigationView.OnNavigationItemSelectedListener,  NusmodsFragment.moduleParamsChangedListener, NusmodsFragment.removeModuleListener{
     private static final String SAVED_IS_SIGNED_IN = "isSignedIn";
     private static final String SAVED_USER_NAME = "userName";
     private static final String SAVED_USER_EMAIL = "userEmail";
-    public static final String PREFS_NAME = "CalendarManagerPreferences";
     public static final String CHANNEL_ID = "event_reminder";
 
     private DrawerLayout mDrawer;

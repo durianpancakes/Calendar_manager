@@ -14,7 +14,7 @@ import static com.alamkanak.weekview.WeekViewUtil.isSameDay;
  * Created by Raquib-ul-Alam Kanak on 7/21/2014.
  * Website: http://april-shower.com
  */
-public class WeekViewEvent {
+public class WeekViewEvent implements Comparable<WeekViewEvent>{
     private String mId;
     private Calendar mStartTime;
     private Calendar mEndTime;
@@ -367,5 +367,10 @@ public class WeekViewEvent {
         }
 
         return events;
+    }
+
+    @Override
+    public int compareTo(WeekViewEvent event) {
+        return this.getStartTime().compareTo(event.getStartTime());
     }
 }

@@ -2,7 +2,7 @@ package com.example.calendarmanagerbeta;
 
 import java.util.List;
 
-public class NUSModuleMain {
+public class NUSModuleMain implements Comparable<NUSModuleMain>{
     private String acadYear;
     private String title;
     private String department;
@@ -65,5 +65,10 @@ public class NUSModuleMain {
 
     public void setSemesterData(List<ModuleSemesterData> semesterData) {
         this.semesterData = semesterData;
+    }
+
+    @Override
+    public int compareTo(NUSModuleMain nusModuleMain) {
+        return this.getModuleCode().compareTo(nusModuleMain.getModuleCode());
     }
 }

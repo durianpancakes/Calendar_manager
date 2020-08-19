@@ -12,7 +12,6 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mContext = context;
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-            Toast.makeText(mContext, "(CM)Received Boot", Toast.LENGTH_LONG).show();
             ReminderHelper reminderHelper = ReminderHelper.getInstance(mContext);
             reminderHelper.refreshDailyAlarms();
         }

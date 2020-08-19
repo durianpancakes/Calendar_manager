@@ -1,6 +1,7 @@
 package com.example.calendarmanagerbeta;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -50,6 +52,9 @@ public class NusmodsFragment extends Fragment{
     private GetRecitationListener getRecitationListener;
     private GetSTListener getSTListener;
     private ListView moduleList;
+    private InternalCallback mCallback;
+    private int initNumOfUserModules = 0;
+    private int initCurrentNumOfUserModules = 0;
     ModuleListAdapter adapter;
     // Temporary holder
     private ArrayList<NUSModuleMain> userModulesAdded = new ArrayList<NUSModuleMain>();
@@ -89,6 +94,14 @@ public class NusmodsFragment extends Fragment{
 
     public interface moduleParamsChangedListener{
         void onParamsChanged(String moduleCode, String lessonType, String classNo, ArrayList<WeekViewEvent> classes);
+    }
+
+    public interface InternalCallback{
+        void onRefreshComplete();
+    }
+
+    public void setInternalCallback(InternalCallback internalCallback){
+        this.mCallback = internalCallback;
     }
 
     private void showProgressBar() {
@@ -138,7 +151,15 @@ public class NusmodsFragment extends Fragment{
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, moduleDatabase);
                 moduleEditText.setAdapter(adapter);
+                hideProgressBar();
+            }
+        });
 
+        setInternalCallback(new InternalCallback() {
+            @Override
+            public void onRefreshComplete() {
+                Collections.sort(userModulesAdded);
+                adapter.notifyDataSetChanged();
                 hideProgressBar();
             }
         });
@@ -216,9 +237,7 @@ public class NusmodsFragment extends Fragment{
             @Override
             public void onGetModuleSuccess(ArrayList<NUSModuleLite> userModules) {
                 databaseUserModules = userModules;
-                for(int i = 0; i < databaseUserModules.size(); i++){
-                    addModule(databaseUserModules.get(i).getModuleCode());
-                }
+                initUserModules(userModules);
 
                 if(adapter == null){
                     adapter = new ModuleListAdapter(getActivity(), R.layout.nusmods_list_item, userModulesAdded, databaseUserModules, currentSemester);
@@ -363,6 +382,14 @@ public class NusmodsFragment extends Fragment{
         return myFragmentView;
     }
 
+    private void initUserModules(ArrayList<NUSModuleLite> userModules) {
+        System.out.println("initUserModules size: " + userModules.size());
+        initNumOfUserModules = userModules.size();
+        for(int i = 0; i < userModules.size(); i++){
+            initModule(userModules.get(i).getModuleCode());
+        }
+    }
+
     private void removeModule(String moduleCode){
         for(int i = 0; i < userModulesAdded.size(); i++){
             System.out.println(userModulesAdded.get(i).getModuleCode());
@@ -376,6 +403,36 @@ public class NusmodsFragment extends Fragment{
                 return;
             }
         }
+    }
+
+    private void initModule(String moduleCode){
+        final NUSmodsHelper nusmodsHelper = NUSmodsHelper.getInstance(getContext());
+
+        nusmodsHelper.refreshSpecificModule(moduleCode);
+        nusmodsHelper.setOnRefreshSpecificListener(new onRefreshSpecificListener() {
+            @Override
+            public void onRefresh(String moduleCode, NUSModuleMain nusModule) {
+                NUSModuleLite nusModuleConverted = new NUSModuleLite();
+                nusModule = nusmodsHelper.getNusModuleFull();
+                if(!isFoundInDatabase(moduleCode)){
+                    userModulesAdded.add(nusModule);
+                    nusModuleConverted.setModuleCode(moduleCode);
+                    databaseUserModules.add(nusModuleConverted);
+                } else {
+                    // Initialization falls under here.
+                    userModulesAdded.add(nusModule);
+                    initCurrentNumOfUserModules++;
+                    if(initCurrentNumOfUserModules == initNumOfUserModules){
+                        mCallback.onRefreshComplete();
+                    }
+                }
+            }
+
+            @Override
+            public void onRefreshSpecial(String moduleCode, NUSModuleMain nusModuleFull, String lessonType, String classNo) {
+
+            }
+        });
     }
 
     private void addModule(String moduleCode){

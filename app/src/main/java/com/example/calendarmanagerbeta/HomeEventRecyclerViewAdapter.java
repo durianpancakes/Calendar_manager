@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ public class HomeEventRecyclerViewAdapter extends RecyclerView.Adapter<HomeEvent
         private TextView mEventTime;
         private TextView mEventLocation;
         private TextView mDescription;
+        private ImageView mEventLocationIcon;
         private Button mArrowBtn;
         private ConstraintLayout mMainView;
         private ConstraintLayout mExpandableView;
@@ -35,6 +37,7 @@ public class HomeEventRecyclerViewAdapter extends RecyclerView.Adapter<HomeEvent
             mEventTitle = itemView.findViewById(R.id.event_card_title);
             mEventDate = itemView.findViewById(R.id.event_card_date);
             mEventTime = itemView.findViewById(R.id.event_card_time);
+            mEventLocationIcon = itemView.findViewById(R.id.event_location_icon);
             mEventLocation = itemView.findViewById(R.id.event_card_location);
             mDescription = itemView.findViewById(R.id.event_expandable_view_description_body);
             mArrowBtn = itemView.findViewById(R.id.event_arrow_btn);
@@ -89,23 +92,32 @@ public class HomeEventRecyclerViewAdapter extends RecyclerView.Adapter<HomeEvent
             }
         }
 
-        holder.mEventLocation.setText(event.getLocation());
-        holder.mDescription.setText(event.getDescription());
+        if(event.getLocation().equals("")){
+            holder.mEventLocationIcon.setVisibility(View.GONE);
+            holder.mEventLocation.setVisibility(View.GONE);
+        } else {
+            holder.mEventLocation.setText(event.getLocation());
+        }
 
-        holder.mArrowBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(holder.mExpandableView.getVisibility() == View.GONE){
-                    TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
-                    holder.mExpandableView.setVisibility(View.VISIBLE);
-                    holder.mArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_up_24);
-                } else {
-                    TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
-                    holder.mExpandableView.setVisibility(View.GONE);
-                    holder.mArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
+        if(event.getDescription().equals("")){
+            holder.mArrowBtn.setVisibility(View.GONE);
+        } else {
+            holder.mDescription.setText(event.getDescription());
+            holder.mArrowBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(holder.mExpandableView.getVisibility() == View.GONE){
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mExpandableView.setVisibility(View.VISIBLE);
+                        holder.mArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_up_24);
+                    } else {
+                        TransitionManager.beginDelayedTransition(holder.mMainView, new AutoTransition());
+                        holder.mExpandableView.setVisibility(View.GONE);
+                        holder.mArrowBtn.setBackgroundResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override

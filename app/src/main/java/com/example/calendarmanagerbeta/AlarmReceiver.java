@@ -48,7 +48,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     content_text = event_start + " - " + event_end;
                 }
 
-                Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                Notification notification1 = new NotificationCompat.Builder(context, CHANNEL_ID)
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                         .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
                         .setContentTitle(event_name)
@@ -57,14 +57,21 @@ public class AlarmReceiver extends BroadcastReceiver {
                         .setOnlyAlertOnce(true).build();
 
                 mNotificationManager = NotificationManagerCompat.from(context);
-                mNotificationManager.notify(id, notification);
+                mNotificationManager.notify(id, notification1);
                 break;
             case 1: // SYNC
-                Toast.makeText(context, "(SYNC)", Toast.LENGTH_LONG).show();
+                id = intent.getIntExtra("ID", 0);
                 ReminderHelper reminderHelper = ReminderHelper.getInstance(context);
                 reminderHelper.refreshDailyAlarms();
+                Notification notification2 = new NotificationCompat.Builder(context, CHANNEL_ID)
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                        .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
+                        .setContentTitle("(DEBUG): Synchronized today's alarms")
+                        .setAutoCancel(true)
+                        .setOnlyAlertOnce(true).build();
+                mNotificationManager = NotificationManagerCompat.from(context);
+                mNotificationManager.notify(id, notification2);
                 break;
         }
-
     }
 }

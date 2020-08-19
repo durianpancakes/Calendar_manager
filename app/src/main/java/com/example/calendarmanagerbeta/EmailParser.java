@@ -11,12 +11,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmailParser {// CALL THIS IN MAIN ACTIVITY
-    // EmailParser.setCustomEventListener(new parserCallback(){
-    //    public void onEvent(){
-    //        // do whatever you want
-    //    }
-    // });
+public class EmailParser {
     private ParserCallback mCallback;
     private static EmailParser INSTANCE = null;
     private Context mContext;
@@ -37,7 +32,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
     }
 
     public void AllParse(String emailBody, String emailSubject, String emailWeblink) {
-        //String emailContent = "There will be a quiz on 16 July 2020 at 6pm.";
         System.out.println("Allparse is called");
 
         boolean startHourSet = false;
@@ -82,9 +76,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             }
         }
 
-        //System.out.println("EXTERNAL" + Time.get(2));
-        //System.out.println("EXTERNAL" + Time.get(3));
-
         if (Time.get(2) < 24 ) {
             System.out.println("ENTERED" + Time.get(2));
             endTime.set(Calendar.HOUR_OF_DAY, Time.get(2));
@@ -97,10 +88,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             }
         }
 
-
-
         event.setDescription("this event was created by the email parser \n " + "--------------------- \n \n \n " + emailBody);
-
 
         event.setName(emailSubject);
         event.setmWeblink(emailWeblink);
@@ -111,7 +99,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         // 2, if there is end but no start -> 10mins b4
         // 3, if there is start and end
         // 4, if there is no start and no end.
-
         if(startHourSet && endHourSet) {
             System.out.println("start and end hour set");
         }
@@ -120,47 +107,15 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             endTime.set(Calendar.MINUTE, startTime.get(Calendar.MINUTE));
             endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY) + 1);
             event.setDescription("this event was created by the email parser \n" + "end hour undetected so it ends 1 hour after start time \n" + "--------------------- \n \n \n " + emailBody);
-            /*
-            if(startTime.get(Calendar.MINUTE) >= 30) {
-                int tempEndMinute = startTime.get(Calendar.MINUTE) + 30 - 60;
-                int tempEndHour = startTime.get(Calendar.HOUR_OF_DAY) + 1;
-                endTime.set(Calendar.MINUTE, tempEndMinute);
-                endTime.set(Calendar.HOUR_OF_DAY, tempEndHour);
-                // what if it starts next day. or what if it starts next month.
-                // unimplemented
-            }
-            else {
-                endTime.set(Calendar.MINUTE, startTime.get(Calendar.MINUTE) + 30);
-                endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY));
-            }*/
-
-
         }
         else if(!startHourSet && endHourSet) {
             System.out.println("only end hour set");
             startTime.set(Calendar.MINUTE, endTime.get(Calendar.MINUTE));
             startTime.set(Calendar.HOUR_OF_DAY, endTime.get(Calendar.HOUR_OF_DAY) - 1);
             event.setDescription("this event was created by the email parser \n \n \n" + "start hour undetected so it starts 1 hour before the end time \n " + "--------------------- \n \n \n " + emailBody);
-
-            /*if(endTime.get(Calendar.MINUTE) < 30) {
-                int tempStartMinute = endTime.get(Calendar.MINUTE) - 30 + 60;
-                int tempStartHour = endTime.get(Calendar.HOUR_OF_DAY) - 1;
-                startTime.set(Calendar.MINUTE, tempStartMinute);
-                startTime.set(Calendar.HOUR_OF_DAY, tempStartHour);
-                // what if it starts next day. or what if it starts next month.
-                // unimplemented
-            }
-            else {
-                startTime.set(Calendar.MINUTE, endTime.get(Calendar.MINUTE) - 30);
-                startTime.set(Calendar.HOUR_OF_DAY, endTime.get(Calendar.HOUR_OF_DAY));
-            }*/
-
         }
         else if(!startHourSet && !endHourSet) {
             // or too many timings
-
-            System.out.println("no time set");
-            //dummy start and end time
             startTime.set(Calendar.HOUR_OF_DAY, 10);
             startTime.set(Calendar.MINUTE, 0);
             endTime.set(Calendar.HOUR_OF_DAY, 12);
@@ -180,12 +135,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         event.setStartTime(startTime);
         event.setEndTime(endTime);
 
-
-
-
-        System.out.println("made it to end til b4 parsercallback");
-
-
         if(datecount == 3) {
             if (mCallback != null) {
                 System.out.println("datecount 3 :" + event.getStartTime().get(Calendar.DAY_OF_MONTH) + event.getStartTime().get(Calendar.MONTH) + event.getStartTime().get(Calendar.YEAR)
@@ -199,9 +148,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         }
         else if(datecount == 2) {
             // no year
-            //startTime.set(Calendar.YEAR, 2020);
-            //endTime.set(Calendar.YEAR, 2020);
-            // hard coded for now?
             event.setStartTime(startTime);
             event.setEndTime(endTime);
             if (mCallback != null) {
@@ -221,27 +167,17 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         int DMYcount = 0;
         ArrayList<Integer> DMY = new ArrayList<>();
 
-
         String UpperBody = emailBody.toUpperCase();
         //regex tester
-        //String test = "The quiz will be held on 09 Feb and 12th February and 12 Feb 2020, and 12th Feb 2020 and 12th May, 2020 and 51 May and 10-Aug-2020 ";
-        //String test1 = test.toUpperCase();
         Pattern pattern = Pattern.compile("\\b(([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?[\\h-](JAN|JANUARY|FEB|FEBRUARY|MAR|MARCH|APR|APRIL|MAY|JUN|JUNE|JUL|JULY|AUG|AUGUST|SEP|SEPTEMBER|OCT|OCTOBER|NOV|NOVEMBER|DEC|DECEMBER),?([\\h-]\\d{4})?\\b");
         Pattern patternx = Pattern.compile("\\b(JAN|JANUARY|FEB|FEBRUARY|MAR|MARCH|APR|APRIL|MAY|JUN|JUNE|JUL|JULY|AUG|AUGUST|SEP|SEPTEMBER|OCT|OCTOBER|NOV|NOVEMBER|DEC|DECEMBER)[\\h-](([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?,?([\\h-]\\d{4})?\\b");
         //(([0]?[0-9])|([0-2][0-9])|([3][0-1]))(ST|ND|RD|TH)?
-        // what if they wrote january/february/march -> add to original pattern
-        // caps problems too -> convert whole test string to caps? -> change th/st/rd/nd into caps, month names too. second month pattern should be able to pull short form out.
         Matcher matcher = pattern.matcher(UpperBody);
         Matcher matcherx = patternx.matcher(UpperBody);
 
-        //System.out.println("in dateparse");
-
         while (matcher.find()) {
-            //System.out.println("in dateparse 1");
-
             DMYcount++;
             if (DMYcount > 1) {
-                //means there is more than 1 date found.. not sure what to do yet
                 System.out.println("More than 1 date found. reject/ambiguous");
                 break;
             }
@@ -251,8 +187,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             String subDate = matcher.group(0).substring(0, 2);
 
             Pattern pattern1 = Pattern.compile("(([0]?[0-9])|([0-2][0-9])|([3][0-1])){2}");
-            // why is there a {2} ....
-            // leading zero date possible
             Pattern pattern2 = Pattern.compile("(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)");
             Pattern pattern3 = Pattern.compile("\\d{4}");
             Matcher matcher1 = pattern1.matcher(subDate);
@@ -265,8 +199,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                     date = Integer.parseInt(matcher1.group(0));
                 }
                 System.out.println(date);
-
-                //fixed
             }
             while (matcher2.find()) {
                 switch (matcher2.group(0)) {
@@ -310,14 +242,10 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                         break;
                 }
                 System.out.println("Month Number is " + month + ", " + matcher2.group(0));
-                //works
             }
             while (matcher3.find()) {
                 year = Integer.parseInt(matcher3.group(0));
                 System.out.println(year);
-                //works
-
-
             }
             DMY.add(date);
             DMY.add(month);
@@ -325,17 +253,10 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
         }
 
-
-        // check for June 08, 2020 (other format)
         if (DMYcount == 0) {
-            //System.out.println("in dateparse 2");
-
             while (matcherx.find()) {
-                //System.out.println("in dateparse 3");
-
                 DMYcount++;
                 if (DMYcount > 1) {
-                    //means there is more than 1 date found.. not sure what to do yet
                     System.out.println("More than 1 date found. reject/ambiguous");
                     break;
                 }
@@ -348,19 +269,14 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                 Matcher matcher2 = pattern2.matcher(matcherx.group(0));
                 Matcher matcher3 = pattern3.matcher(matcherx.group(0));
                 while (matcher1.find()) {
-                    //System.out.println("date");
                     if (matcher1.group(0).startsWith("0")) {
                         date = Integer.parseInt(matcher1.group(0).substring(1));
                     } else {
                         date = Integer.parseInt(matcher1.group(0));
                     }
                     System.out.println(date);
-
-
-                    //fixed
                 }
                 while (matcher2.find()) {
-                    //System.out.println("month");
                     switch (matcher2.group(0)) {
                         case "JAN":
                             month = Calendar.JANUARY;
@@ -402,17 +318,10 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                             break;
                     }
                     System.out.println("Month Number is " + month + ", " + matcher2.group(0));
-                    //works
-
-
                 }
                 while (matcher3.find()) {
-                    //System.out.println("year");
                     year = Integer.parseInt(matcher3.group(0));
                     System.out.println(year);
-                    //works
-
-
                 }
                 DMY.add(date);
                 DMY.add(month);
@@ -434,16 +343,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             DMY.add(586);
             DMY.add(586);
         }
-
-        //
-
-
         return DMY;
-
-        //weekviewevent format
-        // in emailist in emailfragment parse around line75
-
-
     }
 
     public ArrayList<Integer> TimeParse(String emailBody) {
@@ -454,8 +354,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         int foundInloop = 0;
         int viableTimeCount = 0;
         ArrayList<Integer> Time = new ArrayList<>();
-        // use java.util.calendar for Calendar mstarttime mendtime ?
-        // uppercase the emailbody
         //String UpperBody = emailBody.toUpperCase();
         //String text = "12:00 noon 14 May 2020, 5pm and 7pm, 5pm alone, at 4, 4 o'clock, 4o'clock, 04:00 PM, 5-7pm, 5-5:30pm, 11pm to 1am, there are 2 exams - chapter 1-9, 11.30am to 1.45pm";
         //String text = "There will be a quiz at 3.55 - 4.15pm tomorrow";
@@ -466,13 +364,10 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
         //\b(2359|23:59)\b
         Matcher matcher = pattern.matcher(text1);
 
-
         //if its a single digit, with no 'at' or no pm/am then ditch it
         // if its 1-9 with no at/pm/am then ditch
         // if it has to/and/-/o'clock then keep it
-
         while (matcher.find()) {
-
             String secondParse = matcher.group(0);
             System.out.println(secondParse + " this includes timings as well as random numbers.");
 
@@ -487,7 +382,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
             }
 
             else {
-
                 if (secondParse.contains("AM") || secondParse.contains("PM")) {
                     viableTimeCount++;
                     String thirdParse = secondParse;
@@ -502,21 +396,13 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                     boolean b = thirdParse.contains("-") || thirdParse.contains("AND") || thirdParse.contains("TO");
                     // means there's a range , start and end timing
                     boolean c = thirdParse.contains("BY");
-                    // end timing only?
-
 
                     // Splittime function checks if the minute portion is ==0, if it is it wont return a valid start/endminute
                     // right now start/endminute will be = 0 as initialized if they are useless 0s like 04:00, probably need to change this.
-
-
                     if (thirdParse.contains("AM") && thirdParse.contains("PM")) {
-
-                        //System.out.println(matcher2.group(0) + " this should only be time digits itself ");
-
                         // thirdParse will be :eg 11am to 1pm... / 11pm to 1am
                         // means it is definitely a range, don't have to check for a / b / c
                         // we dont need to user matcher2, we just cut up thirdParse.
-
                         // check if AM or PM comes first.
                         Pattern pattern3 = Pattern.compile("(2[0-3]|1[0-9]|0?[0-9])([:.][0-5][0-9])?[\\h]?([AP][M])?");
                         // splits it into 11am, 1pm
@@ -584,7 +470,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                                 }
                             }
                             // means time range, with start and end time. could include minutes....
-
                         } else if (c) {
                             // should only be 1 number since its eg. by 7
                             if (matcher2.find()) {
@@ -597,14 +482,11 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                                 if (temp.size() == 2) {
                                     endMinute = temp.get(1);
                                 }
-
                             }
                             // end time only
-
                         } else if (a) {
                             // at 7 (am)
                             //start time only
-
                             if (matcher2.find()) {
                                 ArrayList<Integer> temp = splitTime(matcher2.group(0));
                                 startHour = temp.get(0);
@@ -631,18 +513,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                                     startMinute = temp.get(1);
                                 }
                             }
-
                         }
-
-
                     } else if (thirdParse.contains("PM")) {
-
                         if (b) {
                             System.out.println(thirdParse + " should be a range");
                             while (matcher2.find()) {
-
                                 // find 2 groups, eg 7:30-9pm -> 7:30 , 9
-                                System.out.println(matcher2.group(0));
                                 ArrayList<Integer> temp = splitTime(matcher2.group(0));
 
                                 if (foundInloop == 0) {
@@ -666,16 +542,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                                     }
                                     foundInloop = 0;
                                 }
-
-                                //System.out.println("b is done");
                             }
                             // means time range, with start and end time. could include minutes....
-
                         } else if (c) {
                             // should only be 1 number since its eg. by 7
                             if (matcher2.find()) {
                                 ArrayList<Integer> temp = splitTime(matcher2.group(0));
-
                                 endHour = temp.get(0);
                                 if (endHour < 12 && endHour != 0) {
                                     endHour = endHour + 12;
@@ -687,11 +559,9 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
                             }
                             // end time only
-
                         } else if (a) {
                             // at 7 (pm)
                             //start time only
-
                             if (matcher2.find()) {
                                 ArrayList<Integer> temp = splitTime(matcher2.group(0));
                                 startHour = temp.get(0);
@@ -702,7 +572,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                                     startMinute = temp.get(1);
                                 }
                             }
-
                         } else {
                             if (matcher2.find()) {
                                 ArrayList<Integer> temp = splitTime(matcher2.group(0));
@@ -714,23 +583,17 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                                     startMinute = temp.get(1);
                                 }
                             }
-
                         }
-
                     } else {
                         //thirdparse doesnt have am/pm. eg At 4 or 4 o'clock
                         System.out.println("Ambiguous timing (no am/pm) but has at/oclock/by : " + thirdParse);
                     }
 
-
                     System.out.println("startHour is " + startHour + " startMinute is " + startMinute + " to " + " endHour is : " +
                             endHour + " endMinute is " + endMinute);
-
-
                 } else if (secondParse.contains(":") || secondParse.contains(".")) {
                     // but no am/pm
                     // may be 24hr
-
                     // no at/by/range
                     String thirdParse = secondParse;
                     //eg 14:00 or 12:00
@@ -743,7 +606,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                     // examples 3:00 to 4:00, at 12:00, 2:30 to 3
                     Matcher matcher2 = pattern2.matcher(thirdParse);
 
-
                     boolean a = thirdParse.contains("AT");
                     // start timing only? or might this be ambiguous
                     boolean b = thirdParse.contains("-") || thirdParse.contains("AND") || thirdParse.contains("TO");
@@ -754,7 +616,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                     if (b) {
                         viableTimeCount++;
                         System.out.println(thirdParse + " should be a range");
-
 
                         while (matcher2.find()) {
                             // find 2 groups, eg 7:30-9pm -> 7:30 , 9
@@ -776,9 +637,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                                 foundInloop = 0;
                             }
                         }
-
                         // means time range, with start and end time. could include minutes....
-
                     } else if (c) {
                         viableTimeCount++;
                         // should only be 1 number since its eg. by 7
@@ -790,15 +649,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                             if (temp.size() == 2) {
                                 endMinute = temp.get(1);
                             }
-
                         }
                         // end time only
-
                     } else if (a) {
                         viableTimeCount++;
                         // at 7 (am)
                         //start time only
-
                         if (matcher2.find()) {
                             ArrayList<Integer> temp = splitTime(matcher2.group(0));
                             startHour = temp.get(0);
@@ -806,14 +662,10 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                                 startMinute = temp.get(1);
                             }
                         }
-
                     } else {
                         // no at/by/and/to/-
                         System.out.println(thirdParse + " has no pm/am but has :/. uncertain whether it is a time or not");
-
                     }
-
-
                     System.out.println("startHour is " + startHour + " startMinute is " + startMinute + " to " + " endHour is : " +
                             endHour + " endMinute is " + endMinute);
                 } else if (secondParse.contains("O'CLOCK")) {
@@ -826,10 +678,8 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                 } else {
                     System.out.println(secondParse + " is a false parse.");
                 }
-
             }
         }
-
 
         if (viableTimeCount > 1 || viableTimeCount == 0) {
             if (viableTimeCount > 1) {
@@ -845,17 +695,13 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                 Time.add(99);
                 Time.add(99);
             }
-
             //default
-
         } else if (viableTimeCount == 1) {
-
             Time.add(startHour);
             Time.add(startMinute);
             Time.add(endHour);
             Time.add(endMinute);
             System.out.println("Successfully saved to Time, with only 1 viable time");
-
         }
         return Time;
     }
@@ -917,8 +763,6 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                 timeStorage.add(hour);
                 timeStorage.add(minute);
             }
-
-
         } else {
             if (time.contains(".") || time.contains(":")) {
                 // the pm am is already considered in TimeParse code i think
@@ -926,9 +770,7 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
                 while (matcher.find() && matcher1.find()) {
                     //should this be ||?
-
                     //System.out.println(matcher.group(0));
-
                     if (matcher.group(0).startsWith("0")) {
                         hour = Integer.parseInt(matcher.group(0).substring(1));
 
@@ -946,49 +788,37 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
                     minute = Integer.parseInt(matcher1.group(0).substring(1));
                     // to skip : or .
 
-
                     timeStorage.add(hour);
 
                     if (minute < 60) {
                         timeStorage.add(minute);
                     }
-
                 }
-
             } else if (time.contains("PM") || time.contains("AM")) {
-
                 // but no . or :
                 while (matcher.find()) {
                     if (time.contains("PM")) {
                         if (matcher.group(0).startsWith("0")) {
                             hour = Integer.parseInt(matcher.group(0).substring(1));
-
                         } else {
                             hour = Integer.parseInt(matcher.group(0));
                             if ( hour < 12 && hour != 0) {
                                 hour = hour + 12;
                             }
                         }
-
                     } else if (time.contains("AM")) {
                         if (matcher.group(0).startsWith("0")) {
                             hour = Integer.parseInt(matcher.group(0).substring(1));
-
                         } else {
-
                             hour = Integer.parseInt(matcher.group(0));
                             if(hour == 12) {
                                 hour = 0;
                                 //12AM to 0.00 (24hr clock)
                             }
                         }
-
-
                     }
-
                     timeStorage.add(hour);
                 }
-
             } else {
                 // just hour, no minutes, no am/pm
                 // idk if this even happens..
@@ -1000,18 +830,12 @@ public class EmailParser {// CALL THIS IN MAIN ACTIVITY
 
                 }
                 timeStorage.add(0);
-
             }
-
-
         }
 
         System.out.println(timeStorage.get(0) + " at end of split time");
 
         return timeStorage;
-
-
     }
-
 }
 

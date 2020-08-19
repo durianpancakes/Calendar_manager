@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class KeywordManagerFragment extends Fragment {
     View myFragmentView;
@@ -81,6 +82,7 @@ public class KeywordManagerFragment extends Fragment {
             @Override
             public void onGetKeyword(ArrayList<String> userKeywords) {
                 mUserKeywords = userKeywords;
+                Collections.sort(mUserKeywords);
                 if(mManagerInternalCallback != null){
                     mManagerInternalCallback.onRefreshCompleted();
                 }

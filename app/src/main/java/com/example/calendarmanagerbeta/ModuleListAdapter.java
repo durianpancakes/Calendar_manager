@@ -20,6 +20,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
@@ -98,21 +100,32 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
             moduleCredits.setText(nusModuleMain.getModuleCredit() + " MCs");
 
             for(int i = 0; i < nusModuleMain.getSemesterData().get(mSemester).getTimetable().size(); i++){
+                String classNumber = nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo();
                 switch(whatIsThisClass(nusModuleMain, i)){
                     case "Tutorial":
-                        mModuleTutorial.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        if(!mModuleTutorial.contains(classNumber)){
+                            mModuleTutorial.add(classNumber);
+                        }
                         break;
                     case "Recitation":
-                        mModuleRecitation.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        if(!mModuleRecitation.contains(classNumber)){
+                            mModuleRecitation.add(classNumber);
+                        }
                         break;
                     case "Lecture":
-                        mModuleLecture.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        if(!mModuleLecture.contains(classNumber)){
+                            mModuleLecture.add(classNumber);
+                        }
                         break;
                     case "Sectional Teaching":
-                        mModuleSectionalTeaching.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        if(!mModuleSectionalTeaching.contains(classNumber)){
+                            mModuleSectionalTeaching.add(classNumber);
+                        }
                         break;
                     case "Laboratory":
-                        mModuleLaboratory.add(nusModuleMain.getSemesterData().get(mSemester).getTimetable().get(i).getClassNo());
+                        if(!mModuleLaboratory.contains(classNumber)){
+                            mModuleLaboratory.add(classNumber);
+                        }
                         break;
                 }
             }
@@ -142,6 +155,12 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                 }
             }
 
+            Collections.sort(mModuleLecture);
+            Collections.sort(mModuleTutorial);
+            Collections.sort(mModuleRecitation);
+            Collections.sort(mModuleSectionalTeaching);
+            Collections.sort(mModuleLaboratory);
+
             ArrayAdapter<String> spinnerLectureAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, mModuleLecture);
             spinnerLectureAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerLecture.setAdapter(spinnerLectureAdapter);
@@ -154,6 +173,7 @@ public class ModuleListAdapter extends ArrayAdapter<NUSModuleMain> {
                         spinnerLecture.setSelection(i);
                     }
                 }
+
                 spinnerLecture.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){

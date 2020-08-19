@@ -51,7 +51,7 @@
             app:layout_constraintTop_toBottomOf="@+id/event_card_date" />
 
         <ImageView
-            android:id="@+id/imageView5"
+            android:id="@+id/event_location_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/ic_baseline_edit_location_24"
@@ -83,7 +83,7 @@
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:text="Dhoby Ghaut, Plaza Singapura"
-            app:layout_constraintStart_toEndOf="@+id/imageView5"
+            app:layout_constraintStart_toEndOf="@+id/event_location_icon"
             app:layout_constraintTop_toBottomOf="@+id/event_card_time" />
 
         <Button

@@ -36,11 +36,7 @@ import com.microsoft.identity.client.exception.MsalException;
 
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link EmailFragment} factory method to
- * create an instance of this fragment.
- */
+
 public class EmailFragment extends Fragment {
     View myFragmentView;
     private ProgressBar mProgress = null;
@@ -118,24 +114,6 @@ public class EmailFragment extends Fragment {
                 int i = 1;
                 for (Message message : iMessageCollectionPage.getCurrentPage()) {
                     mEmailList.add(message);
-                    //System.out.println(message.body.content);
-
-                    /*if(i == 1) {
-                        final EmailParser mEmailParser = EmailParser.getInstance(getContext());
-                        mEmailParser.setmCallback(new ParserCallback() {
-                            @Override
-                            public void onEventAdded(WeekViewEvent event) {
-                                System.out.println("An event is found");
-                            }
-
-                            @Override
-                            public void onEmpty() {
-                                System.out.println("No suitable events found");
-                            }
-                        });
-                        i = 0;
-                    }*/
-
                 }
 
                 nextPage = iMessageCollectionPage.getNextPage();
