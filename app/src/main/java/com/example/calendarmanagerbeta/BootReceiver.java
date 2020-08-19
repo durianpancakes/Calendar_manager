@@ -21,15 +21,6 @@ public class BootReceiver extends BroadcastReceiver {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
             ReminderHelper reminderHelper = ReminderHelper.getInstance(context);
             reminderHelper.refreshDailyAlarms();
-            NotificationManagerCompat mNotificationManager;
-            Notification notification2 = new NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                    .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
-                    .setContentTitle("Boot completed")
-                    .setAutoCancel(true)
-                    .setOnlyAlertOnce(true).build();
-            mNotificationManager = NotificationManagerCompat.from(context);
-            mNotificationManager.notify(666, notification2);
         }
     }
 }

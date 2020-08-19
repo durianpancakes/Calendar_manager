@@ -63,14 +63,14 @@ public class AlarmReceiver extends BroadcastReceiver {
                 id = intent.getIntExtra("ID", 0);
                 ReminderHelper reminderHelper = ReminderHelper.getInstance(context);
                 reminderHelper.refreshDailyAlarms();
-                Notification notification2 = new NotificationCompat.Builder(context, CHANNEL_ID)
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                        .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
-                        .setContentTitle("(DEBUG): Synchronized today's alarms")
-                        .setAutoCancel(true)
-                        .setOnlyAlertOnce(true).build();
-                mNotificationManager = NotificationManagerCompat.from(context);
-                mNotificationManager.notify(id, notification2);
+//                Notification notification2 = new NotificationCompat.Builder(context, CHANNEL_ID)
+//                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+//                        .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
+//                        .setContentTitle("(DEBUG): Synchronized today's alarms")
+//                        .setAutoCancel(true)
+//                        .setOnlyAlertOnce(true).build();
+//                mNotificationManager = NotificationManagerCompat.from(context);
+//                mNotificationManager.notify(id, notification2);
                 break;
         }
     }

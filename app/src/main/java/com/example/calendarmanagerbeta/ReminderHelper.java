@@ -79,17 +79,17 @@ public class ReminderHelper {
 
             PendingIntent mPendingIntent = PendingIntent.getBroadcast(mContext, id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-            // DEBUG:
-            NotificationManagerCompat mNotificationManager;
-            Notification notification2 = new NotificationCompat.Builder(mContext, CHANNEL_ID)
-                    .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.ic_launcher))
-                    .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
-                    .setContentTitle("Alarm set at: " + sdf2.format(notifyAtCal.getTime()))
-                    .setAutoCancel(true)
-                    .setOnlyAlertOnce(true).build();
-            mNotificationManager = NotificationManagerCompat.from(mContext);
-            mNotificationManager.notify(id, notification2);
-            // END DEBUG:
+//            // DEBUG:
+//            NotificationManagerCompat mNotificationManager;
+//            Notification notification2 = new NotificationCompat.Builder(mContext, CHANNEL_ID)
+//                    .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.ic_launcher))
+//                    .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
+//                    .setContentTitle("Alarm set at: " + sdf2.format(notifyAtCal.getTime()))
+//                    .setAutoCancel(true)
+//                    .setOnlyAlertOnce(true).build();
+//            mNotificationManager = NotificationManagerCompat.from(mContext);
+//            mNotificationManager.notify(id, notification2);
+//            // END DEBUG:
 
             mAlarmManager.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + diffTime, mPendingIntent);
         }
